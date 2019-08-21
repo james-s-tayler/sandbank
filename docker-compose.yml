@@ -5,5 +5,5 @@ services:
   sandbank-api:
     image: docker.local:5000/sandbank-api
     build:
-      context: .
-      dockerfile: App/BackEnd/SandBank.API/Endpoints/Dockerfile
+      context: App/BackEnd/SandBank.API/
+      dockerfile: Endpoints/Dockerfile
