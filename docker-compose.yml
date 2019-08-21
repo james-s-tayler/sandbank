@@ -7,3 +7,22 @@ services:
     build:
       context: App/BackEnd/SandBank.API/
       dockerfile: Endpoints/Dockerfile
+    depends_on:
+     - db    
+   
+  db:
+    image: postgres:latest
+    container_name: sandbank_db
+    environment:
+      - POSTGRES_PASSWORD=password
+
+  pgAdmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgAdmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@sandbank.com
+      - PGADMIN_DEFAULT_PASSWORD=password
+    ports:
+      - 8080:80
+    depends_on:
+     - db
