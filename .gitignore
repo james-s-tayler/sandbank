@@ -1,4 +1,4 @@
 .idea
 .vscode
-obj/
-bin/
+**/obj/
+**/bin/
