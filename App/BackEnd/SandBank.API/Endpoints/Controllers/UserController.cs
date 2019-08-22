@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Domain;
+using Endpoints.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Endpoints.Controllers
@@ -11,7 +12,9 @@ namespace Endpoints.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly List<User> _users = new List<User>();
+        private readonly SandBankDbContext _db;
+
+        public UserController(SandBankDbContext db) => _db = db;
 
         [HttpGet("hello")]
         public IActionResult Hello()
@@ -22,11 +25,10 @@ namespace Endpoints.Controllers
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            if (!_users.Any())
+            if (!_db.Users.Any())
             {
                 var newUser = new User
                 {
-                    Id = 1,
                     FullName = "Solo Yolo",
                     Email = "solo@yolo.com",
                     Phone = "1234567",
@@ -35,10 +37,11 @@ namespace Endpoints.Controllers
                     DateOfBirth = DateTime.Now.AddYears(-31)
                 };
                 
-                _users.Add(newUser);
+                _db.Users.Add(newUser);
+                _db.SaveChanges();
             }
             
-            var user = _users.FirstOrDefault(u => u.Id == id);
+            var user = _db.Users.FirstOrDefault(u => u.Id == id);
             
             if (user != null)
             {
@@ -50,7 +53,8 @@ namespace Endpoints.Controllers
         [HttpPost]
         public IActionResult Post([FromBody] User user)
         {
-            _users.Add(user);
+            _db.Users.Add(user);
+            _db.SaveChanges();
             
             return Ok(user);
         }

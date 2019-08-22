@@ -12,7 +12,7 @@ services:
    
   db:
     image: postgres:latest
-    container_name: sandbank_db
+    container_name: db
     environment:
       - POSTGRES_PASSWORD=password
 
