@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Domain;
 using Endpoints.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Endpoints.Controllers
 {
@@ -23,25 +24,9 @@ namespace Endpoints.Controllers
         }
         
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            if (!_db.Users.Any())
-            {
-                var newUser = new User
-                {
-                    FullName = "Solo Yolo",
-                    Email = "solo@yolo.com",
-                    Phone = "1234567",
-                    Address = "123 Fake St, Auckland",
-                    City = "Auckland",
-                    DateOfBirth = DateTime.Now.AddYears(-31)
-                };
-                
-                _db.Users.Add(newUser);
-                _db.SaveChanges();
-            }
-            
-            var user = _db.Users.FirstOrDefault(u => u.Id == id);
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
             
             if (user != null)
             {
@@ -51,10 +36,10 @@ namespace Endpoints.Controllers
         }
         
         [HttpPost]
-        public IActionResult Post([FromBody] User user)
+        public async Task<IActionResult> Post([FromBody] User user)
         {
-            _db.Users.Add(user);
-            _db.SaveChanges();
+            await _db.Users.AddAsync(user);
+            await _db.SaveChangesAsync();
             
             return Ok(user);
         }

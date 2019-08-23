@@ -14,18 +14,12 @@ namespace Core
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public TKey Id { get; set; }
         
-        /*[Editable(false)]
+        [Editable(false)]
         [Required]
         public DateTime CreatedOn { get; set; }
 
         //use optimistic locking
-        [Timestamp] 
-        public byte[] RowVersion { get; set; }
-
-        //this provides uniqueness should we ever need it, i.e exporting data from sharded databases with duplicated ids to an OLAP system
-        //it's never queried on, should never change and should never be indexed
-        [Editable(false)]
-        [Required]
-        public Guid PrivateUniqueId { get; set; }*/
+        //[Timestamp] 
+        //public byte[] RowVersion { get; set; }
     }
 }
