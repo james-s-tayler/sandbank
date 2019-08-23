@@ -16,7 +16,7 @@ namespace Endpoints.Data
 
         public SandBankDbContext(DbContextOptions<SandBankDbContext> options)
             : base(options)
-        {
+        {    
             
         }
 
@@ -25,6 +25,7 @@ namespace Endpoints.Data
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 modelBuilder.Entity(entityType.Name).Property<Guid>("ShadowId");
+                modelBuilder.Entity(entityType.Name).ForNpgsqlUseXminAsConcurrencyToken();
             }
         }
 
