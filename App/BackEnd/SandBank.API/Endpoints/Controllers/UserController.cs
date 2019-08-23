@@ -17,14 +17,8 @@ namespace Endpoints.Controllers
 
         public UserController(SandBankDbContext db) => _db = db;
 
-        [HttpGet("hello")]
-        public IActionResult Hello()
-        {
-            return Ok("hello world");
-        }
-        
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> Get([FromRoute] int id)
         {
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
             
