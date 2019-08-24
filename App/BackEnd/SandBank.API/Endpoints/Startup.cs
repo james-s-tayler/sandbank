@@ -55,6 +55,11 @@ namespace Endpoints
 
             //app.UseHttpsRedirection();
             app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "SandBank API V1");
+            });
+            
             app.UseMvc();
         }
         
