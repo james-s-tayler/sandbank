@@ -4,15 +4,25 @@ using System.Threading;
 using System.Threading.Tasks;
 using Core;
 using Domain;
-using Microsoft.AspNetCore.SignalR.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 
 namespace Endpoints.Data
 {
     public class SandBankDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
+        public DbSet<Account> Accounts { get; set; }
+
+        private static readonly LoggerFactory ConsoleLoggerFactory =
+            new LoggerFactory(new[]
+            {
+                new ConsoleLoggerProvider((category, level) =>
+                    category == DbLoggerCategory.Database.Command.Name &&
+                    level == LogLevel.Information, true)
+            });
 
         public SandBankDbContext(DbContextOptions<SandBankDbContext> options)
             : base(options)
@@ -20,8 +30,18 @@ namespace Endpoints.Data
             
         }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuild)
+        {
+            optionsBuild.UseLoggerFactory(ConsoleLoggerFactory);
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Accounts)
+                .WithOne(acc => acc.AccountOwner);
+                
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 modelBuilder.Entity(entityType.Name).Property<Guid>("ShadowId");
