@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace Endpoints
 {
@@ -27,8 +28,15 @@ namespace Endpoints
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<SandBankDbContext>(options => options.UseNpgsql(@"Host=db;Database=sandbank;Username=postgres;Password=password"));
+            services.AddDbContext<SandBankDbContext>(options =>
+                options.UseNpgsql(@"Host=db;Database=sandbank;Username=postgres;Password=password"));
+            
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "SandBank API", Version = "v1" });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -46,6 +54,12 @@ namespace Endpoints
             }
 
             //app.UseHttpsRedirection();
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "SandBank API V1");
+            });
+            
             app.UseMvc();
         }
         
