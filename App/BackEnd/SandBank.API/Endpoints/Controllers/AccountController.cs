@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Domain;
 using Endpoints.Data;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Endpoints.Controllers
 {
-    [Route("api/user/{id}/[controller]")]
+    [Route("api/User/{id}/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
     {
@@ -22,7 +23,7 @@ namespace Endpoints.Controllers
             
             if (account != null)
             {
-                return Ok(account);
+                return Ok(ToDisplayModel(account));
             }
             return NotFound();
         }
@@ -42,7 +43,18 @@ namespace Endpoints.Controllers
             await _db.Accounts.AddAsync(account);
             await _db.SaveChangesAsync();
             
-            return Ok(account);
+            return Ok(ToDisplayModel(account));
+        }
+
+        private Object ToDisplayModel(Account account)
+        {
+            return new
+            {
+                Id = account.Id,
+                AccountType = account.AccountType,
+                AccountNumber = account.AccountNumber,
+                DisplayName = account.DisplayName
+            };
         }
     }
 }
