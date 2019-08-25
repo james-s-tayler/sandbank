@@ -1,9 +1,10 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using Core;
 
-namespace Domain
+namespace Domain.User
 {
-    public class UserRegisterDTO
+    public class RegisterUserRequest : CreateModel<User, int>
     {
         [Required]
         [StringLength(100, MinimumLength = 3)]
@@ -24,7 +25,7 @@ namespace Domain
         [MaxLength(50)] 
         public string City { get; set; }
 
-        public User ToUser()
+        public override User ToDomainModel()
         {
             return new User()
             {

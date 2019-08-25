@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using Core;
 
-namespace Domain
+namespace Domain.Account
 {
-    public class Account : DomainEntity<int>
+    public class OpenAccountRequest : CreateModel<Account, int>
     {
         [Required]
         [StringLength(50)]
@@ -16,8 +16,15 @@ namespace Domain
         [Required]
         [StringLength(50)]
         public string DisplayName { get; set; }
-        
-        public User AccountOwner { get; set; }
-        public int AccountOwnerId { get; set; }
+
+        public override Account ToDomainModel()
+        {
+            return new Account
+            {
+                AccountNumber = AccountNumber,
+                AccountType = AccountType,
+                DisplayName = DisplayName
+            };
+        }
     }
 }

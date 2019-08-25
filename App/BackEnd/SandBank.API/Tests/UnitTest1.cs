@@ -2,6 +2,7 @@ using System;
 using System.Reflection.Metadata;
 using Core;
 using Domain;
+using Domain.User;
 using NUnit.Framework;
 
 namespace Tests

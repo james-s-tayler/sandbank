@@ -4,6 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Core;
 using Domain;
+using Domain.Account;
+using Domain.User;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
