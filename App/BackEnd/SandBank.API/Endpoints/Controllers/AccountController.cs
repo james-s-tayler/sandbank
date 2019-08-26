@@ -68,6 +68,21 @@ namespace Endpoints.Controllers
             return Ok(new AccountViewModel(account));
         }
         
+        [HttpGet("{accountId}/Balance")]
+        [ProducesResponseType(200, Type = typeof(decimal))]
+        public async Task<IActionResult> GetBalance([FromRoute] int id, [FromRoute] int accountId)
+        {
+            var account = await _db.Accounts
+                .Include(acc => acc.AccountTransactions)
+                .FirstOrDefaultAsync(acc => acc.AccountOwnerId == id && acc.Id == accountId);
+            
+            if (account != null)
+            {
+                return Ok(account.AccountTransactions.Sum(txn => txn.Amount));
+            }
+            return NotFound();
+        }
+        
         [HttpGet("{accountId}/Transaction")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Transaction>))]
         public async Task<IActionResult> GetTransactions([FromRoute] int id, [FromRoute] int accountId)
