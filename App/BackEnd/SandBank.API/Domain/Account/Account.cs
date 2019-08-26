@@ -22,5 +22,11 @@ namespace Domain.Account
         public int AccountOwnerId { get; set; }
         
         public List<Transaction.Transaction> AccountTransactions { get; set; } = new List<Transaction.Transaction>();
+
+        public void PostTransaction(Transaction.Transaction transaction)
+        {
+            transaction.Account = this;
+            AccountTransactions.Add(transaction);
+        }
     }
 }

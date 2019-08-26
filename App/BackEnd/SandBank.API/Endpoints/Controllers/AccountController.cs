@@ -73,11 +73,11 @@ namespace Endpoints.Controllers
         public async Task<IActionResult> GetTransactions([FromRoute] int id, [FromRoute] int accountId)
         {
             var account = await _db.Accounts
+                .Include(acc => acc.AccountTransactions)
                 .FirstOrDefaultAsync(acc => acc.AccountOwnerId == id && acc.Id == accountId);
             
             if (account != null)
             {
-                
                 return Ok(account.AccountTransactions.Select(txn => new TransactionViewModel(txn)));
             }
             return NotFound();
@@ -88,6 +88,7 @@ namespace Endpoints.Controllers
         public async Task<IActionResult> SeedTransactions([FromRoute] int id, [FromRoute] int accountId)
         {
             var account = await _db.Accounts
+                .Include(acc => acc.AccountTransactions)
                 .FirstOrDefaultAsync(acc => acc.AccountOwnerId == id && acc.Id == accountId);
             
             if (account != null)
@@ -99,13 +100,14 @@ namespace Endpoints.Controllers
                 
                 var timeStamp = DateTime.UtcNow;
                 
-                account.AccountTransactions.Add(new Transaction() { Amount = 12.34M, TransactionTimeUtc = timeStamp, Description = "transaction 1"});
-                account.AccountTransactions.Add(new Transaction() { Amount = 0.34M, TransactionTimeUtc = timeStamp, Description = "transaction 2"});
-                account.AccountTransactions.Add(new Transaction() { Amount = 2.99M, TransactionTimeUtc = timeStamp, Description = "transaction 3"});
-
-                await _db.SaveChangesAsync();
+                account.PostTransaction(new Transaction { Amount = 12.34M, TransactionTimeUtc = timeStamp, Description = "transaction 1"});
+                account.PostTransaction(new Transaction { Amount = 0.34M, TransactionTimeUtc = timeStamp, Description = "transaction 2"});
+                account.PostTransaction(new Transaction { Amount = 2.99M, TransactionTimeUtc = timeStamp, Description = "transaction 3"});
                 
-                return Ok(account.AccountTransactions.Select(txn => new TransactionViewModel(txn)));
+                
+                await _db.SaveChangesAsync();
+
+                return RedirectToAction(nameof(GetTransactions), new { id = id, accountId = accountId });
             }
             return NotFound();
         }
