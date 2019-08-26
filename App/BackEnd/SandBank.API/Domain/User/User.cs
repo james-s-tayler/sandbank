@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Core;
 
-namespace Domain
+namespace Domain.User
 {
     public class User : DomainEntity<int>
     {
@@ -23,7 +23,7 @@ namespace Domain
 
         [MaxLength(50)] public string City { get; set; }
 
-        public List<Account> Accounts { get; set; } = new List<Account>();
+        public List<Account.Account> Accounts { get; set; } = new List<Account.Account>();
 
     }
 }

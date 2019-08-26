@@ -1,21 +1,41 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Domain;
+using Domain.Account;
+using Domain.Transaction;
 using Endpoints.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Endpoints.Controllers
 {
-    [Route("api/User/{id}/[controller]")]
     [ApiController]
+    [Route("api/User/{id}/[controller]")]
+    [Produces("application/json")]
+    [Consumes("application/json")]
     public class AccountController : ControllerBase
     {
         private readonly SandBankDbContext _db;
 
         public AccountController(SandBankDbContext db) => _db = db;
 
+        [HttpGet("")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<AccountViewModel>))]
+        public async Task<IActionResult> GetAccounts([FromRoute] int id)
+        {
+            var accounts = _db.Accounts.Where(acc => acc.AccountOwnerId == id).ToList();
+            
+            if (accounts != null)
+            {
+                return Ok(accounts.Select(acc => new AccountViewModel(acc)));
+            }
+            return NotFound();
+        }
+        
         [HttpGet("{accountId}")]
+        [ProducesResponseType(200, Type = typeof(AccountViewModel))]
         public async Task<IActionResult> Get([FromRoute] int id, [FromRoute] int accountId)
         {
             var account = await _db.Accounts
@@ -23,13 +43,14 @@ namespace Endpoints.Controllers
             
             if (account != null)
             {
-                return Ok(ToDisplayModel(account));
+                return Ok(new AccountViewModel(account));
             }
             return NotFound();
         }
         
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Account account, [FromRoute] int id)
+        [ProducesResponseType(200, Type = typeof(AccountViewModel))]
+        public async Task<IActionResult> Post([FromBody] OpenAccountRequest openAccountRequest, [FromRoute] int id)
         {
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
             
@@ -38,23 +59,57 @@ namespace Endpoints.Controllers
                 return UnprocessableEntity();
             }
 
+            var account = openAccountRequest.ToDomainModel();
             account.AccountOwnerId = id;
             
             await _db.Accounts.AddAsync(account);
             await _db.SaveChangesAsync();
             
-            return Ok(ToDisplayModel(account));
+            return Ok(new AccountViewModel(account));
         }
-
-        private Object ToDisplayModel(Account account)
+        
+        [HttpGet("{accountId}/Transaction")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Transaction>))]
+        public async Task<IActionResult> GetTransactions([FromRoute] int id, [FromRoute] int accountId)
         {
-            return new
+            var account = await _db.Accounts
+                .Include(acc => acc.AccountTransactions)
+                .FirstOrDefaultAsync(acc => acc.AccountOwnerId == id && acc.Id == accountId);
+            
+            if (account != null)
             {
-                Id = account.Id,
-                AccountType = account.AccountType,
-                AccountNumber = account.AccountNumber,
-                DisplayName = account.DisplayName
-            };
+                return Ok(account.AccountTransactions.Select(txn => new TransactionViewModel(txn)));
+            }
+            return NotFound();
+        }
+        
+        [HttpPost("{accountId}/Seed")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Transaction>))]
+        public async Task<IActionResult> SeedTransactions([FromRoute] int id, [FromRoute] int accountId)
+        {
+            var account = await _db.Accounts
+                .Include(acc => acc.AccountTransactions)
+                .FirstOrDefaultAsync(acc => acc.AccountOwnerId == id && acc.Id == accountId);
+            
+            if (account != null)
+            {
+                if (account.AccountTransactions.Any())
+                {
+                    return UnprocessableEntity();
+                }
+                
+                var timeStamp = DateTime.UtcNow;
+                
+                account.PostTransaction(new Transaction { Amount = 12.34M, TransactionTimeUtc = timeStamp, Description = "transaction 1"});
+                account.PostTransaction(new Transaction { Amount = 0.34M, TransactionTimeUtc = timeStamp, Description = "transaction 2"});
+                account.PostTransaction(new Transaction { Amount = 2.99M, TransactionTimeUtc = timeStamp, Description = "transaction 3"});
+                
+                
+                await _db.SaveChangesAsync();
+
+                return RedirectToAction(nameof(GetTransactions), new { id = id, accountId = accountId });
+            }
+            return NotFound();
         }
     }
 }
