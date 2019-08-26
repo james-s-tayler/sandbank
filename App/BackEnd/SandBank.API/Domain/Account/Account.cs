@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Core;
 
@@ -19,5 +20,7 @@ namespace Domain.Account
         
         public User.User AccountOwner { get; set; }
         public int AccountOwnerId { get; set; }
+        
+        public List<Transaction.Transaction> AccountTransactions { get; set; } = new List<Transaction.Transaction>();
     }
 }

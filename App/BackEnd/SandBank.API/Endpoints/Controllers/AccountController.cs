@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Domain;
 using Domain.Account;
+using Domain.Transaction;
 using Endpoints.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +21,19 @@ namespace Endpoints.Controllers
 
         public AccountController(SandBankDbContext db) => _db = db;
 
+        [HttpGet("")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<AccountViewModel>))]
+        public async Task<IActionResult> GetAccounts([FromRoute] int id)
+        {
+            var accounts = _db.Accounts.Where(acc => acc.AccountOwnerId == id).ToList();
+            
+            if (accounts != null)
+            {
+                return Ok(accounts.Select(acc => new AccountViewModel(acc)));
+            }
+            return NotFound();
+        }
+        
         [HttpGet("{accountId}")]
         [ProducesResponseType(200, Type = typeof(AccountViewModel))]
         public async Task<IActionResult> Get([FromRoute] int id, [FromRoute] int accountId)
@@ -50,6 +66,48 @@ namespace Endpoints.Controllers
             await _db.SaveChangesAsync();
             
             return Ok(new AccountViewModel(account));
+        }
+        
+        [HttpGet("{accountId}/Transaction")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Transaction>))]
+        public async Task<IActionResult> GetTransactions([FromRoute] int id, [FromRoute] int accountId)
+        {
+            var account = await _db.Accounts
+                .FirstOrDefaultAsync(acc => acc.AccountOwnerId == id && acc.Id == accountId);
+            
+            if (account != null)
+            {
+                
+                return Ok(account.AccountTransactions.Select(txn => new TransactionViewModel(txn)));
+            }
+            return NotFound();
+        }
+        
+        [HttpPost("{accountId}/Seed")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Transaction>))]
+        public async Task<IActionResult> SeedTransactions([FromRoute] int id, [FromRoute] int accountId)
+        {
+            var account = await _db.Accounts
+                .FirstOrDefaultAsync(acc => acc.AccountOwnerId == id && acc.Id == accountId);
+            
+            if (account != null)
+            {
+                if (account.AccountTransactions.Any())
+                {
+                    return UnprocessableEntity();
+                }
+                
+                var timeStamp = DateTime.UtcNow;
+                
+                account.AccountTransactions.Add(new Transaction() { Amount = 12.34M, TransactionTimeUtc = timeStamp, Description = "transaction 1"});
+                account.AccountTransactions.Add(new Transaction() { Amount = 0.34M, TransactionTimeUtc = timeStamp, Description = "transaction 2"});
+                account.AccountTransactions.Add(new Transaction() { Amount = 2.99M, TransactionTimeUtc = timeStamp, Description = "transaction 3"});
+
+                await _db.SaveChangesAsync();
+                
+                return Ok(account.AccountTransactions.Select(txn => new TransactionViewModel(txn)));
+            }
+            return NotFound();
         }
     }
 }

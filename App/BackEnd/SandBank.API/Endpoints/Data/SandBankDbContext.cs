@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Core;
 using Domain;
 using Domain.Account;
+using Domain.Transaction;
 using Domain.User;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -17,6 +18,7 @@ namespace Endpoints.Data
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Account> Accounts { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
 
         private static readonly LoggerFactory ConsoleLoggerFactory =
             new LoggerFactory(new[]
