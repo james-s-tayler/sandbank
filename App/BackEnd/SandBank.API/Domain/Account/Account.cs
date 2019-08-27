@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using Core;
 
 namespace Domain.Account
@@ -11,6 +12,7 @@ namespace Domain.Account
         public string AccountType { get; set; }
 
         [Required]
+        //add unique constraint and dont allow user to pass this in, generate ourselves
         [StringLength(25)]
         public string AccountNumber { get; set; }
 
