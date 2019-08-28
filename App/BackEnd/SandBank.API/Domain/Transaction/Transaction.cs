@@ -6,6 +6,7 @@ namespace Domain.Transaction
 {
     public class Transaction : DomainEntity<long>
     {
+        
         [Required]
         public decimal Amount { get; set; }
         [Required]
