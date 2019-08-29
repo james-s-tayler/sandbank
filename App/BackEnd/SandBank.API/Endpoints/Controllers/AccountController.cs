@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Domain.Account;
 using Domain.Transaction;
+using Endpoints.Configuration;
 using Endpoints.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,8 +18,14 @@ namespace Endpoints.Controllers
     public class AccountController : ControllerBase
     {
         private readonly SandBankDbContext _db;
+        private INumberRangeService _numberRangeService;
 
-        public AccountController(SandBankDbContext db) => _db = db;
+        public AccountController(SandBankDbContext db,
+            INumberRangeService numberRangeService)
+        {
+            _db = db;
+            _numberRangeService = numberRangeService;
+        }
 
         [HttpGet("")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<AccountViewModel>))]
@@ -60,6 +67,7 @@ namespace Endpoints.Controllers
 
             var account = openAccountRequest.ToDomainModel();
             account.AccountOwnerId = id;
+            account.AccountNumber = await _numberRangeService.GetNextValue(NumberRangeType.Account);
             
             await _db.Accounts.AddAsync(account);
             await _db.SaveChangesAsync();

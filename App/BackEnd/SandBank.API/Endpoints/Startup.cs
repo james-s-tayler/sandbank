@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Endpoints.Configuration;
 using Endpoints.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -43,6 +44,8 @@ namespace Endpoints
             {
                 c.SwaggerDoc("v1", new Info { Title = "SandBank API", Version = "v1" });
             });
+
+            services.AddTransient<INumberRangeService, NumberRangeService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -7,6 +7,7 @@ using Domain;
 using Domain.Account;
 using Domain.Transaction;
 using Domain.User;
+using Endpoints.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
@@ -19,6 +20,7 @@ namespace Endpoints.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<NumberRange> NumberRanges { get; set; } //split this out to it's own configuration db context
 
         private static readonly LoggerFactory ConsoleLoggerFactory =
             new LoggerFactory(new[]
@@ -51,6 +53,35 @@ namespace Endpoints.Data
                 modelBuilder.Entity(entityType.Name).Property<Guid>("ShadowId");
                 modelBuilder.Entity(entityType.Name).ForNpgsqlUseXminAsConcurrencyToken();
             }
+
+            modelBuilder.Entity<NumberRange>()
+                .ToTable("NumberRanges");
+                
+            modelBuilder.Entity<NumberRange>()
+                .Property(r => r.RangeType)
+                .HasConversion<string>()
+                .HasMaxLength(25)
+                .IsRequired();
+
+            modelBuilder.Entity<NumberRange>()
+                .Property(r => r.Prefix)
+                .IsRequired()
+                .HasMaxLength(10);
+            
+            modelBuilder.Entity<NumberRange>()
+                .Property(r => r.RangeStart)
+                .IsRequired()
+                .HasDefaultValue(1);
+            
+            modelBuilder.Entity<NumberRange>()
+                .Property(r => r.RangeEnd)
+                .IsRequired()
+                .HasDefaultValue(999_999_999);
+            
+            modelBuilder.Entity<NumberRange>()
+                .Property(r => r.LastValue)
+                .IsRequired()
+                .HasDefaultValue(0);
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default (CancellationToken))
