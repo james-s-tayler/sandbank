@@ -10,10 +10,6 @@ namespace Domain.Account
         public string AccountType { get; set; }
 
         [Required]
-        [StringLength(25)]
-        public string AccountNumber { get; set; }
-
-        [Required]
         [StringLength(50)]
         public string DisplayName { get; set; }
 
@@ -21,7 +17,6 @@ namespace Domain.Account
         {
             return new Account
             {
-                AccountNumber = AccountNumber,
                 AccountType = AccountType,
                 DisplayName = DisplayName
             };
