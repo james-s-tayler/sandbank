@@ -25,6 +25,14 @@ namespace Domain.User
 
         [MaxLength(50)] 
         public string City { get; }
+        
+        [Required]
+        [StringLength(50)]
+        public string Country { get; set; }
+
+        [Required]
+        [StringLength(25)]
+        public string PostCode { get; set; }
 
         public UserViewModel(User user) : base(user)
         {
@@ -34,6 +42,8 @@ namespace Domain.User
             DateOfBirth = user.DateOfBirth;
             Address = user.Address;
             City = user.City;
+            PostCode = user.PostCode;
+            Country = user.Country;
         }
     }
 }
