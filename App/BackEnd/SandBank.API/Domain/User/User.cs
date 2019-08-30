@@ -16,12 +16,21 @@ namespace Domain.User
         [EmailAddress]
         public string Email { get; set; }
 
+
         [MaxLength(25)] public string Phone { get; set; }
         public DateTime DateOfBirth { get; set; }
 
         [MaxLength(250)] public string Address { get; set; }
 
         [MaxLength(50)] public string City { get; set; }
+        
+        [Required]
+        [StringLength(50)]
+        public string Country { get; set; }
+
+        [Required]
+        [StringLength(25)]
+        public string PostCode { get; set; }
 
         public List<Account.Account> Accounts { get; set; } = new List<Account.Account>();
 

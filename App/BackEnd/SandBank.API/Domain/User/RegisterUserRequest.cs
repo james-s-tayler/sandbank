@@ -21,20 +21,30 @@ namespace Domain.User
 
         [MaxLength(250)] 
         public string Address { get; set; }
+        
+        [Required]
+        [StringLength(50)]
+        public string Country { get; set; }
+
+        [Required]
+        [StringLength(25)]
+        public string PostCode { get; set; }
 
         [MaxLength(50)] 
         public string City { get; set; }
 
         public override User ToDomainModel()
         {
-            return new User()
+            return new User
             {
                 FullName = FullName,
                 Email = Email,
                 Phone = Phone,
                 DateOfBirth = DateOfBirth,
                 Address = Address,
-                City = City
+                City = City,
+                PostCode = PostCode,
+                Country = Country,
             };
         }
     }
