@@ -44,15 +44,20 @@ namespace Endpoints.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.Accounts)
-                .WithOne(acc => acc.AccountOwner);
-                
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 modelBuilder.Entity(entityType.Name).Property<Guid>("ShadowId");
                 modelBuilder.Entity(entityType.Name).ForNpgsqlUseXminAsConcurrencyToken();
             }
+            
+            
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Accounts)
+                .WithOne(acc => acc.AccountOwner);
+
+            modelBuilder.Entity<Account>()
+                .Property(acc => acc.AccountType)
+                .HasConversion<string>();
 
             modelBuilder.Entity<NumberRange>()
                 .ToTable("NumberRanges");

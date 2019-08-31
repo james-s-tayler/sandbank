@@ -6,8 +6,7 @@ namespace Domain.Account
     public class AccountViewModel : ViewModel<Account, int>
     {
         [Required]
-        [StringLength(50)]
-        public string AccountType { get; }
+        public AccountType AccountType { get; }
 
         [Required]
         [StringLength(25)]

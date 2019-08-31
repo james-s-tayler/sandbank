@@ -6,8 +6,7 @@ namespace Domain.Account
     public class OpenAccountRequest : CreateModel<Account, int>
     {
         [Required]
-        [StringLength(50)]
-        public string AccountType { get; set; }
+        public AccountType AccountType { get; set; }
 
         [Required]
         [StringLength(50)]
