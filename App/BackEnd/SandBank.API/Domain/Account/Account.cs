@@ -8,8 +8,7 @@ namespace Domain.Account
     public class Account : DomainEntity<int>
     {
         [Required]
-        [StringLength(50)]
-        public string AccountType { get; set; }
+        public AccountType AccountType { get; set; }
 
         [Required]
         //add unique constraint and dont allow user to pass this in, generate ourselves
