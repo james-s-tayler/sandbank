@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+
+  sandbank-api:
+    container_name: sandbank.api
+    ports:
+     - "5100:80"
+    environment:
+     - ASPNETCORE_ENVIRONMENT=Demo
+    build:
+      context: App/BackEnd/SandBank.API/
+      dockerfile: Endpoints/Dockerfile
+    depends_on:
+     - sandbank-db    
+   
+  sandbank-db:
+    image: postgres:latest
+    container_name: sandbank.db
+    environment:
+      POSTGRES_PASSWORD: "password"
+      PGDATA: "/var/lib/postgresql/data"
+    volumes:
+      - sandbank-data:/var/lib/postgresql/data
+
+networks:
+  bankengine-network:
+    external: true
+
+volumes:
+  sandbank-data:
+    external: true

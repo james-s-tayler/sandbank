@@ -30,8 +30,10 @@ namespace Endpoints
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var connectionString = Configuration.GetConnectionString("DefaultConnection");
+
             services.AddDbContext<SandBankDbContext>(options =>
-                options.UseNpgsql(@"Host=db;Database=sandbank;Username=postgres;Password=password"));
+                options.UseNpgsql(connectionString));
             
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
