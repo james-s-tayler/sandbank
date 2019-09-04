@@ -3,6 +3,9 @@ version: '3'
 services:
 
   sandbank-api:
+    container_name: sandbank-api
+    ports:
+     - "5100:80"
     image: docker.local:5000/sandbank-api
     build:
       context: App/BackEnd/SandBank.API/
