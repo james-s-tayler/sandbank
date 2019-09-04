@@ -3,7 +3,6 @@ version: '3'
 services:
 
   sandbank-api:
-    image: sandbank:latest
     container_name: sandbank.api
     ports:
      - "5100:80"
@@ -13,7 +12,7 @@ services:
       context: App/BackEnd/SandBank.API/
       dockerfile: Endpoints/Dockerfile
     depends_on:
-     - db    
+     - sandbank-db    
    
   sandbank-db:
     image: postgres:latest
