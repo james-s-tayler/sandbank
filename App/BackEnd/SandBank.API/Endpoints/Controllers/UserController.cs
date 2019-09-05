@@ -22,7 +22,7 @@ namespace Endpoints.Controllers
 
         [HttpGet("{id}")]
         [ProducesResponseType(200, Type = typeof(UserViewModel))]
-        public async Task<IActionResult> Get([FromRoute] int id)
+        public async Task<IActionResult> GetUser([FromRoute] int id)
         {
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
             
@@ -35,7 +35,7 @@ namespace Endpoints.Controllers
         
         [HttpPost]
         [ProducesResponseType(200, Type = typeof(UserViewModel))]
-        public async Task<IActionResult> Post([FromBody] RegisterUserRequest registerUserRequest)
+        public async Task<IActionResult> PostUser([FromBody] RegisterUserRequest registerUserRequest)
         {
             var user = await _db.Users.AddAsync(registerUserRequest.ToDomainModel());
             await _db.SaveChangesAsync();

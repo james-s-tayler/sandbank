@@ -42,7 +42,7 @@ namespace Endpoints.Controllers
         
         [HttpGet("{accountId}")]
         [ProducesResponseType(200, Type = typeof(AccountViewModel))]
-        public async Task<IActionResult> Get([FromRoute] int id, [FromRoute] int accountId)
+        public async Task<IActionResult> GetAccount([FromRoute] int id, [FromRoute] int accountId)
         {
             var account = await _db.Accounts
                 .FirstOrDefaultAsync(acc => acc.AccountOwnerId == id && acc.Id == accountId);
@@ -56,7 +56,7 @@ namespace Endpoints.Controllers
         
         [HttpPost]
         [ProducesResponseType(200, Type = typeof(AccountViewModel))]
-        public async Task<IActionResult> Post([FromBody] OpenAccountRequest openAccountRequest, [FromRoute] int id)
+        public async Task<IActionResult> PostAccount([FromBody] OpenAccountRequest openAccountRequest, [FromRoute] int id)
         {
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
             
