@@ -6,7 +6,8 @@ services:
     container_name: sandbank-api
     ports:
      - "5100:80"
-    image: docker.local:5000/sandbank-api
+    environment:
+     - ASPNETCORE_ENVIRONMENT=Development
     build:
       context: App/BackEnd/SandBank.API/
       dockerfile: Endpoints/Dockerfile

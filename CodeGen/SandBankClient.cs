@@ -119,15 +119,15 @@ namespace BankEngine.Proxy
     
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<AccountViewModel> PostAsync(OpenAccountRequest openAccountRequest, int id)
+        public System.Threading.Tasks.Task<AccountViewModel> PostAccountAsync(OpenAccountRequest openAccountRequest, int id)
         {
-            return PostAsync(openAccountRequest, id, System.Threading.CancellationToken.None);
+            return PostAccountAsync(openAccountRequest, id, System.Threading.CancellationToken.None);
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<AccountViewModel> PostAsync(OpenAccountRequest openAccountRequest, int id, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<AccountViewModel> PostAccountAsync(OpenAccountRequest openAccountRequest, int id, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
@@ -193,15 +193,15 @@ namespace BankEngine.Proxy
     
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<AccountViewModel> GetAsync(int id, int accountId)
+        public System.Threading.Tasks.Task<AccountViewModel> GetAccountAsync(int id, int accountId)
         {
-            return GetAsync(id, accountId, System.Threading.CancellationToken.None);
+            return GetAccountAsync(id, accountId, System.Threading.CancellationToken.None);
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<AccountViewModel> GetAsync(int id, int accountId, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<AccountViewModel> GetAccountAsync(int id, int accountId, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
@@ -560,15 +560,15 @@ namespace BankEngine.Proxy
     
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<UserViewModel> Get2Async(int id)
+        public System.Threading.Tasks.Task<UserViewModel> GetUserAsync(int id)
         {
-            return Get2Async(id, System.Threading.CancellationToken.None);
+            return GetUserAsync(id, System.Threading.CancellationToken.None);
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<UserViewModel> Get2Async(int id, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<UserViewModel> GetUserAsync(int id, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
@@ -631,15 +631,15 @@ namespace BankEngine.Proxy
     
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<UserViewModel> Post2Async(RegisterUserRequest registerUserRequest)
+        public System.Threading.Tasks.Task<UserViewModel> PostUserAsync(RegisterUserRequest registerUserRequest)
         {
-            return Post2Async(registerUserRequest, System.Threading.CancellationToken.None);
+            return PostUserAsync(registerUserRequest, System.Threading.CancellationToken.None);
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<UserViewModel> Post2Async(RegisterUserRequest registerUserRequest, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<UserViewModel> PostUserAsync(RegisterUserRequest registerUserRequest, System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/User");
