@@ -92,17 +92,27 @@ namespace Endpoints.Controllers
         
         [HttpGet("{accountId}/Transaction")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Transaction>))]
-        public async Task<IActionResult> GetTransactions([FromRoute] int id, [FromRoute] int accountId)
+        public async Task<IActionResult> GetTransactions([FromRoute] int id, [FromRoute] int accountId, [FromQuery] DateTime? from = null, [FromQuery] DateTime? to = null)
         {
-            var account = await _db.Accounts
-                .Include(acc => acc.AccountTransactions)
-                .FirstOrDefaultAsync(acc => acc.AccountOwnerId == id && acc.Id == accountId);
-            
-            if (account != null)
+            if (from == null || to == null)
             {
-                return Ok(account.AccountTransactions.Select(txn => new TransactionViewModel(txn)));
+                from = DateTime.UtcNow.Subtract(TimeSpan.FromDays(30));
+                to = DateTime.UtcNow;
             }
-            return NotFound();
+            
+            var account = await _db.Accounts
+                .FirstOrDefaultAsync(acc => acc.AccountOwnerId == id && acc.Id == accountId);
+
+            if (account == null)
+            {
+                return NotFound();
+            }
+
+            var transactions = account.AccountTransactions
+                    .Where(t => t.TransactionTimeUtc > from && t.TransactionTimeUtc < to)
+                    .ToList();
+            
+            return Ok(transactions.Select(txn => new TransactionViewModel(txn)));
         }
         
         [HttpPost("{accountId}/Seed")]

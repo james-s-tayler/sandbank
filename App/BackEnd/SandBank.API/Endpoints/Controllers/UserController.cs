@@ -52,18 +52,17 @@ namespace Endpoints.Controllers
         }
 
         [HttpPost("Login")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(200, Type = typeof(int))]
         public async Task<IActionResult> LoginUser([FromBody] LoginUserRequest loginUserRequest)
         {
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == loginUserRequest.Email);
             if (user == null)
             {
-                return NotFound();
+                return Ok(-1);
 
             }
 
-            return Ok();
+            return Ok(user.Id);
         }
     }
 }
