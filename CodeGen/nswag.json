@@ -31,7 +31,7 @@
       "serializeTypeInformation": false,
       "queryNullValue": "",
       "className": "{controller}Client",
-      "operationGenerationMode": "MultipleClientsFromPathSegments",
+      "operationGenerationMode": "SingleClientFromPathSegments",
       "generateOptionalParameters": false,
       "generateJsonMethods": true,
       "parameterArrayType": "System.Collections.Generic.IEnumerable",
