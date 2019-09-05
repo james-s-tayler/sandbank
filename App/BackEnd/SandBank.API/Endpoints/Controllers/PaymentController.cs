@@ -5,6 +5,7 @@ using Domain.Account;
 using Domain.Payment;
 using Domain.Transaction;
 using Endpoints.Data;
+using Integration.OutboundTransactions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,8 +18,13 @@ namespace Endpoints.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly SandBankDbContext _db;
+        private readonly IOutboundTransactionProcessor _outboundTransactionProcessor;
 
-        public PaymentController(SandBankDbContext db) => _db = db;
+        public PaymentController(SandBankDbContext db, IOutboundTransactionProcessor outboundTransactionProcessor)
+        { 
+            _db = db;
+            _outboundTransactionProcessor = outboundTransactionProcessor;
+        }
 
         [HttpPost]
         public async Task<IActionResult> PostPayment([FromBody] PostPaymentRequest postPaymentRequest)
@@ -93,9 +99,10 @@ namespace Endpoints.Controllers
             return _db.Accounts.SingleOrDefault(acc => acc.AccountNumber == accountNumber) != null;
         }
 
-        private void AddToSettlementBatch(Transaction outgoingTransaction)
+        private async void AddToSettlementBatch(Transaction outgoingTransaction)
         {
-            //transform and send to queue for outbound processing
+            //ideally decouple this by simply placing a message on a queue
+            await _outboundTransactionProcessor.Process(outgoingTransaction);
         }
     }
 }

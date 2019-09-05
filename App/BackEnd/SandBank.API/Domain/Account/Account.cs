@@ -11,7 +11,7 @@ namespace Domain.Account
         public AccountType AccountType { get; set; }
 
         [Required]
-        //add unique constraint and dont allow user to pass this in, generate ourselves
+        //should add a uniq constraint to this
         [StringLength(25)]
         public string AccountNumber { get; set; }
 
