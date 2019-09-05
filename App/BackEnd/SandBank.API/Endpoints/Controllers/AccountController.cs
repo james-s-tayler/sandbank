@@ -108,9 +108,11 @@ namespace Endpoints.Controllers
                 return NotFound();
             }
 
-            var transactions = account.AccountTransactions
-                    .Where(t => t.TransactionTimeUtc > from && t.TransactionTimeUtc < to)
-                    .ToList();
+            var transactions = await _db.Transactions
+                    .Where(t => t.AccountId == account.Id)
+                    .Where(t => t.TransactionTimeUtc > from)
+                    .Where(t => t.TransactionTimeUtc < to)
+                    .ToListAsync();
             
             return Ok(transactions.Select(txn => new TransactionViewModel(txn)));
         }
