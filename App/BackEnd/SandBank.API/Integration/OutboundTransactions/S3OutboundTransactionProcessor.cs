@@ -4,20 +4,29 @@ using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Util;
+using Amazon.SimpleNotificationService;
 using Microsoft.Extensions.Configuration;
 using Domain.Transaction;
+using Newtonsoft.Json;
 
 namespace Integration.OutboundTransactions
 {
     public class S3OutboundTransactionProcessor : IOutboundTransactionProcessor
     {
         private readonly IConfiguration _configuration;
+        private static readonly string _outboundTransactionTopic = "arn::sns::OutboundTransactionTopic"; //should get this from config
 
         public S3OutboundTransactionProcessor(IConfiguration configuration) => _configuration = configuration;
         
         public async Task Process(Transaction outboundTransaction)
         {
-            var outboundBucketName = "fecs-outbound-transactions";
+            var snsClient = new AmazonSimpleNotificationServiceClient();
+
+            var messageId = await snsClient.PublishAsync(_outboundTransactionTopic, TransformTransaction(outboundTransaction));
+            
+            //log message id i guess...
+
+            /*var outboundBucketName = "fecs-outbound-transactions";
             var s3Client = GetS3Client();
 
             try
@@ -25,6 +34,7 @@ namespace Integration.OutboundTransactions
                 if (!await AmazonS3Util.DoesS3BucketExistV2Async(s3Client, outboundBucketName))
                 {
                     //skip processing because 3rd party bucket does not exist
+                    //dead letter?
                     return;
                 }
                 
@@ -32,6 +42,8 @@ namespace Integration.OutboundTransactions
 
                 var jsonPayload = TransformTransaction(outboundTransaction);
 
+                //call FECS and request presignedUrl for upload....
+                
                 var putRequest = new PutObjectRequest
                 {
                     BucketName = outboundBucketName,
@@ -40,9 +52,11 @@ namespace Integration.OutboundTransactions
                     ServerSideEncryptionMethod = ServerSideEncryptionMethod.AES256
                 };
 
+              
+
                 var putObjectResponse = await s3Client.PutObjectAsync(putRequest);
                 
-                //got a response? Good for you.
+                //got a response? Good for you. Log success?
             }
             catch (AmazonS3Exception s3Exception)
             {
@@ -51,12 +65,12 @@ namespace Integration.OutboundTransactions
             catch (Exception exception)
             {
                 //log it
-            }
+            } */
         }
 
         private string TransformTransaction(Transaction outboundTransaction)
         {
-            return "";
+            return JsonConvert.SerializeObject(outboundTransaction);
         }
 
         private IAmazonS3 GetS3Client()
