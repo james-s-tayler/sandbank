@@ -14,15 +14,15 @@ namespace Integration.OutboundTransactions
     public class S3OutboundTransactionProcessor : IOutboundTransactionProcessor
     {
         private readonly IConfiguration _configuration;
-        private static readonly string _outboundTransactionTopic = "arn::sns::OutboundTransactionTopic"; //should get this from config
 
         public S3OutboundTransactionProcessor(IConfiguration configuration) => _configuration = configuration;
         
         public async Task Process(Transaction outboundTransaction)
         {
+            var outboundTransactionTopic = _configuration["OutboundTransactionTopicARN"];
             var snsClient = new AmazonSimpleNotificationServiceClient();
 
-            var messageId = await snsClient.PublishAsync(_outboundTransactionTopic, TransformTransaction(outboundTransaction));
+            var messageId = await snsClient.PublishAsync(outboundTransactionTopic, TransformTransaction(outboundTransaction));
             
             //log message id i guess...
 
