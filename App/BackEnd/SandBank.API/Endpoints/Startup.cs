@@ -1,5 +1,7 @@
-﻿using Endpoints.Configuration;
+﻿using Amazon.SimpleNotificationService;
+using Endpoints.Configuration;
 using Endpoints.Data;
+using Integration.AWS.SNS;
 using Integration.OutboundTransactions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -8,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MuchNeededAttributes;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -15,17 +18,19 @@ namespace Endpoints
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        private IConfiguration _config { get; }
+        private IHostingEnvironment _env { get; }
 
-        public IConfiguration Configuration { get; }
+        public Startup(IHostingEnvironment env, IConfiguration config)
+        {
+            _env = env;
+            _config = config;
+        }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var connectionString = Configuration.GetConnectionString("DefaultConnection");
+            var connectionString = _config.GetConnectionString("DefaultConnection");
 
             services.AddDbContext<SandBankDbContext>(options =>
                 options.UseNpgsql(connectionString));
@@ -45,6 +50,16 @@ namespace Endpoints
             services.AddTransient<INumberRangeService, NumberRangeService>();
             services.AddTransient<IOutboundTransactionProcessor, StubOutboundTransactionProcessor>();
             services.AddTransient(typeof(EventPublisher<>), typeof(EventPublisher<>));
+
+            if (_env.IsDevelopment())
+            {
+                services.AddTransient(x => new LocalstackSNSClientFactory().CreateClient());
+            }
+            else
+            {
+                services.AddTransient(x => new DefaultSNSClientFactory().CreateClient());
+            }
+            
             services.AddLogging();
         }
 

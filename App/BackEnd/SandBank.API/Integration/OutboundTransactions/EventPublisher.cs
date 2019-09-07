@@ -4,6 +4,7 @@ using Amazon;
 using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
 using Core;
+using Integration.AWS.SNS;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -14,11 +15,11 @@ namespace Integration.OutboundTransactions
         private readonly AmazonSimpleNotificationServiceClient _snsClient;
         private readonly string _topicArn;
         private static ILogger<EventPublisher<T>> _logger;
-
-        public EventPublisher(ILogger<EventPublisher<T>> logger)
+        
+        public EventPublisher(ILogger<EventPublisher<T>> logger, AmazonSimpleNotificationServiceClient snsClient)
         {
             _logger = logger;
-            _snsClient = new AmazonSimpleNotificationServiceClient(RegionEndpoint.USEast1);
+            _snsClient = snsClient;
 
             var entityType = typeof(T);
             _logger.LogInformation($"publishing event for entityType:{entityType.AssemblyQualifiedName}");
@@ -26,7 +27,7 @@ namespace Integration.OutboundTransactions
             var eventTopic = entityType.GetCustomAttribute<EventTopicAttribute>();
             
             _topicArn = eventTopic.TopicEndpoint;
-            _logger.LogInformation($"topicArn:{_topicArn}");
+            _logger.LogInformation($"publishing event to endpoint:{_topicArn}");
             
         }
 
