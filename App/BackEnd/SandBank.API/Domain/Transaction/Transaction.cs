@@ -4,6 +4,7 @@ using Core;
 
 namespace Domain.Transaction
 {
+    [EventTopic("OutboundTransactionTopic")]
     public class Transaction : DomainEntity<long>
     {
         

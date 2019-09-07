@@ -18,12 +18,12 @@ namespace Endpoints.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly SandBankDbContext _db;
-        private readonly IOutboundTransactionProcessor _outboundTransactionProcessor;
-
-        public PaymentController(SandBankDbContext db, IOutboundTransactionProcessor outboundTransactionProcessor)
+        private readonly EventPublisher<Transaction> _transactionEventPublisher;
+        
+        public PaymentController(SandBankDbContext db, EventPublisher<Transaction> transactionEventPublisher)
         { 
             _db = db;
-            _outboundTransactionProcessor = outboundTransactionProcessor;
+            _transactionEventPublisher = transactionEventPublisher;
         }
 
         [HttpPost]
@@ -99,10 +99,9 @@ namespace Endpoints.Controllers
             return _db.Accounts.SingleOrDefault(acc => acc.AccountNumber == accountNumber) != null;
         }
 
-        private async void AddToSettlementBatch(Transaction outgoingTransaction)
+        private async Task AddToSettlementBatch(Transaction outgoingTransaction)
         {
-            //ideally decouple this by simply placing a message on a queue
-            await _outboundTransactionProcessor.Process(outgoingTransaction);
+            var response = await _transactionEventPublisher.Publish(outgoingTransaction);
         }
     }
 }
