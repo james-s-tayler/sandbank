@@ -24,8 +24,8 @@ namespace Core
             
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appSettings.json", false, true)
-                .AddJsonFile($"appSettings.{environment}.json", false)
+                .AddJsonFile("appsettings.json", false, true)
+                .AddJsonFile($"appsettings.{environment}.json", false)
                 .AddEnvironmentVariables()
                 .Build();
             

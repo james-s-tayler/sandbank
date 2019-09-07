@@ -1,5 +1,4 @@
-﻿using Domain.Transaction;
-using Endpoints.Configuration;
+﻿using Endpoints.Configuration;
 using Endpoints.Data;
 using Integration.OutboundTransactions;
 using Microsoft.AspNetCore.Builder;
@@ -8,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -45,6 +45,7 @@ namespace Endpoints
             services.AddTransient<INumberRangeService, NumberRangeService>();
             services.AddTransient<IOutboundTransactionProcessor, StubOutboundTransactionProcessor>();
             services.AddTransient(typeof(EventPublisher<>), typeof(EventPublisher<>));
+            services.AddLogging();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
