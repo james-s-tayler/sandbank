@@ -117,7 +117,7 @@ namespace Endpoints.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogInformation($"payment request failed with message={e.Message}", e.Message);
+                _logger.LogError(e, $"payment request failed with message={e.Message}");
             }
         }
     }

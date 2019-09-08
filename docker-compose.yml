@@ -8,6 +8,9 @@ services:
      - "5100:80"
     environment:
      - ASPNETCORE_ENVIRONMENT=Development
+     - AWS_ACCESS_KEY_ID=localstack
+     - AWS_SECRET_KEY=localstack
+     - AWS_DEFAULT_REGION=us-east-1
     build:
       context: App/BackEnd/SandBank.API/
       dockerfile: Endpoints/Dockerfile
