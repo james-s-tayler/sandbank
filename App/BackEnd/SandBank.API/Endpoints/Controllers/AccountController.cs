@@ -8,6 +8,7 @@ using Endpoints.Configuration;
 using Endpoints.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Endpoints.Controllers
 {
@@ -18,13 +19,16 @@ namespace Endpoints.Controllers
     public class AccountController : ControllerBase
     {
         private readonly SandBankDbContext _db;
-        private INumberRangeService _numberRangeService;
+        private readonly INumberRangeService _numberRangeService;
+        private readonly IConfiguration _config;
 
         public AccountController(SandBankDbContext db,
-            INumberRangeService numberRangeService)
+            INumberRangeService numberRangeService,
+            IConfiguration config)
         {
             _db = db;
             _numberRangeService = numberRangeService;
+            _config = config;
         }
 
         [HttpGet("")]
@@ -67,8 +71,16 @@ namespace Endpoints.Controllers
 
             var account = openAccountRequest.ToDomainModel();
             account.AccountOwnerId = id;
-            account.AccountNumber = await _numberRangeService.GetNextValue(NumberRangeType.Account);
-            
+
+            //hacked this slightly to be NZ format. Not nice, but it works.
+            var nextAccountNum = await _numberRangeService.GetNextValue(account.AccountType == AccountType.TRANSACTION
+                ? NumberRangeType.Cheque
+                : NumberRangeType.Savings);
+            var bankPrefix = _config["BankPrefix"];
+            var branch = "0001";
+            var suffix = account.AccountType == AccountType.TRANSACTION ? "00" : "30"; 
+            account.AccountNumber = $"{bankPrefix}-{branch}-{nextAccountNum}-{suffix}";
+
             await _db.Accounts.AddAsync(account);
             await _db.SaveChangesAsync();
             

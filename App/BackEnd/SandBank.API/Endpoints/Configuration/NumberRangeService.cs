@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Endpoints.Data;
 using Microsoft.EntityFrameworkCore;
+using SlxLuhnLibrary;
 
 namespace Endpoints.Configuration
 {
@@ -21,10 +22,10 @@ namespace Endpoints.Configuration
             //make configurable
             switch (rangeType)
             {
-                case NumberRangeType.Account:
+                case NumberRangeType.Cheque:
                     numberRange.Prefix = "01";
                     break;
-                case NumberRangeType.Transaction:
+                case NumberRangeType.Savings:
                     numberRange.Prefix = "TXN";
                     break;
                 default:
@@ -51,8 +52,9 @@ namespace Endpoints.Configuration
 
             var numZeros = numberRange.RangeEnd.ToString().Length - nextValue.ToString().Length;
             var paddedNextVal = nextValue.ToString($"D{numZeros}");
+            var nextValWithLuhn = ClsLuhnLibrary.WithLuhn_Base10(paddedNextVal);
             
-            return $"{numberRange.Prefix}-{paddedNextVal}";
+            return nextValWithLuhn;
         }
 
         private async Task<bool> Exists(int value, NumberRangeType rangeType)
