@@ -4,7 +4,6 @@ using Amazon;
 using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
 using Core;
-using Integration.AWS.SNS;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -28,7 +27,6 @@ namespace Integration.OutboundTransactions
             
             _topicArn = eventTopic.TopicEndpoint;
             _logger.LogInformation($"publishing event to endpoint:{_topicArn}");
-            
         }
 
         public async Task<PublishResponse> Publish(T entity)

@@ -112,8 +112,7 @@ namespace Endpoints.Controllers
             {
                 _logger.LogInformation("publish payment request", outgoingTransaction);
                 var response = await _transactionEventPublisher.Publish(outgoingTransaction);
-                _logger.LogInformation($"payment request finished with messageid={response.MessageId}",
-                    response.MessageId);
+                _logger.LogInformation($"payment request finished with messageid={response.MessageId}", response.MessageId);
             }
             catch (Exception e)
             {

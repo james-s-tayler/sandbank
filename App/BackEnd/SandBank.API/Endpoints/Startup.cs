@@ -1,4 +1,6 @@
-﻿using Amazon.SimpleNotificationService;
+﻿using Amazon;
+using Amazon.Extensions.NETCore.Setup;
+using Amazon.SQS;
 using Endpoints.Configuration;
 using Endpoints.Data;
 using Integration.AWS.SNS;
@@ -9,8 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using MuchNeededAttributes;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -59,6 +59,14 @@ namespace Endpoints
             {
                 services.AddTransient(x => new DefaultSNSClientFactory().CreateClient());
             }
+            
+            var awsSqsOptions = new AWSOptions();
+            awsSqsOptions.DefaultClientConfig.ProxyPort = 4576;
+            awsSqsOptions.DefaultClientConfig.ProxyHost = "localstack";
+            awsSqsOptions.DefaultClientConfig.ServiceURL = "http://localstack:4576";
+            awsSqsOptions.DefaultClientConfig.RegionEndpoint = RegionEndpoint.USEast1;
+            awsSqsOptions.DefaultClientConfig.UseHttp = true;
+            services.AddAWSService<IAmazonSQS>(awsSqsOptions);
             
             services.AddLogging();
         }
