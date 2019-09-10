@@ -58,7 +58,7 @@ namespace Endpoints.Configuration
             numberRange.LastValue = nextValue;
             await _db.SaveChangesAsync();
 
-            var paddedNextVal = nextValue.ToString($"D{6}");
+            var paddedNextVal = nextValue.ToString($"D{numberRange.RangeEnd.ToString().Length}");
             var nextValWithLuhn = ClsLuhnLibrary.WithLuhn_Base10(paddedNextVal);
             return nextValWithLuhn;
         }
