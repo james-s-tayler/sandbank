@@ -3,15 +3,17 @@ using System;
 using Endpoints.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Endpoints.Migrations
 {
     [DbContext(typeof(SandBankDbContext))]
-    partial class SandBankDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190910234144_UpdateTransactions")]
+    partial class UpdateTransactions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
