@@ -1,0 +1,5 @@
+npm i -g @vue/cli @vue/cli-service-global
+vue --version
+node --version
+npm --version
+sudo vue ui -> run through prompts -> add Vue Router, TypeScript + TS Lint
