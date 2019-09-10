@@ -12,12 +12,10 @@ namespace Domain.Transaction
         [Required]
         public DateTime TransactionTimeUtc { get; set; }
         [StringLength(25)]
-        public string TransactionCategory { get; set; }
-        [StringLength(25)]
-        public string TransactionClassification { get; set; }
+        public string TransactionType { get; set; }
         [StringLength(50)]
         public string MerchantName { get; set; }
-        [StringLength(50)]
+        [StringLength(200)]
         public string Description { get; set; }
        
         [Required]
