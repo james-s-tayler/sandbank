@@ -81,7 +81,7 @@ namespace Endpoints.Data
             modelBuilder.Entity<NumberRange>()
                 .Property(r => r.RangeEnd)
                 .IsRequired()
-                .HasDefaultValue(999_999_999);
+                .HasDefaultValue(999_999);
             
             modelBuilder.Entity<NumberRange>()
                 .Property(r => r.LastValue)
