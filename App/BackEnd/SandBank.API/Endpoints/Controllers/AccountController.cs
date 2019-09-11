@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using CsvHelper;
 using Domain.Account;
 using Domain.Transaction;
 using Endpoints.Configuration;
 using Endpoints.Data;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -131,31 +134,41 @@ namespace Endpoints.Controllers
         
         [HttpPost("{accountId}/Seed")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Transaction>))]
-        public async Task<IActionResult> SeedTransactions([FromRoute] int id, [FromRoute] int accountId)
+        public async Task<IActionResult> SeedTransactions([FromRoute] int id, [FromRoute] int accountId, IFormFile csvFile)
         {
+            if (csvFile == null)
+            {
+                return BadRequest("No csv file submitted");
+            }
+            
             var account = await _db.Accounts
                 .Include(acc => acc.AccountTransactions)
                 .FirstOrDefaultAsync(acc => acc.AccountOwnerId == id && acc.Id == accountId);
-            
-            if (account != null)
-            {
-                if (account.AccountTransactions.Any())
-                {
-                    return UnprocessableEntity();
-                }
-                
-                var timeStamp = DateTime.UtcNow;
-                
-                account.PostTransaction(new Transaction { Amount = 12.34M, TransactionTimeUtc = timeStamp, Description = "transaction 1"});
-                account.PostTransaction(new Transaction { Amount = 0.34M, TransactionTimeUtc = timeStamp, Description = "transaction 2"});
-                account.PostTransaction(new Transaction { Amount = 2.99M, TransactionTimeUtc = timeStamp, Description = "transaction 3"});
-                
-                
-                await _db.SaveChangesAsync();
 
-                return RedirectToAction(nameof(GetTransactions), new { id = id, accountId = accountId });
+            if (account == null)
+            {
+                return NotFound();
             }
-            return NotFound();
+            
+            if (account.AccountTransactions.Any())
+            {
+                return UnprocessableEntity();
+            }
+
+            using (var csvStream = csvFile.OpenReadStream())
+            using (var reader = new StreamReader(csvStream))
+            using (var csv = new CsvReader(reader))
+            {
+                var transactionsCsvModels = csv.GetRecords<TransactionCsvModel>();
+                var transactions = transactionsCsvModels.Select(t => t.ConvertToTransaction());
+                foreach (var transaction in transactions)
+                {
+                    account.PostTransaction(transaction);
+                }
+                await _db.SaveChangesAsync();
+            }
+            
+            return RedirectToAction(nameof(GetTransactions), new { id = id, accountId = accountId });
         }
     }
 }
