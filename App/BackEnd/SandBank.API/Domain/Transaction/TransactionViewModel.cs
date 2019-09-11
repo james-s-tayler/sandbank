@@ -12,9 +12,7 @@ namespace Domain.Transaction
         [Required]
         public DateTime TransactionTimeUtc { get; }
         [StringLength(25)]
-        public string TransactionCategory { get; }
-        [StringLength(25)]
-        public string TransactionClassification { get; }
+        public string TransactionType { get; }
         [StringLength(50)]
         public string MerchantName { get; }
         [StringLength(50)]
@@ -24,8 +22,7 @@ namespace Domain.Transaction
         {
             Amount = transaction.Amount;
             TransactionTimeUtc = transaction.TransactionTimeUtc;
-            TransactionCategory = transaction.TransactionCategory;
-            TransactionClassification = transaction.TransactionClassification;
+            transaction.TransactionType = transaction.TransactionType;
             MerchantName = transaction.MerchantName;
             Description = transaction.Description;
         }
