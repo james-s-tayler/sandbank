@@ -26,6 +26,7 @@ namespace Endpoints
         }
 
         public IConfiguration Configuration { get; }
+        private static readonly string _localDevCorsPolicy = "localDevCorsPolicy";
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -34,6 +35,17 @@ namespace Endpoints
 
             services.AddDbContext<SandBankDbContext>(options =>
                 options.UseNpgsql(connectionString));
+            
+            services.AddCors(options =>
+            {
+                options.AddPolicy(_localDevCorsPolicy,
+                    builder =>
+                    {
+                        builder.WithOrigins("*")
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                    });
+            });
             
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
@@ -70,7 +82,11 @@ namespace Endpoints
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "SandBank API V1");
             });
-            
+
+            if (env.IsDevelopment())
+            {
+                app.UseCors(_localDevCorsPolicy);    
+            }
             app.UseMvc();
         }
         
