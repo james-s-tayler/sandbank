@@ -15,7 +15,7 @@ namespace Domain.Transaction
         public string TransactionType { get; set; }
         [StringLength(50)]
         public string MerchantName { get; set; }
-        [StringLength(50)]
+        [StringLength(200)]
         public string Description { get; set; }
        
         [Required]

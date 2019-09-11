@@ -15,14 +15,14 @@ namespace Domain.Transaction
         public string TransactionType { get; }
         [StringLength(50)]
         public string MerchantName { get; }
-        [StringLength(50)]
+        [StringLength(200)]
         public string Description { get; }
         
         public TransactionViewModel(Transaction transaction) : base(transaction)
         {
             Amount = transaction.Amount;
             TransactionTimeUtc = transaction.TransactionTimeUtc;
-            transaction.TransactionType = transaction.TransactionType;
+            TransactionType = transaction.TransactionType;
             MerchantName = transaction.MerchantName;
             Description = transaction.Description;
         }
