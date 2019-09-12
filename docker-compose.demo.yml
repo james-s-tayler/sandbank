@@ -1,19 +1,20 @@
-version: '3'
+version: "3"
 
 services:
-
   sandbank-api:
     container_name: sandbank.api
     ports:
-     - "5100:80"
+      - "5100:80"
     environment:
-     - ASPNETCORE_ENVIRONMENT=Demo
+      - ASPNETCORE_ENVIRONMENT=Demo
     build:
       context: App/BackEnd/SandBank.API/
       dockerfile: Endpoints/Dockerfile
+    network:
+      - bankengine-network
     depends_on:
-     - sandbank-db    
-   
+      - sandbank-db
+
   sandbank-db:
     image: postgres:latest
     container_name: sandbank.db
