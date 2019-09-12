@@ -52,7 +52,6 @@ namespace Endpoints.Configuration
             {
                 nextValue = await GetLastValue(rangeType) + 1;
             }
-            _logger.LogInformation($"GetNextValue({rangeType.ToString()}) -> nextValue={nextValue}");
 
             var numberRange = await GetNumberRange(rangeType);
             numberRange.LastValue = nextValue;
