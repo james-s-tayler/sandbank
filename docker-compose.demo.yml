@@ -1,4 +1,4 @@
-version: "3"
+version: "3.5"
 
 services:
   sandbank-api:
@@ -10,10 +10,11 @@ services:
     build:
       context: App/BackEnd/SandBank.API/
       dockerfile: Endpoints/Dockerfile
-    networks:
-      - bankengine-network
     depends_on:
       - sandbank-db
+    networks:
+      - sandbank
+      - bankengine-external
 
   sandbank-db:
     image: postgres:latest
@@ -23,10 +24,15 @@ services:
       PGDATA: "/var/lib/postgresql/data"
     volumes:
       - sandbank-data:/var/lib/postgresql/data
+    networks:
+      - sandbank
 
 networks:
-  bankengine-network:
-    external: true
+  sandbank:
+    name: sandbank
+  bankengine-external:
+    external:
+      name: bankengine
 
 volumes:
   sandbank-data:
