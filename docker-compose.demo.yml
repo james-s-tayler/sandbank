@@ -10,7 +10,7 @@ services:
     build:
       context: App/BackEnd/SandBank.API/
       dockerfile: Endpoints/Dockerfile
-    network:
+    networks:
       - bankengine-network
     depends_on:
       - sandbank-db
