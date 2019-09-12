@@ -18,7 +18,7 @@ export default class HelloWorld extends Vue {
   private email: string = '';
 
   public signUp() {
-    const payload = {
+    const registerUserRequest = {
       fullName: 'John Smith',
       email: this.email,
       phone: '0211234567',
@@ -36,12 +36,29 @@ export default class HelloWorld extends Vue {
       },
     };
 
-    this.$http.post('http://localhost:5100/api/user', payload, headers)
+    // this needs a clean up - should set axios baseURL and externalize configuration
+    // probably need to tidy up promises too
+
+    this.$http.post('http://localhost:5100/api/user', registerUserRequest, headers)
       .then((response: AxiosResponse) => {
 
         const user = response.data;
         const userId = user.id;
-        // open account, seed account then redirect to dashboard?
+
+        const openAccountRequest = {
+          accountType: 'TRANSACTION',
+          displayName: 'My Account',
+        };
+
+        this.$http.post('http://localhost:5100/api/user/' + userId + '/account', openAccountRequest, headers)
+        .then((openAccountReponse: AxiosResponse) => {
+          const accountId = openAccountReponse.data.id;
+
+          this.$http.post('http://localhost:5100/api/user/' + userId + '/account/' + accountId + '/seed', {}, headers)
+          .then((seedTransactionsResponse: AxiosResponse) => {
+            // redirect to dashboard?
+          });
+        });
     })
     .catch((error) => alert('error=' + error));
   }

@@ -15,4 +15,5 @@ RUN dotnet publish --no-restore -c Release -o output
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/Endpoints/output .
+COPY --from=publish /app/Endpoints/seed-transactions.csv .
 ENTRYPOINT ["dotnet", "Endpoints.dll"]

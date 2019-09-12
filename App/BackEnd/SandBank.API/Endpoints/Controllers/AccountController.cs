@@ -106,7 +106,7 @@ namespace Endpoints.Controllers
         }
         
         [HttpGet("{accountId}/Transaction")]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<Transaction>))]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<TransactionViewModel>))]
         public async Task<IActionResult> GetTransactions([FromRoute] int id, [FromRoute] int accountId, [FromQuery] DateTime? from = null, [FromQuery] DateTime? to = null)
         {
             if (from == null || to == null)
@@ -133,7 +133,40 @@ namespace Endpoints.Controllers
         }
         
         [HttpPost("{accountId}/Seed")]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<Transaction>))]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<TransactionViewModel>))]
+        public async Task<IActionResult> SeedTransactions([FromRoute] int id, [FromRoute] int accountId)
+        {
+            var account = await _db.Accounts
+                .Include(acc => acc.AccountTransactions)
+                .FirstOrDefaultAsync(acc => acc.AccountOwnerId == id && acc.Id == accountId);
+
+            if (account == null)
+            {
+                return NotFound();
+            }
+            
+            if (account.AccountTransactions.Any())
+            {
+                return UnprocessableEntity();
+            }
+
+            using (var reader = System.IO.File.OpenText("seed-transactions.csv"))
+            using (var csv = new CsvReader(reader))
+            {
+                var transactionsCsvModels = csv.GetRecords<TransactionCsvModel>();
+                var transactions = transactionsCsvModels.Select(t => t.ConvertToTransaction());
+                foreach (var transaction in transactions)
+                {
+                    account.PostTransaction(transaction);
+                }
+                await _db.SaveChangesAsync();
+            }
+            
+            return RedirectToAction(nameof(GetTransactions), new { id = id, accountId = accountId });
+        }
+        
+        [HttpPost("{accountId}/SeedFile")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<TransactionViewModel>))]
         public async Task<IActionResult> SeedTransactions([FromRoute] int id, [FromRoute] int accountId, IFormFile csvFile)
         {
             if (csvFile == null)
