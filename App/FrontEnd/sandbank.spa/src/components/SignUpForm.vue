@@ -11,6 +11,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import Axios, { AxiosResponse } from 'axios';
+import VueRouter from 'vue-router';
 
 @Component
 export default class HelloWorld extends Vue {
@@ -57,6 +58,7 @@ export default class HelloWorld extends Vue {
           this.$http.post('http://localhost:5100/api/user/' + userId + '/account/' + accountId + '/seed', {}, headers)
           .then((seedTransactionsResponse: AxiosResponse) => {
             // redirect to dashboard?
+            this.$router.push('/user/' + userId + '/account/' + accountId);
           });
         });
     })

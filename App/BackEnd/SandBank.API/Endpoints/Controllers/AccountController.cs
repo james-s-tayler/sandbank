@@ -133,7 +133,7 @@ namespace Endpoints.Controllers
         }
         
         [HttpPost("{accountId}/Seed")]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<TransactionViewModel>))]
+        [ProducesResponseType(200)]
         public async Task<IActionResult> SeedTransactions([FromRoute] int id, [FromRoute] int accountId)
         {
             var account = await _db.Accounts
@@ -150,23 +150,30 @@ namespace Endpoints.Controllers
                 return UnprocessableEntity();
             }
 
-            using (var reader = System.IO.File.OpenText("seed-transactions.csv"))
-            using (var csv = new CsvReader(reader))
+            try
             {
-                var transactionsCsvModels = csv.GetRecords<TransactionCsvModel>();
-                var transactions = transactionsCsvModels.Select(t => t.ConvertToTransaction());
-                foreach (var transaction in transactions)
+                using (var reader = System.IO.File.OpenText("seed-transactions.csv"))
+                using (var csv = new CsvReader(reader))
                 {
-                    account.PostTransaction(transaction);
+                    var transactionsCsvModels = csv.GetRecords<TransactionCsvModel>();
+                    var transactions = transactionsCsvModels.Select(t => t.ConvertToTransaction());
+                    foreach (var transaction in transactions)
+                    {
+                        account.PostTransaction(transaction);
+                    }
+                    await _db.SaveChangesAsync();
                 }
-                await _db.SaveChangesAsync();
             }
-            
-            return RedirectToAction(nameof(GetTransactions), new { id = id, accountId = accountId });
+            catch
+            {
+                return UnprocessableEntity();
+            }
+
+            return Ok();
         }
         
         [HttpPost("{accountId}/SeedFile")]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<TransactionViewModel>))]
+        [ProducesResponseType(200)]
         public async Task<IActionResult> SeedTransactions([FromRoute] int id, [FromRoute] int accountId, IFormFile csvFile)
         {
             if (csvFile == null)
@@ -188,20 +195,27 @@ namespace Endpoints.Controllers
                 return UnprocessableEntity();
             }
 
-            using (var csvStream = csvFile.OpenReadStream())
-            using (var reader = new StreamReader(csvStream))
-            using (var csv = new CsvReader(reader))
+            try
             {
-                var transactionsCsvModels = csv.GetRecords<TransactionCsvModel>();
-                var transactions = transactionsCsvModels.Select(t => t.ConvertToTransaction());
-                foreach (var transaction in transactions)
+                using (var csvStream = csvFile.OpenReadStream())
+                using (var reader = new StreamReader(csvStream))
+                using (var csv = new CsvReader(reader))
                 {
-                    account.PostTransaction(transaction);
+                    var transactionsCsvModels = csv.GetRecords<TransactionCsvModel>();
+                    var transactions = transactionsCsvModels.Select(t => t.ConvertToTransaction());
+                    foreach (var transaction in transactions)
+                    {
+                        account.PostTransaction(transaction);
+                    }
+                    await _db.SaveChangesAsync();
                 }
-                await _db.SaveChangesAsync();
+            }
+            catch
+            {
+                return UnprocessableEntity();
             }
             
-            return RedirectToAction(nameof(GetTransactions), new { id = id, accountId = accountId });
+            return Ok();
         }
     }
 }
