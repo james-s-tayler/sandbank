@@ -2,6 +2,8 @@ using System;
 using System.Threading.Tasks;
 using Endpoints.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using SlxLuhnLibrary;
 
 namespace Endpoints.Configuration
 {
@@ -9,8 +11,13 @@ namespace Endpoints.Configuration
     public class NumberRangeService : INumberRangeService
     {
         private readonly SandBankDbContext _db;
+        private readonly ILogger<NumberRangeService> _logger;
 
-        public NumberRangeService(SandBankDbContext db) => _db = db;
+        public NumberRangeService(SandBankDbContext db, ILogger<NumberRangeService> logger)
+        {
+            _db = db;
+            _logger = logger;
+        }
 
         private async Task<NumberRange> CreateDefault(NumberRangeType rangeType)
         {
@@ -21,10 +28,10 @@ namespace Endpoints.Configuration
             //make configurable
             switch (rangeType)
             {
-                case NumberRangeType.Account:
+                case NumberRangeType.Cheque:
                     numberRange.Prefix = "01";
                     break;
-                case NumberRangeType.Transaction:
+                case NumberRangeType.Savings:
                     numberRange.Prefix = "TXN";
                     break;
                 default:
@@ -39,6 +46,7 @@ namespace Endpoints.Configuration
 
         public async Task<string> GetNextValue(NumberRangeType rangeType)
         {
+            
             var nextValue = await GetLastValue(rangeType) + 1;
             while (await Exists(nextValue, rangeType))
             {
@@ -49,10 +57,9 @@ namespace Endpoints.Configuration
             numberRange.LastValue = nextValue;
             await _db.SaveChangesAsync();
 
-            var numZeros = numberRange.RangeEnd.ToString().Length - nextValue.ToString().Length;
-            var paddedNextVal = nextValue.ToString($"D{numZeros}");
-            
-            return $"{numberRange.Prefix}-{paddedNextVal}";
+            var paddedNextVal = nextValue.ToString($"D{numberRange.RangeEnd.ToString().Length}");
+            var nextValWithLuhn = ClsLuhnLibrary.WithLuhn_Base10(paddedNextVal);
+            return nextValWithLuhn;
         }
 
         private async Task<bool> Exists(int value, NumberRangeType rangeType)

@@ -30,6 +30,7 @@ namespace Endpoints.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(200)]
         public async Task<IActionResult> PostPayment([FromBody] PostPaymentRequest postPaymentRequest)
         {
             _logger.LogInformation("incoming post payment request", postPaymentRequest);
@@ -38,6 +39,12 @@ namespace Endpoints.Controllers
                 var (debit, credit) = CreateTransactions(postPaymentRequest);
                 
                 var fromAccount = await GetAccount(postPaymentRequest.FromAccount);
+
+                if (fromAccount == null)
+                {
+                    return NotFound();
+                }
+                
                 fromAccount.PostTransaction(debit);
 
                 if (IsIntrabank(postPaymentRequest))

@@ -3,20 +3,22 @@ using System;
 using Endpoints.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Endpoints.Migrations
 {
     [DbContext(typeof(SandBankDbContext))]
-    partial class SandBankDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190909121927_ChangeDefault")]
+    partial class ChangeDefault
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
-                .HasAnnotation("ProductVersion", "2.2.4-servicing-10062")
+                .HasAnnotation("ProductVersion", "2.1.4-rtm-31024")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("Domain.Account.Account", b =>
@@ -65,17 +67,20 @@ namespace Endpoints.Migrations
                     b.Property<DateTime>("CreatedOn");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(200);
+                        .HasMaxLength(50);
 
                     b.Property<string>("MerchantName")
                         .HasMaxLength(50);
 
                     b.Property<Guid>("ShadowId");
 
-                    b.Property<DateTime>("TransactionTimeUtc");
-
-                    b.Property<string>("TransactionType")
+                    b.Property<string>("TransactionCategory")
                         .HasMaxLength(25);
+
+                    b.Property<string>("TransactionClassification")
+                        .HasMaxLength(25);
+
+                    b.Property<DateTime>("TransactionTimeUtc");
 
                     b.Property<uint>("xmin")
                         .IsConcurrencyToken()

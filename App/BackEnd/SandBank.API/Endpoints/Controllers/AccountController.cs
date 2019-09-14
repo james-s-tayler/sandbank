@@ -1,13 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using CsvHelper;
 using Domain.Account;
 using Domain.Transaction;
 using Endpoints.Configuration;
 using Endpoints.Data;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Endpoints.Controllers
 {
@@ -18,13 +22,16 @@ namespace Endpoints.Controllers
     public class AccountController : ControllerBase
     {
         private readonly SandBankDbContext _db;
-        private INumberRangeService _numberRangeService;
+        private readonly INumberRangeService _numberRangeService;
+        private readonly IConfiguration _config;
 
         public AccountController(SandBankDbContext db,
-            INumberRangeService numberRangeService)
+            INumberRangeService numberRangeService,
+            IConfiguration config)
         {
             _db = db;
             _numberRangeService = numberRangeService;
+            _config = config;
         }
 
         [HttpGet("")]
@@ -62,13 +69,21 @@ namespace Endpoints.Controllers
             
             if (user == null)
             {
-                return UnprocessableEntity();
+                return NotFound();
             }
 
             var account = openAccountRequest.ToDomainModel();
             account.AccountOwnerId = id;
-            account.AccountNumber = await _numberRangeService.GetNextValue(NumberRangeType.Account);
-            
+
+            //hacked this slightly to be NZ format. Not nice, but it works.
+            var nextAccountNum = await _numberRangeService.GetNextValue(account.AccountType == AccountType.TRANSACTION
+                ? NumberRangeType.Cheque
+                : NumberRangeType.Savings);
+            var bankPrefix = _config["BankPrefix"];
+            var branch = "0001";
+            var suffix = account.AccountType == AccountType.TRANSACTION ? "00" : "30"; 
+            account.AccountNumber = $"{bankPrefix}-{branch}-{nextAccountNum}-{suffix}";
+
             await _db.Accounts.AddAsync(account);
             await _db.SaveChangesAsync();
             
@@ -91,7 +106,7 @@ namespace Endpoints.Controllers
         }
         
         [HttpGet("{accountId}/Transaction")]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<Transaction>))]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<TransactionViewModel>))]
         public async Task<IActionResult> GetTransactions([FromRoute] int id, [FromRoute] int accountId, [FromQuery] DateTime? from = null, [FromQuery] DateTime? to = null)
         {
             if (from == null || to == null)
@@ -118,32 +133,89 @@ namespace Endpoints.Controllers
         }
         
         [HttpPost("{accountId}/Seed")]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<Transaction>))]
+        [ProducesResponseType(200)]
         public async Task<IActionResult> SeedTransactions([FromRoute] int id, [FromRoute] int accountId)
         {
             var account = await _db.Accounts
                 .Include(acc => acc.AccountTransactions)
                 .FirstOrDefaultAsync(acc => acc.AccountOwnerId == id && acc.Id == accountId);
-            
-            if (account != null)
-            {
-                if (account.AccountTransactions.Any())
-                {
-                    return UnprocessableEntity();
-                }
-                
-                var timeStamp = DateTime.UtcNow;
-                
-                account.PostTransaction(new Transaction { Amount = 12.34M, TransactionTimeUtc = timeStamp, Description = "transaction 1"});
-                account.PostTransaction(new Transaction { Amount = 0.34M, TransactionTimeUtc = timeStamp, Description = "transaction 2"});
-                account.PostTransaction(new Transaction { Amount = 2.99M, TransactionTimeUtc = timeStamp, Description = "transaction 3"});
-                
-                
-                await _db.SaveChangesAsync();
 
-                return RedirectToAction(nameof(GetTransactions), new { id = id, accountId = accountId });
+            if (account == null)
+            {
+                return NotFound();
             }
-            return NotFound();
+            
+            if (account.AccountTransactions.Any())
+            {
+                return UnprocessableEntity();
+            }
+
+            try
+            {
+                using (var reader = System.IO.File.OpenText("seed-transactions.csv"))
+                using (var csv = new CsvReader(reader))
+                {
+                    var transactionsCsvModels = csv.GetRecords<TransactionCsvModel>();
+                    var transactions = transactionsCsvModels.Select(t => t.ConvertToTransaction());
+                    foreach (var transaction in transactions)
+                    {
+                        account.PostTransaction(transaction);
+                    }
+                    await _db.SaveChangesAsync();
+                }
+            }
+            catch
+            {
+                return UnprocessableEntity();
+            }
+
+            return Ok();
+        }
+        
+        [HttpPost("{accountId}/SeedFile")]
+        [ProducesResponseType(200)]
+        public async Task<IActionResult> SeedTransactions([FromRoute] int id, [FromRoute] int accountId, IFormFile csvFile)
+        {
+            if (csvFile == null)
+            {
+                return BadRequest("No csv file submitted");
+            }
+            
+            var account = await _db.Accounts
+                .Include(acc => acc.AccountTransactions)
+                .FirstOrDefaultAsync(acc => acc.AccountOwnerId == id && acc.Id == accountId);
+
+            if (account == null)
+            {
+                return NotFound();
+            }
+            
+            if (account.AccountTransactions.Any())
+            {
+                return UnprocessableEntity();
+            }
+
+            try
+            {
+                using (var csvStream = csvFile.OpenReadStream())
+                using (var reader = new StreamReader(csvStream))
+                using (var csv = new CsvReader(reader))
+                {
+                    var transactionsCsvModels = csv.GetRecords<TransactionCsvModel>();
+                    var transactions = transactionsCsvModels.Select(t => t.ConvertToTransaction());
+                    foreach (var transaction in transactions)
+                    {
+                        account.PostTransaction(transaction);
+                    }
+                    await _db.SaveChangesAsync();
+                }
+            }
+            catch
+            {
+                return UnprocessableEntity();
+            }
+            
+            return Ok();
         }
     }
 }

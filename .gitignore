@@ -3,3 +3,4 @@
 .localstack
 **/obj/
 **/bin/
+**/node_modules

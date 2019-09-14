@@ -2,7 +2,7 @@ namespace Endpoints.Configuration
 {
     public enum NumberRangeType
     {
-        Account = 1,
-        Transaction = 2,
+        Cheque = 1,
+        Savings = 2,
     }
 }
