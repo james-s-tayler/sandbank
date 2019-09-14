@@ -55,6 +55,9 @@ namespace Endpoints.Data
                 .HasMany(u => u.Accounts)
                 .WithOne(acc => acc.AccountOwner);
 
+            modelBuilder.Entity<User>()
+                .HasAlternateKey(user => user.Email);
+
             modelBuilder.Entity<Account>()
                 .Property(acc => acc.AccountType)
                 .HasConversion<string>();
