@@ -21,6 +21,7 @@ namespace Endpoints.Controllers
         public PaymentController(SandBankDbContext db) => _db = db;
 
         [HttpPost]
+        [ProducesResponseType(200)]
         public async Task<IActionResult> PostPayment([FromBody] PostPaymentRequest postPaymentRequest)
         {
             if (IsValid(postPaymentRequest))
@@ -28,6 +29,12 @@ namespace Endpoints.Controllers
                 var (debit, credit) = CreateTransactions(postPaymentRequest);
                 
                 var fromAccount = await GetAccount(postPaymentRequest.FromAccount);
+
+                if (fromAccount == null)
+                {
+                    return NotFound();
+                }
+                
                 fromAccount.PostTransaction(debit);
 
                 if (IsIntrabank(postPaymentRequest))

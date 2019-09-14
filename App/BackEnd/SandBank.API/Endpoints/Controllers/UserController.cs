@@ -59,7 +59,6 @@ namespace Endpoints.Controllers
             if (user == null)
             {
                 return Ok(-1);
-
             }
 
             return Ok(user.Id);

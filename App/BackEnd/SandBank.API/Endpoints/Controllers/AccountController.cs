@@ -69,7 +69,7 @@ namespace Endpoints.Controllers
             
             if (user == null)
             {
-                return UnprocessableEntity();
+                return NotFound();
             }
 
             var account = openAccountRequest.ToDomainModel();
