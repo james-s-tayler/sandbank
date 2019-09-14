@@ -40,7 +40,7 @@ export default class HelloWorld extends Vue {
     // this needs a clean up - should set axios baseURL and externalize configuration
     // probably need to tidy up promises too
 
-    this.$http.post('http://localhost:5100/api/user', registerUserRequest, headers)
+    this.$http.post('/user', registerUserRequest, headers)
       .then((response: AxiosResponse) => {
 
         const user = response.data;
@@ -51,13 +51,12 @@ export default class HelloWorld extends Vue {
           displayName: 'My Account',
         };
 
-        this.$http.post('http://localhost:5100/api/user/' + userId + '/account', openAccountRequest, headers)
+        this.$http.post('/user/' + userId + '/account', openAccountRequest, headers)
         .then((openAccountReponse: AxiosResponse) => {
           const accountId = openAccountReponse.data.id;
 
-          this.$http.post('http://localhost:5100/api/user/' + userId + '/account/' + accountId + '/seed', {}, headers)
+          this.$http.post('/user/' + userId + '/account/' + accountId + '/seed', {}, headers)
           .then((seedTransactionsResponse: AxiosResponse) => {
-            // redirect to dashboard?
             this.$router.push('/user/' + userId + '/account/' + accountId);
           });
         });

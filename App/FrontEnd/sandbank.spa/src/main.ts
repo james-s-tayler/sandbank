@@ -5,6 +5,7 @@ import axios from 'axios';
 import VueAxios from 'vue-axios';
 
 Vue.config.productionTip = false ;
+axios.defaults.baseURL = 'http://localhost:5100/api';
 Vue.use(VueAxios, axios);
 
 const app = new Vue({
@@ -12,4 +13,4 @@ const app = new Vue({
   render: (h) => h(App),
 }).$mount('#app');
 
-export { app, router }
+export { app, router };
