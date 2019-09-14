@@ -57,7 +57,7 @@ export default class HelloWorld extends Vue {
 
           this.$http.post('/user/' + userId + '/account/' + accountId + '/seed', {}, headers)
           .then((seedTransactionsResponse: AxiosResponse) => {
-            this.$router.push('/user/' + userId + '/account/' + accountId);
+            this.$router.push('/user/' + userId + '/account');
           });
         });
     })
