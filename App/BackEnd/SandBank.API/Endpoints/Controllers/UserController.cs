@@ -1,24 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using Core.Jwt;
 using Domain.User;
 using Endpoints.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Endpoints.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     [Produces("application/json")]
     [Consumes("application/json")]
     public class UserController : ControllerBase
     {
         private readonly SandBankDbContext _db;
+        private readonly IJwtTokenService _jwtTokenService;
 
-        public UserController(SandBankDbContext db) => _db = db;
+        public UserController(SandBankDbContext db, IJwtTokenService jwtTokenService)
+        {
+            _db = db;
+            _jwtTokenService = jwtTokenService;
+        }
 
         [HttpGet("{id}")]
         [ProducesResponseType(200, Type = typeof(UserViewModel))]
@@ -51,17 +60,21 @@ namespace Endpoints.Controllers
             // public string Password { get; set; }
         }
 
+        [AllowAnonymous]
         [HttpPost("Login")]
-        [ProducesResponseType(200, Type = typeof(int))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(string))]
+        [ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(string))]
         public async Task<IActionResult> LoginUser([FromBody] LoginUserRequest loginUserRequest)
         {
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == loginUserRequest.Email);
             if (user == null)
             {
-                return Ok(-1);
+                return NotFound();
             }
 
-            return Ok(user.Id);
+            var jwtToken = _jwtTokenService.GenerateToken(user.Id);
+            
+            return Ok(jwtToken);
         }
     }
 }

@@ -5,12 +5,14 @@ using Domain.Account;
 using Domain.Payment;
 using Domain.Transaction;
 using Endpoints.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Endpoints.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     [Produces("application/json")]
     [Consumes("application/json")]
