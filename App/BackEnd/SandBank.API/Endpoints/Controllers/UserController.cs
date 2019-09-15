@@ -43,6 +43,8 @@ namespace Endpoints.Controllers
             return NotFound();
         }
         
+        
+        [AllowAnonymous]
         [HttpPost]
         [ProducesResponseType(200, Type = typeof(UserViewModel))]
         public async Task<IActionResult> PostUser([FromBody] RegisterUserRequest registerUserRequest)
