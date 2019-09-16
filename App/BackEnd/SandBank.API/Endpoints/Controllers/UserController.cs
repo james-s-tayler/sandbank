@@ -13,8 +13,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Endpoints.Controllers
 {
+    //would actually be nice to wire these in via something like Fody so that it's not even necessary to specify it
+    [Authorize] 
     [ApiController]
-    [Authorize]
     [Route("api/[controller]")]
     [Produces("application/json")]
     [Consumes("application/json")]
@@ -30,8 +31,8 @@ namespace Endpoints.Controllers
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(200, Type = typeof(UserViewModel))]
-        [ProducesResponseType(404)]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(UserViewModel))]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetUser([FromRoute] int id)
         {
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
@@ -46,7 +47,7 @@ namespace Endpoints.Controllers
         
         [AllowAnonymous]
         [HttpPost]
-        [ProducesResponseType(200, Type = typeof(UserViewModel))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(UserViewModel))]
         public async Task<IActionResult> PostUser([FromBody] RegisterUserRequest registerUserRequest)
         {
             var user = await _db.Users.AddAsync(registerUserRequest.ToDomainModel());
@@ -57,7 +58,7 @@ namespace Endpoints.Controllers
 
         public class LoginUserRequest 
         {
-            public string Email {get; set; }
+            public string Email { get; set; }
             
             // public string Password { get; set; }
         }
