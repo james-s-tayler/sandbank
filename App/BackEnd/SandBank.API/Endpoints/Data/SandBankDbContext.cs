@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Core;
+using Core.MultiTenant;
 using Domain;
 using Domain.Account;
 using Domain.Transaction;
@@ -20,8 +21,9 @@ namespace Endpoints.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
-        public DbSet<NumberRange> NumberRanges { get; set; } //split this out to it's own configuration db context
+        public DbSet<NumberRange> NumberRanges { get; set; }
 
+        private readonly ITenantProvider _tenantProvider;
         private static readonly LoggerFactory ConsoleLoggerFactory =
             new LoggerFactory(new[]
             {
@@ -30,10 +32,10 @@ namespace Endpoints.Data
                     level == LogLevel.Information, true)
             });
 
-        public SandBankDbContext(DbContextOptions<SandBankDbContext> options)
+        public SandBankDbContext(DbContextOptions<SandBankDbContext> options, ITenantProvider tenantProvider)
             : base(options)
-        {    
-            
+        {
+            _tenantProvider = tenantProvider;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuild)
@@ -50,7 +52,6 @@ namespace Endpoints.Data
                 modelBuilder.Entity(entityType.Name).ForNpgsqlUseXminAsConcurrencyToken();
             }
             
-            
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Accounts)
                 .WithOne(acc => acc.AccountOwner);
@@ -61,6 +62,11 @@ namespace Endpoints.Data
             modelBuilder.Entity<Account>()
                 .Property(acc => acc.AccountType)
                 .HasConversion<string>();
+
+            //need to generalize this 
+            //add TenantId as a shadowProperty to every entity and auto add this to all DomainEntity classes.
+            //add also set the value on creation
+            modelBuilder.Entity<Account>().HasQueryFilter(acc => acc.AccountOwnerId == _tenantProvider.GetTenantId());
 
             modelBuilder.Entity<NumberRange>()
                 .ToTable("NumberRanges");
