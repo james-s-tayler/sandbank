@@ -8,6 +8,7 @@ using Domain.Account;
 using Domain.Transaction;
 using Endpoints.Configuration;
 using Endpoints.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 namespace Endpoints.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/User/{id}/[controller]")]
     [Produces("application/json")]
     [Consumes("application/json")]
