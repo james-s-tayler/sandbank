@@ -4,7 +4,7 @@ using Core;
 
 namespace Domain.User
 {
-    public class RegisterUserRequest : CreateModel<User, int>
+    public class RegisterUserRequest
     {
         [Required]
         [StringLength(100, MinimumLength = 3)]
@@ -33,7 +33,7 @@ namespace Domain.User
         [MaxLength(50)] 
         public string City { get; set; }
 
-        public override User ToDomainModel()
+        public User ToDomainModel()
         {
             return new User
             {

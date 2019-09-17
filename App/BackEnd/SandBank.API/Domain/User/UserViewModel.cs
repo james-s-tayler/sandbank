@@ -1,12 +1,15 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Common;
 using Core;
 
 namespace Domain.User
 {
     //I don't love this, but it's slightly less evil than AutoMapper
-    public class UserViewModel : ViewModel<User, int>
+    public class UserViewModel
     {
+        public int Id { get; }
+        
         [Required]
         [StringLength(100, MinimumLength = 3)]
         public string FullName { get; }
@@ -34,8 +37,9 @@ namespace Domain.User
         [StringLength(25)]
         public string PostCode { get; set; }
 
-        public UserViewModel(User user) : base(user)
+        public UserViewModel(User user)
         {
+            Id = user.Id;
             FullName = user.FullName;
             Email = user.Email;
             Phone = user.Phone;

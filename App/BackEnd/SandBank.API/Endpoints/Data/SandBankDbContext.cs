@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Core;
@@ -50,24 +51,70 @@ namespace Endpoints.Data
             {
                 modelBuilder.Entity(entityType.Name).Property<Guid>("ShadowId");
                 modelBuilder.Entity(entityType.Name).ForNpgsqlUseXminAsConcurrencyToken();
+
+                var baseType = entityType.ClrType.BaseType;
+                
+                if (IsDomainEntity(baseType)) //extends DomainEntity<TKey>
+                {
+                    modelBuilder.Entity(entityType.Name).Property<int>("TenantId");
+                    
+                    var addTenantIdFilterMethod = GetType()
+                        .GetMethod(nameof(AddTenantIdFilter), BindingFlags.NonPublic | BindingFlags.Static)
+                        .MakeGenericMethod(entityType.ClrType, baseType.GenericTypeArguments[0]);
+                    
+                    addTenantIdFilterMethod.Invoke(null, new object[] { modelBuilder, _tenantProvider });
+                }
             }
             
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.Accounts)
-                .WithOne(acc => acc.AccountOwner);
+            ConfigureAccounts(modelBuilder);
+            ConfigureUsers(modelBuilder);
+            ConfigureNumberRanges(modelBuilder);
+        }
 
-            modelBuilder.Entity<User>()
-                .HasAlternateKey(user => user.Email);
+        static void AddTenantIdFilter<T, EntityKey>(ModelBuilder modelBuilder, ITenantProvider tenantProvider) where T : DomainEntity<EntityKey>
+        {
+            modelBuilder.Entity<T>().HasQueryFilter(entity => EF.Property<int>(entity, "TenantId") == tenantProvider.GetTenantId());
+        }
 
-            modelBuilder.Entity<Account>()
-                .Property(acc => acc.AccountType)
-                .HasConversion<string>();
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default (CancellationToken))
+        {
+            return await SaveChangesAsync(true, cancellationToken);
+        }
 
-            //need to generalize this 
-            //add TenantId as a shadowProperty to every entity and auto add this to all DomainEntity classes.
-            //add also set the value on creation
-            modelBuilder.Entity<Account>().HasQueryFilter(acc => acc.AccountOwnerId == _tenantProvider.GetTenantId());
+        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new CancellationToken())
+        {
+            ChangeTracker.DetectChanges();
 
+            foreach (var entity in ChangeTracker.Entries().Where(e => e.State == EntityState.Added))
+            {
+                entity.Property("ShadowId").CurrentValue = Guid.NewGuid();
+
+                if (IsDomainEntity(entity.Metadata.ClrType.BaseType))
+                {
+                    entity.Property("TenantId").CurrentValue = _tenantProvider.GetTenantId();
+                    entity.Property("CreatedOn").CurrentValue = DateTime.UtcNow;
+                }
+            }
+            
+            return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+
+        private bool IsDomainEntity(Type entityBaseType)
+        {
+            var domainEntityRawType = typeof(DomainEntity<>);
+            if (entityBaseType.IsConstructedGenericType && entityBaseType.GenericTypeArguments.Length == 1)
+            {
+                var domainEntityReifiedType = domainEntityRawType.MakeGenericType(entityBaseType.GenericTypeArguments[0]);
+                if (entityBaseType == domainEntityReifiedType)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        private void ConfigureNumberRanges(ModelBuilder modelBuilder)
+        {
             modelBuilder.Entity<NumberRange>()
                 .ToTable("NumberRanges");
                 
@@ -97,42 +144,24 @@ namespace Endpoints.Data
                 .IsRequired()
                 .HasDefaultValue(0);
         }
-
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default (CancellationToken))
+        
+        private void ConfigureUsers(ModelBuilder modelBuilder)
         {
-            return await SaveChangesAsync(true, cancellationToken);
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Accounts)
+                .WithOne(acc => acc.AccountOwner);
+
+            modelBuilder.Entity<User>()
+                .HasAlternateKey(user => user.Email);
+
+            modelBuilder.Entity<User>().HasQueryFilter(user => user.Id == _tenantProvider.GetTenantId());
         }
-
-        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new CancellationToken())
+        
+        private void ConfigureAccounts(ModelBuilder modelBuilder)
         {
-            ChangeTracker.DetectChanges();
-
-            foreach (var entity in ChangeTracker.Entries().Where(e => e.State == EntityState.Added))
-            {
-                entity.Property("ShadowId").CurrentValue = Guid.NewGuid();
-
-                if (IsDomainEntity(entity))
-                {
-                    entity.Property("CreatedOn").CurrentValue = DateTime.UtcNow;
-                }
-            }
-            
-            return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-        }
-
-        private bool IsDomainEntity(EntityEntry entity)
-        {
-            var entityBaseType = entity.Metadata.ClrType.BaseType;
-            var domainEntityRawType = typeof(DomainEntity<>);
-            if (entityBaseType.IsConstructedGenericType && entityBaseType.GenericTypeArguments.Length == 1)
-            {
-                var domainEntityReifiedType = domainEntityRawType.MakeGenericType(entityBaseType.GenericTypeArguments[0]);
-                if (entityBaseType == domainEntityReifiedType)
-                {
-                    return true;
-                }
-            }
-            return false;
+            modelBuilder.Entity<Account>()
+                .Property(acc => acc.AccountType)
+                .HasConversion<string>();
         }
     }
 }
