@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Core.Jwt;
+using Core.MultiTenant;
 using Endpoints.Configuration;
 using Endpoints.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -70,6 +72,8 @@ namespace Endpoints
             var secret = Encoding.UTF8.GetBytes(jwtTokenConfiguration.Secret);
             services.Configure<JwtTokenConfiguration>(jwtConfigSection);
             services.AddTransient<IJwtTokenService, JwtTokenService>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped<ITenantProvider, TenantProvider>();
 
             services.AddAuthentication(x =>
                 {

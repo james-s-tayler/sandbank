@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Core;
 
 namespace Domain.User
 {
-    public class User : DomainEntity<int>
+    public class User
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+        
         [Required]
         [StringLength(100, MinimumLength = 3)]
         public string FullName { get; set; }
@@ -15,7 +20,6 @@ namespace Domain.User
         [MaxLength(100)]
         [EmailAddress]
         public string Email { get; set; }
-
 
         [MaxLength(25)] public string Phone { get; set; }
         public DateTime DateOfBirth { get; set; }
@@ -33,6 +37,10 @@ namespace Domain.User
         public string PostCode { get; set; }
 
         public List<Account.Account> Accounts { get; set; } = new List<Account.Account>();
+
+        [Editable(false)]
+        [Required]
+        public DateTime CreatedOn { get; set; }
 
     }
 }
