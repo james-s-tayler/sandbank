@@ -29,7 +29,7 @@ namespace Endpoints.Data
                     Phone = "+642108124230",
                     CreatedOn = DateTime.UtcNow
                 };
-                
+
                 context.Add(seedUser);
                 context.SaveChanges();
 
@@ -54,10 +54,10 @@ namespace Endpoints.Data
                     CreatedOn = DateTime.UtcNow,
                 };
 
-                
+
                 context.Add(seedAccount);
                 context.Add(seedAccount2);
-                context.SaveChanges();
+                context.SaveChangesSeed(seedUser.Id);
 
                 Console.WriteLine("Creating Transactions..");
                 var transactions = seedTransactionDataService.ReadFromFile();
@@ -66,7 +66,7 @@ namespace Endpoints.Data
                     seedAccount.PostTransaction(transaction);
                 }
                 context.Update(seedAccount);
-                context.SaveChanges();
+                context.SaveChangesSeed(seedUser.Id);
             }
             else
             {

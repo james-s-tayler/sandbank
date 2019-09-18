@@ -53,19 +53,19 @@ namespace Endpoints.Data
                 modelBuilder.Entity(entityType.Name).ForNpgsqlUseXminAsConcurrencyToken();
 
                 var baseType = entityType.ClrType.BaseType;
-                
+
                 if (IsDomainEntity(baseType)) //extends DomainEntity<TKey>
                 {
                     modelBuilder.Entity(entityType.Name).Property<int>("TenantId");
-                    
+
                     var addTenantIdFilterMethod = GetType()
                         .GetMethod(nameof(AddTenantIdFilter), BindingFlags.NonPublic | BindingFlags.Static)
                         .MakeGenericMethod(entityType.ClrType, baseType.GenericTypeArguments[0]);
-                    
+
                     addTenantIdFilterMethod.Invoke(null, new object[] { modelBuilder, _tenantProvider });
                 }
             }
-            
+
             ConfigureAccounts(modelBuilder);
             ConfigureUsers(modelBuilder);
             ConfigureNumberRanges(modelBuilder);
@@ -76,9 +76,27 @@ namespace Endpoints.Data
             modelBuilder.Entity<T>().HasQueryFilter(entity => EF.Property<int>(entity, "TenantId") == tenantProvider.GetTenantId());
         }
 
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default (CancellationToken))
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             return await SaveChangesAsync(true, cancellationToken);
+        }
+
+        public int SaveChangesSeed(int tenantId)
+        {
+            ChangeTracker.DetectChanges();
+
+            foreach (var entity in ChangeTracker.Entries().Where(e => e.State == EntityState.Added))
+            {
+                entity.Property("ShadowId").CurrentValue = Guid.NewGuid();
+
+                if (IsDomainEntity(entity.Metadata.ClrType.BaseType))
+                {
+                    entity.Property("TenantId").CurrentValue = tenantId;
+                    entity.Property("CreatedOn").CurrentValue = DateTime.UtcNow;
+                }
+            }
+
+            return base.SaveChanges(true);
         }
 
         public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new CancellationToken())
@@ -95,7 +113,7 @@ namespace Endpoints.Data
                     entity.Property("CreatedOn").CurrentValue = DateTime.UtcNow;
                 }
             }
-            
+
             return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
 
@@ -112,12 +130,12 @@ namespace Endpoints.Data
             }
             return false;
         }
-        
+
         private void ConfigureNumberRanges(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<NumberRange>()
                 .ToTable("NumberRanges");
-                
+
             modelBuilder.Entity<NumberRange>()
                 .Property(r => r.RangeType)
                 .HasConversion<string>()
@@ -128,23 +146,23 @@ namespace Endpoints.Data
                 .Property(r => r.Prefix)
                 .IsRequired()
                 .HasMaxLength(10);
-            
+
             modelBuilder.Entity<NumberRange>()
                 .Property(r => r.RangeStart)
                 .IsRequired()
                 .HasDefaultValue(1);
-            
+
             modelBuilder.Entity<NumberRange>()
                 .Property(r => r.RangeEnd)
                 .IsRequired()
                 .HasDefaultValue(999_999);
-            
+
             modelBuilder.Entity<NumberRange>()
                 .Property(r => r.LastValue)
                 .IsRequired()
                 .HasDefaultValue(0);
         }
-        
+
         private void ConfigureUsers(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()
@@ -156,7 +174,7 @@ namespace Endpoints.Data
 
             modelBuilder.Entity<User>().HasQueryFilter(user => user.Id == _tenantProvider.GetTenantId());
         }
-        
+
         private void ConfigureAccounts(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Account>()
