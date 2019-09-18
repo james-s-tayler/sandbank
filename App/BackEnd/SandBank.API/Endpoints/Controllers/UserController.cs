@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Endpoints.Controllers
 {
     //would actually be nice to wire these in via something like Fody so that it's not even necessary to specify it
-    [Authorize] 
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]
