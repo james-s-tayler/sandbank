@@ -23,8 +23,6 @@ namespace Endpoints
             using (var serviceScope = host.Services.GetService<IServiceScopeFactory>().CreateScope())
             using (var context = serviceScope.ServiceProvider.GetService<SandBankDbContext>())
             {
-                context.Database.EnsureDeleted();
-
                 var seedTransactionDataService = serviceScope.ServiceProvider.GetService<ISeedTransactionDataService>();
                 context.Database.Migrate();
                 SeedData.EnsureSeedData(context, seedTransactionDataService);
