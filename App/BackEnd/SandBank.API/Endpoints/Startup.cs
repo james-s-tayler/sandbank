@@ -72,6 +72,7 @@ namespace Endpoints
             var secret = Encoding.UTF8.GetBytes(jwtTokenConfiguration.Secret);
             services.Configure<JwtTokenConfiguration>(jwtConfigSection);
             services.AddTransient<IJwtTokenService, JwtTokenService>();
+            services.AddTransient<ISeedTransactionDataService, SeedTransactionDataService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<ITenantProvider, TenantProvider>();
 
@@ -97,8 +98,6 @@ namespace Endpoints
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            UpdateDatabase(app);
-            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -121,17 +120,6 @@ namespace Endpoints
             }
             app.UseAuthentication();
             app.UseMvc();
-        }
-        
-        private static void UpdateDatabase(IApplicationBuilder app)
-        {
-            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                using (var context = serviceScope.ServiceProvider.GetService<SandBankDbContext>())
-                {
-                    context.Database.Migrate();
-                }
-            }
         }
     }
 }

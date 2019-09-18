@@ -29,16 +29,19 @@ namespace Endpoints.Controllers
         private readonly INumberRangeService _numberRangeService;
         private readonly IConfiguration _config;
         private readonly ITenantProvider _tenantProvider;
+        private readonly ISeedTransactionDataService _seedTransactionDataService;
 
         public AccountController(SandBankDbContext db,
             INumberRangeService numberRangeService,
             IConfiguration config,
-            ITenantProvider tenantProvider)
+            ITenantProvider tenantProvider,
+            ISeedTransactionDataService seedTransactionDataService)
         {
             _db = db;
             _numberRangeService = numberRangeService;
             _config = config;
             _tenantProvider = tenantProvider;
+            _seedTransactionDataService = seedTransactionDataService;
         }
 
         [HttpGet]
@@ -175,17 +178,12 @@ namespace Endpoints.Controllers
 
             try
             {
-                using (var reader = System.IO.File.OpenText("seed-transactions.csv"))
-                using (var csv = new CsvReader(reader))
+                var transactions = _seedTransactionDataService.ReadFromFile();
+                foreach (var transaction in transactions)
                 {
-                    var transactionsCsvModels = csv.GetRecords<TransactionCsvModel>();
-                    var transactions = transactionsCsvModels.Select(t => t.ConvertToTransaction());
-                    foreach (var transaction in transactions)
-                    {
-                        account.PostTransaction(transaction);
-                    }
-                    await _db.SaveChangesAsync();
+                    account.PostTransaction(transaction);
                 }
+                await _db.SaveChangesAsync();
             }
             catch
             {
@@ -223,18 +221,12 @@ namespace Endpoints.Controllers
 
             try
             {
-                using (var csvStream = csvFile.OpenReadStream())
-                using (var reader = new StreamReader(csvStream))
-                using (var csv = new CsvReader(reader))
+                var transactions = _seedTransactionDataService.ReadFromFormPost(csvFile);
+                foreach (var transaction in transactions)
                 {
-                    var transactionsCsvModels = csv.GetRecords<TransactionCsvModel>();
-                    var transactions = transactionsCsvModels.Select(t => t.ConvertToTransaction());
-                    foreach (var transaction in transactions)
-                    {
-                        account.PostTransaction(transaction);
-                    }
-                    await _db.SaveChangesAsync();
+                    account.PostTransaction(transaction);
                 }
+                await _db.SaveChangesAsync();
             }
             catch
             {
