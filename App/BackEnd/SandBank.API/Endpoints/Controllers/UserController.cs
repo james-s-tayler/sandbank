@@ -15,7 +15,6 @@ using Microsoft.EntityFrameworkCore;
 namespace Endpoints.Controllers
 {
     //would actually be nice to wire these in via something like Fody so that it's not even necessary to specify it
-    [Authorize] 
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]
@@ -36,6 +35,7 @@ namespace Endpoints.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(UserViewModel))]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetUser()

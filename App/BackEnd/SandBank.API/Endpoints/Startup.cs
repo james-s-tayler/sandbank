@@ -8,6 +8,7 @@ using Core.MultiTenant;
 using Endpoints.Configuration;
 using Endpoints.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -21,6 +22,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Swagger;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Endpoints
 {
@@ -63,6 +65,16 @@ namespace Endpoints
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "SandBank API", Version = "v1" });
+
+                c.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                {
+                    Name = "Authorization",
+                    In = "header",
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+                    Type = "apiKey"
+                });
+
+                c.OperationFilter<SecurityRequirementsOperationFilter>();
             });
 
             services.AddTransient<INumberRangeService, NumberRangeService>();
@@ -131,6 +143,27 @@ namespace Endpoints
                 {
                     context.Database.Migrate();
                 }
+            }
+        }
+    }
+
+    public class SecurityRequirementsOperationFilter : IOperationFilter
+    {
+        public void Apply(Operation operation, OperationFilterContext context)
+        {
+            if (!context
+                    .MethodInfo
+                    .GetCustomAttributes(true)
+                    .OfType<AllowAnonymousAttribute>()
+                    .Any())
+            {
+                operation.Security = new List<IDictionary<string, IEnumerable<string>>>
+                {
+                    new Dictionary<string, IEnumerable<string>>
+                    {
+                        {"Bearer", Array.Empty<string>()}
+                    }
+                };
             }
         }
     }
