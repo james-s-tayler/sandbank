@@ -1,8 +1,7 @@
 using System;
 using System.Reflection.Metadata;
 using Core;
-using Domain;
-using Domain.User;
+using Entities.System.Users;
 using NUnit.Framework;
 using SlxLuhnLibrary;
 

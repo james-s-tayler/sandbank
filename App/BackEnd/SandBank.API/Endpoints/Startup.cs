@@ -5,8 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Core.Jwt;
 using Core.MultiTenant;
-using Endpoints.Configuration;
-using Endpoints.Data;
+using Database;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -20,6 +19,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Services.Domain.Accounts;
+using Services.System.NumberRange;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace Endpoints
@@ -31,8 +32,8 @@ namespace Endpoints
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
-        private static readonly string _localDevCorsPolicy = "localDevCorsPolicy";
+        private IConfiguration Configuration { get; }
+        private const string _localDevCorsPolicy = "localDevCorsPolicy";
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)

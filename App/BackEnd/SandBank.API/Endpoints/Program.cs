@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Endpoints.Configuration;
-using Endpoints.Data;
+using Database;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Services.Domain.Accounts;
 
 namespace Endpoints
 {
@@ -23,9 +23,10 @@ namespace Endpoints
             using (var serviceScope = host.Services.GetService<IServiceScopeFactory>().CreateScope())
             using (var context = serviceScope.ServiceProvider.GetService<SandBankDbContext>())
             {
-                var seedTransactionDataService = serviceScope.ServiceProvider.GetService<ISeedTransactionDataService>();
                 context.Database.Migrate();
-                SeedData.EnsureSeedData(context, seedTransactionDataService);
+                
+                var seedTransactionDataService = serviceScope.ServiceProvider.GetService<ISeedTransactionDataService>();
+                SeedData.EnsureSeedData(context);
             }
 
             host.Run();
