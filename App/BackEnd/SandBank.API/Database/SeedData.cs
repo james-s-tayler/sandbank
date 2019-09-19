@@ -11,10 +11,10 @@
                 var seedUser = new User
                 {
                     FullName = "John Smith",
-                    Address = "1 Queen Street",
+                    Address = "1099 King Street",
                     City = "Auckland",
                     Country = "New Zealand",
-                    PostCode = "1010",
+                    PostCode = "1024",
                     DateOfBirth = DateTime.UtcNow.AddYears(-30),
                     Email = "hello@example.com",
                     Phone = "+642112345678",
