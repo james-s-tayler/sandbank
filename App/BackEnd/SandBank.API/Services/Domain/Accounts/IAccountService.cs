@@ -1,9 +1,10 @@
+using System.Threading.Tasks;
 using Entities.Domain.Accounts;
 
 namespace Services.Domain.Accounts
 {
     public interface IAccountService
     {
-        Account GetAccount(int accountId);
+        Task<Account> OpenAccount(OpenAccountRequest openAccountRequest, int accountOwnerId);
     }
 }

@@ -67,6 +67,7 @@ namespace Endpoints
             });
 
             services.AddTransient<INumberRangeService, NumberRangeService>();
+            services.AddTransient<IAccountService, AccountService>();
             
             var jwtConfigSection = Configuration.GetSection(nameof(JwtTokenConfiguration));
             var jwtTokenConfiguration = jwtConfigSection.Get<JwtTokenConfiguration>();
@@ -114,11 +115,8 @@ namespace Endpoints
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "SandBank API V1");
             });
-
-            if (env.IsDevelopment())
-            {
-                app.UseCors(_localDevCorsPolicy);    
-            }
+            
+            app.UseCors(_localDevCorsPolicy);
             app.UseAuthentication();
             app.UseMvc();
         }

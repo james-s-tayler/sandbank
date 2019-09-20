@@ -25,8 +25,8 @@ namespace Endpoints
             {
                 context.Database.Migrate();
                 
-                var seedTransactionDataService = serviceScope.ServiceProvider.GetService<ISeedTransactionDataService>();
-                SeedData.EnsureSeedData(context);
+                var seedDataService = serviceScope.ServiceProvider.GetService<ISeedTransactionDataService>();
+                await seedDataService.SeedData();
             }
 
             host.Run();

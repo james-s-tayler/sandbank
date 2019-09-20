@@ -75,27 +75,9 @@ namespace Database
             modelBuilder.Entity<T>().HasQueryFilter(entity => EF.Property<int>(entity, "TenantId") == tenantProvider.GetTenantId());
         }
 
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             return await SaveChangesAsync(true, cancellationToken);
-        }
-        
-        public int SaveChangesSeed(int tenantId)
-        {
-            ChangeTracker.DetectChanges();
-
-            foreach (var entity in ChangeTracker.Entries().Where(e => e.State == EntityState.Added))
-            {
-                entity.Property("ShadowId").CurrentValue = Guid.NewGuid();
-
-                if (IsDomainEntity(entity.Metadata.ClrType.BaseType))
-                {
-                    entity.Property("TenantId").CurrentValue = tenantId;
-                    entity.Property("CreatedOn").CurrentValue = DateTime.UtcNow;
-                }
-            }
-
-            return base.SaveChanges(true);
         }
 
         public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new CancellationToken())

@@ -31,24 +31,27 @@ namespace Endpoints.Controllers
         private readonly IConfiguration _config;
         private readonly ITenantProvider _tenantProvider;
         private readonly ISeedTransactionDataService _seedTransactionDataService;
+        private readonly IAccountService _accountService;
 
         public AccountController(SandBankDbContext db,
             INumberRangeService numberRangeService,
             IConfiguration config,
             ITenantProvider tenantProvider,
-            ISeedTransactionDataService seedTransactionDataService)
+            ISeedTransactionDataService seedTransactionDataService,
+            IAccountService accountService)
         {
             _db = db;
             _numberRangeService = numberRangeService;
             _config = config;
             _tenantProvider = tenantProvider;
             _seedTransactionDataService = seedTransactionDataService;
+            _accountService = accountService;
         }
 
         [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<AccountViewModel>))]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> GetAccounts()
+        public IActionResult GetAccounts()
         {
             var accounts = _db.Accounts.Where(acc => acc.AccountOwnerId == _tenantProvider.GetTenantId()).ToList();
             
@@ -79,7 +82,7 @@ namespace Endpoints.Controllers
         [HttpPost]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(AccountViewModel))]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> PostAccount([FromBody] OpenAccountRequest openAccountRequest)
+        public async Task<IActionResult> OpenAccount([FromBody] OpenAccountRequest openAccountRequest)
         {
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == _tenantProvider.GetTenantId());
             
@@ -88,19 +91,7 @@ namespace Endpoints.Controllers
                 return NotFound();
             }
 
-            var account = openAccountRequest.ToDomainModel();
-            account.AccountOwnerId = _tenantProvider.GetTenantId();
-
-            //hacked this slightly to be NZ format. Not nice, but it works.
-            var nextAccountNum = await _numberRangeService.GetNextValue(account.AccountType == AccountType.TRANSACTION
-                ? NumberRangeType.Cheque
-                : NumberRangeType.Savings);
-            var bankPrefix = _config["BankPrefix"];
-            var branch = "0001";
-            var suffix = account.AccountType == AccountType.TRANSACTION ? "00" : "30"; 
-            account.AccountNumber = $"{bankPrefix}-{branch}-{nextAccountNum}-{suffix}";
-
-            await _db.Accounts.AddAsync(account);
+            var account = await _accountService.OpenAccount(openAccountRequest, _tenantProvider.GetTenantId());
             await _db.SaveChangesAsync();
             
             return Ok(new AccountViewModel(account));
