@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Core.MultiTenant;
 using Database;
 using Entities.Domain.Accounts;
 using Entities.Domain.Transactions;
@@ -23,16 +24,19 @@ namespace Services.Domain.Accounts
         private readonly ILogger<SeedTransactionDataService> _logger;
         private readonly IAccountService _accountService;
         private readonly IConfiguration _config;
+        private readonly ITenantProvider _tenantProvider;
 
         public SeedTransactionDataService(SandBankDbContext db,
             ILogger<SeedTransactionDataService> logger,
             IConfiguration config,
-            IAccountService accountService)
+            IAccountService accountService,
+            ITenantProvider tenantProvider)
         {
             _db = db;
             _logger = logger;
             _config = config;
             _accountService = accountService;
+            _tenantProvider = tenantProvider;
         }
 
         public async Task SeedData()
@@ -58,6 +62,8 @@ namespace Services.Domain.Accounts
                 };
                 await _db.Users.AddAsync(user);
                 await _db.SaveChangesAsync();
+                
+                _tenantProvider.SetTenantId(user.Id);
 
                 _logger.LogInformation($"Creating Accounts...");
                 var account1 = await _accountService.OpenAccount(
