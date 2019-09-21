@@ -2,6 +2,7 @@
   <div class="home">
     <div v-if="isAuthenticated">
       <p>You are logged in.</p>
+      <button @click="logout()">Logout</button>
     </div>
     <div v-else>
       <form>
@@ -46,8 +47,15 @@ export default class LoginForm extends Vue {
 
         window.localStorage.setItem('authToken', jwtToken);
         window.localStorage.setItem('authTokenExpiration', parsedToken.exp);
+        this.isAuthenticated = true;
     })
     .catch((error) => alert('Could not login.'));
+  }
+
+  public logout(): void {
+    window.localStorage.removeItem('authToken');
+    window.localStorage.removeItem('authTokenExpiration');
+    this.isAuthenticated = false;
   }
 
   private created() {
