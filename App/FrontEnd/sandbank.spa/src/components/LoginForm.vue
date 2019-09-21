@@ -48,6 +48,7 @@ export default class LoginForm extends Vue {
         window.localStorage.setItem('authToken', jwtToken);
         window.localStorage.setItem('authTokenExpiration', parsedToken.exp);
         this.isAuthenticated = true;
+        this.email = '';
     })
     .catch((error) => alert('Could not login.'));
   }

@@ -25,7 +25,7 @@ export default class Accounts extends Vue {
     }
 
     private created() {
-        this.$http.get(`/user/account`)
+        this.$http.get('/account')
         .then((response: AxiosResponse) => {
             response.data.forEach((account: Account) => {
                 this.accounts.unshift(account);
