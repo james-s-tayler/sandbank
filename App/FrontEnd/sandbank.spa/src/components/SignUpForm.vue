@@ -37,27 +37,23 @@ export default class HelloWorld extends Vue {
       },
     };
 
-    // this needs a clean up - should set axios baseURL and externalize configuration
-    // probably need to tidy up promises too
-
     this.$http.post('/user', registerUserRequest, headers)
       .then((response: AxiosResponse) => {
 
         const user = response.data;
-        const userId = user.id;
 
         const openAccountRequest = {
           accountType: 'TRANSACTION',
           displayName: 'My Account',
         };
 
-        this.$http.post('/user/' + userId + '/account', openAccountRequest, headers)
+        this.$http.post('/user/account', openAccountRequest, headers)
         .then((openAccountReponse: AxiosResponse) => {
           const accountId = openAccountReponse.data.id;
 
-          this.$http.post('/user/' + userId + '/account/' + accountId + '/seed', {}, headers)
+          this.$http.post('/user/account/' + accountId + '/seed', {}, headers)
           .then((seedTransactionsResponse: AxiosResponse) => {
-            this.$router.push('/user/' + userId + '/account');
+            this.$router.push('/user/account');
           });
         });
     })
