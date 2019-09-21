@@ -5,7 +5,10 @@ import axios from 'axios';
 import VueAxios from 'vue-axios';
 
 Vue.config.productionTip = false ;
+
+// need to exernalize configuration for this
 axios.defaults.baseURL = 'http://localhost:5100/api';
+
 Vue.use(VueAxios, axios);
 
 const app = new Vue({
