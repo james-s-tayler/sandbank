@@ -22,12 +22,12 @@ export default new Router({
       component: SignInForm,
     },
     {
-      path: '/user/:userId/account/:accountId',
+      path: '/user/account/:accountId',
       name: 'transactions',
       component: Transactions,
     },
     {
-      path: '/user/:userId/account',
+      path: '/user/account',
       name: 'accounts',
       component: Accounts,
     },
