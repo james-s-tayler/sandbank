@@ -12,6 +12,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import Axios, { AxiosResponse } from 'axios';
 import VueRouter from 'vue-router';
+import { JwtHelper } from '@/jwt-helper';
 
 @Component
 export default class LoginForm extends Vue {
@@ -35,9 +36,12 @@ export default class LoginForm extends Vue {
     this.$http.post('/user/login', loginUserRequest, headers)
       .then((response: AxiosResponse) => {
         const jwtToken = response.data;
-        alert(jwtToken);
+        const parsedToken = new JwtHelper().decodeToken(jwtToken);
+
+        window.localStorage.setItem('authToken', jwtToken);
+        window.localStorage.setItem('authTokenExpiration', parsedToken.exp);
     })
-    .catch((error) => alert('error=' + error));
+    .catch((error) => alert('Could not login.'));
   }
 }
 </script>
