@@ -5,16 +5,17 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Core.MultiTenant;
-using CsvHelper;
-using Domain.Account;
-using Domain.Transaction;
-using Endpoints.Configuration;
-using Endpoints.Data;
+using Database;
+using Entities.Domain.Accounts;
+using Entities.Domain.Transactions;
+using Entities.System.NumberRanges;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Services.Domain.Accounts;
+using Services.System.NumberRange;
 
 namespace Endpoints.Controllers
 {
@@ -29,22 +30,28 @@ namespace Endpoints.Controllers
         private readonly INumberRangeService _numberRangeService;
         private readonly IConfiguration _config;
         private readonly ITenantProvider _tenantProvider;
+        private readonly ISeedTransactionDataService _seedTransactionDataService;
+        private readonly IAccountService _accountService;
 
         public AccountController(SandBankDbContext db,
             INumberRangeService numberRangeService,
             IConfiguration config,
-            ITenantProvider tenantProvider)
+            ITenantProvider tenantProvider,
+            ISeedTransactionDataService seedTransactionDataService,
+            IAccountService accountService)
         {
             _db = db;
             _numberRangeService = numberRangeService;
             _config = config;
             _tenantProvider = tenantProvider;
+            _seedTransactionDataService = seedTransactionDataService;
+            _accountService = accountService;
         }
 
         [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<AccountViewModel>))]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> GetAccounts()
+        public IActionResult GetAccounts()
         {
             var accounts = _db.Accounts.Where(acc => acc.AccountOwnerId == _tenantProvider.GetTenantId()).ToList();
             
@@ -75,7 +82,7 @@ namespace Endpoints.Controllers
         [HttpPost]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(AccountViewModel))]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> PostAccount([FromBody] OpenAccountRequest openAccountRequest)
+        public async Task<IActionResult> OpenAccount([FromBody] OpenAccountRequest openAccountRequest)
         {
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == _tenantProvider.GetTenantId());
             
@@ -84,19 +91,7 @@ namespace Endpoints.Controllers
                 return NotFound();
             }
 
-            var account = openAccountRequest.ToDomainModel();
-            account.AccountOwnerId = _tenantProvider.GetTenantId();
-
-            //hacked this slightly to be NZ format. Not nice, but it works.
-            var nextAccountNum = await _numberRangeService.GetNextValue(account.AccountType == AccountType.TRANSACTION
-                ? NumberRangeType.Cheque
-                : NumberRangeType.Savings);
-            var bankPrefix = _config["BankPrefix"];
-            var branch = "0001";
-            var suffix = account.AccountType == AccountType.TRANSACTION ? "00" : "30"; 
-            account.AccountNumber = $"{bankPrefix}-{branch}-{nextAccountNum}-{suffix}";
-
-            await _db.Accounts.AddAsync(account);
+            var account = await _accountService.OpenAccount(openAccountRequest, _tenantProvider.GetTenantId());
             await _db.SaveChangesAsync();
             
             return Ok(new AccountViewModel(account));
@@ -175,17 +170,12 @@ namespace Endpoints.Controllers
 
             try
             {
-                using (var reader = System.IO.File.OpenText("seed-transactions.csv"))
-                using (var csv = new CsvReader(reader))
+                var transactions = _seedTransactionDataService.ReadFromFile();
+                foreach (var transaction in transactions)
                 {
-                    var transactionsCsvModels = csv.GetRecords<TransactionCsvModel>();
-                    var transactions = transactionsCsvModels.Select(t => t.ConvertToTransaction());
-                    foreach (var transaction in transactions)
-                    {
-                        account.PostTransaction(transaction);
-                    }
-                    await _db.SaveChangesAsync();
+                    account.PostTransaction(transaction);
                 }
+                await _db.SaveChangesAsync();
             }
             catch
             {
@@ -223,18 +213,12 @@ namespace Endpoints.Controllers
 
             try
             {
-                using (var csvStream = csvFile.OpenReadStream())
-                using (var reader = new StreamReader(csvStream))
-                using (var csv = new CsvReader(reader))
+                var transactions = _seedTransactionDataService.ReadFromFormPost(csvFile);
+                foreach (var transaction in transactions)
                 {
-                    var transactionsCsvModels = csv.GetRecords<TransactionCsvModel>();
-                    var transactions = transactionsCsvModels.Select(t => t.ConvertToTransaction());
-                    foreach (var transaction in transactions)
-                    {
-                        account.PostTransaction(transaction);
-                    }
-                    await _db.SaveChangesAsync();
+                    account.PostTransaction(transaction);
                 }
+                await _db.SaveChangesAsync();
             }
             catch
             {

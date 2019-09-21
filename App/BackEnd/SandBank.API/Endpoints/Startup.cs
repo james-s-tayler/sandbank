@@ -5,8 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Core.Jwt;
 using Core.MultiTenant;
-using Endpoints.Configuration;
-using Endpoints.Data;
+using Database;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -21,6 +20,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Services.Domain.Accounts;
+using Services.System.NumberRange;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -33,8 +34,8 @@ namespace Endpoints
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
-        private static readonly string _localDevCorsPolicy = "localDevCorsPolicy";
+        private IConfiguration Configuration { get; }
+        private const string _localDevCorsPolicy = "localDevCorsPolicy";
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -78,12 +79,14 @@ namespace Endpoints
             });
 
             services.AddTransient<INumberRangeService, NumberRangeService>();
+            services.AddTransient<IAccountService, AccountService>();
             
             var jwtConfigSection = Configuration.GetSection(nameof(JwtTokenConfiguration));
             var jwtTokenConfiguration = jwtConfigSection.Get<JwtTokenConfiguration>();
             var secret = Encoding.UTF8.GetBytes(jwtTokenConfiguration.Secret);
             services.Configure<JwtTokenConfiguration>(jwtConfigSection);
             services.AddTransient<IJwtTokenService, JwtTokenService>();
+            services.AddTransient<ISeedTransactionDataService, SeedTransactionDataService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<ITenantProvider, TenantProvider>();
 
@@ -109,8 +112,6 @@ namespace Endpoints
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            UpdateDatabase(app);
-            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -126,24 +127,10 @@ namespace Endpoints
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "SandBank API V1");
             });
-
-            if (env.IsDevelopment())
-            {
-                app.UseCors(_localDevCorsPolicy);    
-            }
+            
+            app.UseCors(_localDevCorsPolicy);
             app.UseAuthentication();
             app.UseMvc();
-        }
-        
-        private static void UpdateDatabase(IApplicationBuilder app)
-        {
-            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                using (var context = serviceScope.ServiceProvider.GetService<SandBankDbContext>())
-                {
-                    context.Database.Migrate();
-                }
-            }
         }
     }
 
