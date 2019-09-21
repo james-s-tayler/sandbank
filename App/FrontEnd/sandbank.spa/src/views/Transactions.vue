@@ -22,20 +22,19 @@ export default class Transactions extends Vue {
     private transactions: Transaction[] = [];
 
     private created() {
-       this.userId = this.$route.params.userId;
        this.accountId = this.$route.params.accountId;
        this.getBalance();
        this.getTransactions();
     }
 
     private getBalance() {
-        this.$http.get(`/user/${this.userId}/account/${this.accountId}/balance`)
+        this.$http.get(`/account/${this.accountId}/balance`)
         .then((response: AxiosResponse) => this.balance = response.data)
         .catch((error) => this.balance = 0);
     }
 
     private getTransactions() {
-        this.$http.get(`/user/${this.userId}/account/${this.accountId}/transaction`)
+        this.$http.get(`/account/${this.accountId}/transaction`)
         .then((response: AxiosResponse) => {
             response.data.forEach((txn: Transaction) => {
                this.transactions.unshift(txn);
