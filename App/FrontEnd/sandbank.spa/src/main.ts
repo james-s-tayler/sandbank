@@ -9,6 +9,12 @@ Vue.config.productionTip = false ;
 // need to exernalize configuration for this
 axios.defaults.baseURL = 'http://localhost:5100/api';
 axios.interceptors.request.use((config: AxiosRequestConfig) => {
+
+  // detect sever side rendering
+  if (typeof window === undefined) {
+    return config;
+  }
+
   const authToken = window.localStorage.getItem('authToken');
   if (authToken) {
     config.headers.Authorization = `Bearer ${authToken}`;
