@@ -1,13 +1,41 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Register</router-link> |
-      <router-link to="/login">Login</router-link> | 
-      <router-link :to="{ name: 'accounts', params: { userId: 12 }}">Accounts</router-link>
-    </div>
+    <el-container>
+      <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
+        <el-menu-item index="1">SandBank</el-menu-item>
+        <el-menu-item index="2">
+          <router-link to="/">Register</router-link>
+        </el-menu-item>
+        <el-menu-item index="3">
+          <router-link to="/login">Login</router-link>    
+        </el-menu-item>
+        <el-menu-item index="4">
+          <router-link to="/accounts">Accounts</router-link>
+        </el-menu-item>
+      </el-menu>
+    </el-container>
+    
     <router-view/>
   </div>
 </template>
+
+<script lang="ts">
+
+import Vue from 'vue';
+import { Component } from 'vue-property-decorator';
+
+@Component
+export default class Accounts extends Vue {
+
+    private activeIndex: string = '1';
+
+    private handleSelect(): void {
+      // yolo
+    }
+
+}
+
+</script>
 
 <style>
 #app {

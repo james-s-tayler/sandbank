@@ -22,12 +22,12 @@ export default new Router({
       component: LoginPage,
     },
     {
-      path: '/user/account/:accountId',
+      path: '/account/:accountId',
       name: 'transactions',
       component: Transactions,
     },
     {
-      path: '/user/account',
+      path: '/accounts',
       name: 'accounts',
       component: Accounts,
     },
