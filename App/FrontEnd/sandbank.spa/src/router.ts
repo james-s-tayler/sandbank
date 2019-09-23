@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
+import HomePage from './views/HomePage.vue';
 import SignUpPage from './views/SignUpPage.vue';
 import LoginPage from './views/LoginPage.vue';
 import Transactions from './views/Transactions.vue';
@@ -13,6 +14,11 @@ export default new Router({
   routes: [
     {
       path: '/',
+      name: 'home',
+      component: HomePage,
+    },
+    {
+      path: '/register',
       name: 'register',
       component: SignUpPage,
     },

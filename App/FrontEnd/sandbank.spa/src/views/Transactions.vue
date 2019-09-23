@@ -1,9 +1,20 @@
 <template>
     <div>
-        <p>balance: {{ balance }}</p>
-        <ul>
-            <li v-for="(transaction, index) in this.transactions" v-bind:key="index"> ${{ transaction.amount }} {{ transaction.description }}</li>
-        </ul>
+        
+        <el-page-header style="padding-top: 20px;" @back="goBack" :content="'Balance: $' + balance" title="Back"></el-page-header>
+        <el-container>
+            <h2>Transactions</h2>
+        </el-container>
+        <el-table :data="transactions" stripe style="width: 100%">
+            <el-table-column
+                prop="description"
+                label="Description">
+            </el-table-column>
+            <el-table-column
+                prop="amount"
+                label="Amount">
+            </el-table-column>
+        </el-table>
     </div>
 </template>
 
@@ -41,6 +52,10 @@ export default class Transactions extends Vue {
             });
         })
         .catch((error) => alert(error));
+    }
+
+    private goBack(): void {
+        this.$router.go(-1);
     }
 }
 </script>
