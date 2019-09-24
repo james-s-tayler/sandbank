@@ -17,7 +17,7 @@ axios.interceptors.request.use((config: AxiosRequestConfig) => {
     return config;
   }
 
-  const authToken = window.localStorage.getItem('authToken');
+  const authToken = window.sessionStorage.getItem('authToken');
   if (authToken) {
     config.headers.Authorization = `Bearer ${authToken}`;
   }

@@ -17,6 +17,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import Axios, { AxiosResponse } from 'axios';
+import { eventBus } from '@/event-bus';
 import VueRouter from 'vue-router';
 import { JwtHelper } from '@/jwt-helper';
 
@@ -26,7 +27,7 @@ export default class LoginForm extends Vue {
   private email: string = '';
   private isAuthenticated: boolean = false;
 
-  public login(): void {
+  private login() {
 
     const loginUserRequest = {
       email: this.email,
@@ -45,22 +46,24 @@ export default class LoginForm extends Vue {
         const jwtToken = response.data;
         const parsedToken = new JwtHelper().decodeToken(jwtToken);
 
-        window.localStorage.setItem('authToken', jwtToken);
-        window.localStorage.setItem('authTokenExpiration', parsedToken.exp);
+        window.sessionStorage.setItem('authToken', jwtToken);
+        window.sessionStorage.setItem('authTokenExpiration', parsedToken.exp);
         this.isAuthenticated = true;
         this.email = '';
+
+        eventBus.$emit('authStatusUpdated', true);
     })
     .catch((error) => alert('Could not login.'));
   }
 
-  public logout(): void {
-    window.localStorage.removeItem('authToken');
-    window.localStorage.removeItem('authTokenExpiration');
+  private logout() {
+    window.sessionStorage.removeItem('authToken');
+    window.sessionStorage.removeItem('authTokenExpiration');
     this.isAuthenticated = false;
   }
 
   private created() {
-    const expiration = window.localStorage.getItem('authTokenExpiration');
+    const expiration = window.sessionStorage.getItem('authTokenExpiration');
     const unixTimestamp = new Date().getUTCMilliseconds() / 1000;
 
     if (expiration !== null && parseInt(expiration, 10) - unixTimestamp > 0) {
