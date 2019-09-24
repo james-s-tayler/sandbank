@@ -17,11 +17,14 @@
           <el-menu-item index="2">
             <router-link to="/accounts">Accounts</router-link>
           </el-menu-item>
-          <el-menu-item index="3" style="float: right;">
+          <el-menu-item v-if="!isAuthenticated" index="3" style="float: right;">
             <router-link to="/register">Register</router-link>
           </el-menu-item>
-          <el-menu-item index="4" style="float: right;">
+          <el-menu-item v-if="!isAuthenticated" index="4" style="float: right;">
             <router-link to="/login">Login</router-link>
+          </el-menu-item>
+          <el-menu-item v-if="isAuthenticated" index="4" style="float: right;">
+            <a @click="logout()" href="#">Logout</a>
           </el-menu-item>
         </el-menu>
       </div>
@@ -32,13 +35,34 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
+import { eventBus } from '@/event-bus';
+import { Route } from 'vue-router';
 
 @Component
 export default class AppHeader extends Vue {
-  private activeIndex: string = '1';
 
-  private handleSelect(): void {
+  private activeIndex: string = '1';
+  private isAuthenticated: boolean = false;
+
+  public logout() {
+    window.sessionStorage.removeItem('authToken');
+    window.sessionStorage.removeItem('authTokenExpiration');
+    eventBus.$emit('authStatusUpdated', false);
+  }
+
+  private handleSelect() {
     // yolo
+  }
+
+  private created() {
+    eventBus.$on('authStatusUpdated', (isAuthenticated: boolean) => {
+        this.isAuthenticated = isAuthenticated;
+        if (isAuthenticated) {
+            this.$router.push('/accounts');
+        } else {
+            this.$router.push('/');
+        }
+    });
   }
 }
 </script>

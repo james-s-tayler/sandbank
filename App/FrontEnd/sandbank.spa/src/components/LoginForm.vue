@@ -1,16 +1,10 @@
 <template>
   <div class="home">
-    <div v-if="isAuthenticated">
-      <p>You are logged in.</p>
-      <button @click="logout()">Logout</button>
-    </div>
-    <div v-else>
-      <form>
-        <label for="email">Email</label>
-        <input v-model="email" name="email" type="email">
-        <input @click="login()" value="Login">
-      </form>
-    </div>
+    <form>
+      <label for="email">Email</label>
+      <input v-model="email" name="email" type="email">
+      <input @click="login()" value="Login">
+    </form>
   </div>
 </template>
 
@@ -23,12 +17,9 @@ import { JwtHelper } from '@/jwt-helper';
 
 @Component
 export default class LoginForm extends Vue {
-
   private email: string = '';
-  private isAuthenticated: boolean = false;
 
   private login() {
-
     const loginUserRequest = {
       email: this.email,
       password: 'a',
@@ -41,25 +32,19 @@ export default class LoginForm extends Vue {
       },
     };
 
-    this.$http.post('/user/login', loginUserRequest, headers)
+    this.$http
+      .post('/user/login', loginUserRequest, headers)
       .then((response: AxiosResponse) => {
         const jwtToken = response.data;
         const parsedToken = new JwtHelper().decodeToken(jwtToken);
 
         window.sessionStorage.setItem('authToken', jwtToken);
         window.sessionStorage.setItem('authTokenExpiration', parsedToken.exp);
-        this.isAuthenticated = true;
         this.email = '';
 
         eventBus.$emit('authStatusUpdated', true);
-    })
-    .catch((error) => alert('Could not login.'));
-  }
-
-  private logout() {
-    window.sessionStorage.removeItem('authToken');
-    window.sessionStorage.removeItem('authTokenExpiration');
-    this.isAuthenticated = false;
+      })
+      .catch((error) => alert('Could not login.'));
   }
 
   private created() {
@@ -67,7 +52,7 @@ export default class LoginForm extends Vue {
     const unixTimestamp = new Date().getUTCMilliseconds() / 1000;
 
     if (expiration !== null && parseInt(expiration, 10) - unixTimestamp > 0) {
-      this.isAuthenticated = true;
+      eventBus.$emit('authStatusUpdated', true);
     }
   }
 }
