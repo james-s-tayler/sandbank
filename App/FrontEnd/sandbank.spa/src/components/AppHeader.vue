@@ -14,14 +14,14 @@
               <router-link to="/">SandBank</router-link>
             </h1>
           </el-menu-item>
-          <el-menu-item index="2">
+          <el-menu-item v-if="isAuthenticated" index="2">
             <router-link to="/accounts">Accounts</router-link>
           </el-menu-item>
           <el-menu-item v-if="!isAuthenticated" index="3" style="float: right;">
-            <router-link to="/register">Register</router-link>
+            <router-link to="/login">Login</router-link>
           </el-menu-item>
           <el-menu-item v-if="!isAuthenticated" index="4" style="float: right;">
-            <router-link to="/login">Login</router-link>
+            <router-link to="/register">Register</router-link>
           </el-menu-item>
           <el-menu-item v-if="isAuthenticated" index="4" style="float: right;">
             <a @click="logout()" href="#">Logout</a>

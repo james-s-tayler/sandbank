@@ -1,11 +1,12 @@
 <template>
-  <div class="home">
-    <form>
-      <label for="email">Email</label>
-      <input v-model="email" name="email" type="email">
-      <input @click="login()" value="Login">
-    </form>
-  </div>
+  <el-form status-icon label-width="120px" class="demo-ruleForm">
+    <el-form-item label="Email" prop="email">
+      <el-input type="email" v-model="email"></el-input>
+    </el-form-item>
+    <el-form-item>
+      <el-button type="primary" @click="login()">Login</el-button>
+    </el-form-item>
+  </el-form>
 </template>
 
 <script lang="ts">

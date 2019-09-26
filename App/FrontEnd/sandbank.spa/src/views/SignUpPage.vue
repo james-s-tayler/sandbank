@@ -1,6 +1,5 @@
 <template>
-  <div>
-    <h1>Register</h1>
+  <div style="width: 40%; margin: auto; margin-top: 40px;">
     <SignUpForm />
   </div>
 </template>
