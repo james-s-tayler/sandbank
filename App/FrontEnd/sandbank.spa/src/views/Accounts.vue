@@ -4,14 +4,14 @@
             <h2>Your Accounts</h2>
         </el-container>     
         <ul>
-            <li v-for="(account, index) in this.accounts" v-bind:key="index">
+            <li v-for="(account, index) in this.$store.state.accounts" v-bind:key="index">
                 <el-card class="box-card">
                     <div slot="header" class="clearfix">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div style="display: flex; justify-content: flex-start; align-items: center;">
                                 <el-image
                                     style="width: 100px; height: 100px; border-radius: 50%;"
-                                    src="http://p-hold.com/400/300"
+                                    src="https://source.unsplash.com/random/100x100"
                                     fit="cover"></el-image>
                                 <div style="display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; padding: 10px;">
                                     <router-link :to="{ name: 'transactions', params: { accountId: account.id }}">{{ account.displayName }}</router-link>
@@ -45,7 +45,6 @@ import Axios, { AxiosResponse } from 'axios';
 @Component
 export default class Accounts extends Vue {
 
-    private accounts: Account[] = [];
     private activeName: number[] = [];
 
     constructor() {
@@ -53,13 +52,15 @@ export default class Accounts extends Vue {
     }
 
     private created() {
-        this.$http.get('/account')
-        .then((response: AxiosResponse) => {
-            response.data.forEach((account: Account) => {
-                this.accounts.unshift(account);
-            });
-        })
-        .catch((error) => alert(error));
+        if (this.$store.state.accounts.length === 0) {
+            this.$http.get('/account')
+                .then((response: AxiosResponse) => {
+                    response.data.forEach((account: Account) => {
+                        this.$store.commit('addAccount', account);
+                });
+            })
+            .catch((error) => alert(error));
+        }
      }
 
      private goBack(): void {

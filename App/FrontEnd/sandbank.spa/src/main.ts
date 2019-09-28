@@ -5,6 +5,7 @@ import axios, { AxiosRequestConfig } from 'axios';
 import VueAxios from 'vue-axios';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
+import store from '@/store/accounts';
 
 Vue.config.productionTip = false ;
 
@@ -29,6 +30,7 @@ Vue.use(ElementUI, {});
 
 const app = new Vue({
   router,
+  store,
   render: (h) => h(App),
 }).$mount('#app');
 
