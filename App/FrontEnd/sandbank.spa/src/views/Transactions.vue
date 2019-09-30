@@ -5,7 +5,7 @@
         <el-container>
             <h2>Transactions</h2>
         </el-container>
-        <el-table :data="transactions" stripe style="width: 100%">
+        <el-table :data="transactions" empty-text="No Transactions." stripe style="width: 100%">
             <el-table-column
                 prop="description"
                 label="Description">

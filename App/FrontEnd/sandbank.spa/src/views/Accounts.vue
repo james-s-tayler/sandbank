@@ -9,7 +9,7 @@
                     <div slot="header" class="clearfix">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div style="display: flex; justify-content: flex-start; align-items: center;">
-                                <el-image
+                                <el-image :key="index"
                                     style="width: 100px; height: 100px; border-radius: 50%;"
                                     src="https://source.unsplash.com/random/100x100"
                                     fit="cover"></el-image>
@@ -20,13 +20,20 @@
                                     </p>
                                 </div>
                             </div>
-                            <p>Balance $0.00</p>
+                            <p>Balance ${{ account.balance }}</p>
                         </div>
                     </div>
                     <el-collapse v-model="activeName[index]" accordion>
                         <el-collapse-item title="View Recent Transactions" :name="account.id">
-                            <div>Consistent with real life: in line with the process and logic of real life, and comply with languages and habits that the users are used to;</div>
-                            <div>Consistent within interface: all elements should be consistent, such as: design style, icons and texts, position of elements, etc.</div>
+                            <el-timeline>
+                                <el-timeline-item
+                                    v-for="(transaction, transactionIndex) in account.transactions"
+                                    :key="transactionIndex"
+                                    :color="transaction.amount < 0 ? 'darkgray' : '#409EFF'"
+                                    :timestamp="transaction.transactionTimeUtc">
+                                    <strong>${{transaction.amount}}</strong> {{ transaction.description }}
+                                </el-timeline-item>
+                            </el-timeline>
                         </el-collapse-item>
                     </el-collapse>
                 </el-card>
@@ -51,15 +58,33 @@ export default class Accounts extends Vue {
         super();
     }
 
-    private created() {
+    private async created() {
         if (this.$store.state.accounts.length === 0) {
-            this.$http.get('/account')
-                .then((response: AxiosResponse) => {
-                    response.data.forEach((account: Account) => {
-                        this.$store.commit('addAccount', account);
-                });
+
+            const accounts: Account[] = await this.$http.get('/account')
+            .then((response: AxiosResponse) => {
+                return response.data;
             })
             .catch((error) => alert(error));
+
+            accounts.forEach((account: Account) => {
+                Axios.all(
+                    [
+                        this.$http.get(`/account/${account.id}/balance`),
+                        this.$http.get(`/account/${account.id}/transaction`),
+                    ],
+                )
+                .then(Axios.spread((balanceResponse: AxiosResponse, transactionResponse: AxiosResponse) => {
+                    account.balance = balanceResponse.data;
+                    account.transactions = transactionResponse.data;
+
+                    this.$store.commit('addAccount', account);
+                }))
+                .catch((error) => {
+                    account.balance = 0;
+                    account.transactions = [];
+                });
+            });
         }
      }
 
@@ -80,6 +105,11 @@ p {
 
 li {
     margin-bottom: 30px;
+}
+
+li.el-timeline-item {
+    margin-bottom: 0px;
+    text-align: start;
 }
 
 div.el-card__body {
