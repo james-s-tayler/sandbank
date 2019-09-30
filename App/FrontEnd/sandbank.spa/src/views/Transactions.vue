@@ -1,11 +1,11 @@
 <template>
     <div>
         
-        <el-page-header style="padding-top: 20px;" @back="goBack" :content="'Balance: $' + balance" title="Back"></el-page-header>
+        <el-page-header style="padding-top: 20px;" @back="goBack" :content="'Balance: $' + account.balance" title="Back"></el-page-header>
         <el-container>
             <h2>Transactions</h2>
         </el-container>
-        <el-table :data="transactions" empty-text="No Transactions." stripe style="width: 100%">
+        <el-table :data="account.transactions" empty-text="No Transactions." stripe style="width: 100%">
             <el-table-column
                 prop="description"
                 label="Description">
@@ -23,35 +23,16 @@ import { Component, Vue } from 'vue-property-decorator';
 import { Route } from 'vue-router';
 import Axios, { AxiosResponse } from 'axios';
 import { Transaction } from '../transaction';
+import { Account } from '@/account';
 
 @Component
 export default class Transactions extends Vue {
 
-    private userId: string = '';
-    private accountId: string = '';
-    private balance: number = 0;
-    private transactions: Transaction[] = [];
+    private account: Account;
 
     private created() {
-       this.accountId = this.$route.params.accountId;
-       this.getBalance();
-       this.getTransactions();
-    }
-
-    private getBalance() {
-        this.$http.get(`/account/${this.accountId}/balance`)
-        .then((response: AxiosResponse) => this.balance = response.data)
-        .catch((error) => this.balance = 0);
-    }
-
-    private getTransactions() {
-        this.$http.get(`/account/${this.accountId}/transaction`)
-        .then((response: AxiosResponse) => {
-            response.data.forEach((txn: Transaction) => {
-               this.transactions.unshift(txn);
-            });
-        })
-        .catch((error) => alert(error));
+       const accountId: number = Number(this.$route.params.accountId);
+       this.account = this.$store.state.accounts.find((acc: Account) => acc.id === accountId);
     }
 
     private goBack(): void {
