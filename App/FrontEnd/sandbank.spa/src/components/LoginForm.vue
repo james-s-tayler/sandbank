@@ -36,14 +36,7 @@ export default class LoginForm extends Vue {
     this.$http
       .post('/user/login', loginUserRequest, headers)
       .then((response: AxiosResponse) => {
-        const jwtToken = response.data;
-        const parsedToken = new JwtHelper().decodeToken(jwtToken);
-
-        window.sessionStorage.setItem('authToken', jwtToken);
-        window.sessionStorage.setItem('authTokenExpiration', parsedToken.exp);
-        this.email = '';
-
-        this.$store.commit('updateAuthStatus', true);
+        this.$store.dispatch('login', response.data);
         this.$router.push('/accounts');
       })
       .catch((error) => alert('Could not login.'));

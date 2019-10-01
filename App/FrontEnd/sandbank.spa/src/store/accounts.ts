@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import { Account } from '@/account';
+import { JwtHelper } from '@/jwt-helper';
 
 Vue.use(Vuex);
 
@@ -33,6 +34,14 @@ export default new Vuex.Store({
     actions: {
         logout(context) {
             context.commit('logout');
+        },
+        login(context, jwtToken: string) {
+            const parsedToken = new JwtHelper().decodeToken(jwtToken);
+            if (typeof window !== 'undefined') {
+                window.sessionStorage.setItem('authToken', jwtToken);
+                window.sessionStorage.setItem('authTokenExpiration', parsedToken.exp);
+            }
+            context.commit('updateAuthStatus', true);
         },
     },
 });
