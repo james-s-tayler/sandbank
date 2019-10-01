@@ -7,7 +7,6 @@
           :default-active="activeIndex"
           class="el-menu-demo"
           mode="horizontal"
-          @select="handleSelect"
         >
           <el-menu-item index="1">
             <h1>
@@ -35,7 +34,6 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
-import { eventBus } from '@/event-bus';
 import { Route } from 'vue-router';
 
 @Component
@@ -44,36 +42,22 @@ export default class AppHeader extends Vue {
   private activeIndex: string = '1';
 
   public logout() {
-    window.sessionStorage.removeItem('authToken');
-    window.sessionStorage.removeItem('authTokenExpiration');
-    eventBus.$emit('authStatusUpdated', false);
+    this.$store.dispatch('logout');
+    this.$router.push('/');
   }
 
-  private handleSelect() {
-    // yolo
-  }
-
-  private get isAuthenticated(): boolean {
-    return this.$store.state.isAuthenticated;
+  private get isAuthenticated() {
+    return this.$store.getters.isAuthenticated;
   }
 
   private created() {
-    eventBus.$on('authStatusUpdated', (isAuthenticated: boolean) => {
-        this.$store.commit('updateAuthStatus', isAuthenticated);
-        if (isAuthenticated) {
-            this.$router.push('/accounts');
-        } else {
-            this.$router.push('/login');
-        }
-    });
-
     const expiration = window.sessionStorage.getItem('authTokenExpiration');
     const unixTimestamp = new Date().getUTCMilliseconds() / 1000;
 
     if (expiration !== null && parseInt(expiration, 10) - unixTimestamp > 0) {
-      eventBus.$emit('authStatusUpdated', true);
+      this.$store.commit('updateAuthStatus', true);
     } else {
-      eventBus.$emit('authStatusUpdated', false);
+      this.logout();
     }
   }
 }

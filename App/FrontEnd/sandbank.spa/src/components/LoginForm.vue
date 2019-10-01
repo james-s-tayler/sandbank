@@ -43,7 +43,8 @@ export default class LoginForm extends Vue {
         window.sessionStorage.setItem('authTokenExpiration', parsedToken.exp);
         this.email = '';
 
-        eventBus.$emit('authStatusUpdated', true);
+        this.$store.commit('updateAuthStatus', true);
+        this.$router.push('/accounts');
       })
       .catch((error) => alert('Could not login.'));
   }

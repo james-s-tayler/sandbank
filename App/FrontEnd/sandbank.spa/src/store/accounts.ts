@@ -17,5 +17,22 @@ export default new Vuex.Store({
         updateAuthStatus(state, isAuthenticated: boolean) {
             state.isAuthenticated = isAuthenticated;
         },
+        logout(state) {
+            if (typeof window !== 'undefined') {
+                window.sessionStorage.removeItem('authToken');
+                window.sessionStorage.removeItem('authTokenExpiration');
+            }
+            state.isAuthenticated = false ;
+        },
+    },
+    getters: {
+        isAuthenticated: (state) => {
+            return state.isAuthenticated;
+        },
+    },
+    actions: {
+        logout(context) {
+            context.commit('logout');
+        },
     },
 });
