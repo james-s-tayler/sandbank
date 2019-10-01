@@ -47,15 +47,6 @@ export default class LoginForm extends Vue {
       })
       .catch((error) => alert('Could not login.'));
   }
-
-  private created() {
-    const expiration = window.sessionStorage.getItem('authTokenExpiration');
-    const unixTimestamp = new Date().getUTCMilliseconds() / 1000;
-
-    if (expiration !== null && parseInt(expiration, 10) - unixTimestamp > 0) {
-      eventBus.$emit('authStatusUpdated', true);
-    }
-  }
 }
 </script>
 

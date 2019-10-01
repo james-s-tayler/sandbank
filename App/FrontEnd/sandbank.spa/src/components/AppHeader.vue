@@ -42,7 +42,6 @@ import { Route } from 'vue-router';
 export default class AppHeader extends Vue {
 
   private activeIndex: string = '1';
-  private isAuthenticated: boolean = false;
 
   public logout() {
     window.sessionStorage.removeItem('authToken');
@@ -54,15 +53,28 @@ export default class AppHeader extends Vue {
     // yolo
   }
 
+  private get isAuthenticated(): boolean {
+    return this.$store.state.isAuthenticated;
+  }
+
   private created() {
     eventBus.$on('authStatusUpdated', (isAuthenticated: boolean) => {
-        this.isAuthenticated = isAuthenticated;
+        this.$store.commit('updateAuthStatus', isAuthenticated);
         if (isAuthenticated) {
             this.$router.push('/accounts');
         } else {
-            this.$router.push('/');
+            this.$router.push('/login');
         }
     });
+
+    const expiration = window.sessionStorage.getItem('authTokenExpiration');
+    const unixTimestamp = new Date().getUTCMilliseconds() / 1000;
+
+    if (expiration !== null && parseInt(expiration, 10) - unixTimestamp > 0) {
+      eventBus.$emit('authStatusUpdated', true);
+    } else {
+      eventBus.$emit('authStatusUpdated', false);
+    }
   }
 }
 </script>

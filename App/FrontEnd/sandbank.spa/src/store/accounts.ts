@@ -8,10 +8,14 @@ export default new Vuex.Store({
     state: {
 // tslint:disable-next-line: whitespace
       accounts: Array<Account>(),
+      isAuthenticated: false ,
     },
     mutations: {
         addAccount(state, account: Account) {
           state.accounts.push(account);
+        },
+        updateAuthStatus(state, isAuthenticated: boolean) {
+            state.isAuthenticated = isAuthenticated;
         },
     },
 });
