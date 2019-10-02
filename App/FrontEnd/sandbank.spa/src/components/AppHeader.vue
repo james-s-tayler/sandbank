@@ -49,17 +49,6 @@ export default class AppHeader extends Vue {
   private get isAuthenticated() {
     return this.$store.getters.isAuthenticated;
   }
-
-  private created() {
-    const expiration = window.sessionStorage.getItem('authTokenExpiration');
-    const unixTimestamp = new Date().getUTCMilliseconds() / 1000;
-
-    if (expiration !== null && parseInt(expiration, 10) - unixTimestamp > 0) {
-      this.$store.commit('updateAuthStatus', true);
-    } else {
-      this.logout();
-    }
-  }
 }
 </script>
 
