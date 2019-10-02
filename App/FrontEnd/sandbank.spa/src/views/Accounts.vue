@@ -4,7 +4,7 @@
             <h2>Your Accounts</h2>
         </el-container>     
         <ul>
-            <li v-for="(account, index) in this.$store.state.accounts" v-bind:key="index">
+            <li v-for="(account, index) in accounts" v-bind:key="index">
                 <el-card class="box-card">
                     <div slot="header" class="clearfix">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -48,6 +48,7 @@ import Component from 'vue-class-component';
 import { Account } from '../account';
 import { Route } from 'vue-router';
 import Axios, { AxiosResponse } from 'axios';
+import { accountStore } from '@/store/store';
 
 @Component
 export default class Accounts extends Vue {
@@ -58,8 +59,12 @@ export default class Accounts extends Vue {
         super();
     }
 
+    private get accounts(): Account[] {
+        return this.$store.getters[`${accountStore}/accounts`];
+    }
+
     private async created() {
-        if (this.$store.state.accounts.length === 0) {
+        if (this.accounts.length === 0) {
 
             const accounts: Account[] = await this.$http.get('/account')
             .then((response: AxiosResponse) => {
@@ -78,7 +83,7 @@ export default class Accounts extends Vue {
                     account.balance = balanceResponse.data;
                     account.transactions = transactionResponse.data;
 
-                    this.$store.commit('addAccount', account);
+                    this.$store.commit(`${accountStore}/addAccount`, account);
                 }))
                 .catch((error) => {
                     account.balance = 0;

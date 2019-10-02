@@ -5,7 +5,7 @@ import axios, { AxiosRequestConfig } from 'axios';
 import VueAxios from 'vue-axios';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
-import store from '@/store/accounts';
+import store from '@/store/store';
 
 Vue.config.productionTip = false ;
 

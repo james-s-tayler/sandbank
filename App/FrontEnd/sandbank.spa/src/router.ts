@@ -6,7 +6,7 @@ import LoginPage from './views/LoginPage.vue';
 import Transactions from './views/Transactions.vue';
 import Accounts from './views/Accounts.vue';
 import NotFound from './views/NotFound.vue';
-import store from '@/store/accounts';
+import store, { authStore } from '@/store/store';
 
 Vue.use(Router);
 
@@ -53,12 +53,12 @@ router.beforeEach((to, from, next) => {
 
   const expiration = window.sessionStorage.getItem('authTokenExpiration');
   const unixTimestamp = new Date().getUTCMilliseconds() / 1000;
-  store.commit('updateAuthStatus', expiration !== null && parseInt(expiration, 10) - unixTimestamp > 0);
+  store.commit(`${authStore}/updateAuthStatus`, expiration !== null && parseInt(expiration, 10) - unixTimestamp > 0);
 
   if (to.matched.some((record: RouteRecord) => record.meta.requiresAuth)) {
     // this route requires auth, check if logged in
     // if not, redirect to login page.
-    if (!store.getters.isAuthenticated) {
+    if (!store.getters[`${authStore}/isAuthenticated`]) {
       next({
         name: 'login',
       });
@@ -66,7 +66,7 @@ router.beforeEach((to, from, next) => {
       next();
     }
   } else if (to.matched.some((record: RouteRecord) => record.meta.redirectIfAuthenticated)) {
-    if (store.getters.isAuthenticated) {
+    if (store.getters[`${authStore}/isAuthenticated`]) {
       next({
         name: 'accounts',
       });

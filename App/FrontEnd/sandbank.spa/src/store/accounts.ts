@@ -1,47 +1,29 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
 import { Account } from '@/account';
-import { JwtHelper } from '@/jwt-helper';
 
-Vue.use(Vuex);
+const state = {
+    accounts: Array<Account>(),
+};
 
-export default new Vuex.Store({
-    state: {
-// tslint:disable-next-line: whitespace
-      accounts: Array<Account>(),
-      isAuthenticated: false ,
+const getters = {
+    accounts: (state) => {
+        return state.accounts;
     },
-    mutations: {
-        addAccount(state, account: Account) {
-          state.accounts.push(account);
-        },
-        updateAuthStatus(state, isAuthenticated: boolean) {
-            state.isAuthenticated = isAuthenticated;
-        },
-        logout(state) {
-            if (typeof window !== 'undefined') {
-                window.sessionStorage.removeItem('authToken');
-                window.sessionStorage.removeItem('authTokenExpiration');
-            }
-            state.isAuthenticated = false ;
-        },
+};
+
+const actions = {
+
+};
+
+const mutations = {
+    addAccount(state, account: Account) {
+        state.accounts.push(account);
     },
-    getters: {
-        isAuthenticated: (state) => {
-            return state.isAuthenticated;
-        },
-    },
-    actions: {
-        logout(context) {
-            context.commit('logout');
-        },
-        login(context, jwtToken: string) {
-            const parsedToken = new JwtHelper().decodeToken(jwtToken);
-            if (typeof window !== 'undefined') {
-                window.sessionStorage.setItem('authToken', jwtToken);
-                window.sessionStorage.setItem('authTokenExpiration', parsedToken.exp);
-            }
-            context.commit('updateAuthStatus', true);
-        },
-    },
-});
+};
+
+export default {
+    namespaced: true,
+    state,
+    getters,
+    actions,
+    mutations,
+};

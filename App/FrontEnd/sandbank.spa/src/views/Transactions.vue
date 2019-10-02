@@ -24,15 +24,14 @@ import { Route } from 'vue-router';
 import Axios, { AxiosResponse } from 'axios';
 import { Transaction } from '../transaction';
 import { Account } from '@/account';
+import { accountStore } from '@/store/store';
 
 @Component
 export default class Transactions extends Vue {
 
-    private account: Account;
-
-    private created() {
+    private get account(): Account {
        const accountId: number = Number(this.$route.params.accountId);
-       this.account = this.$store.state.accounts.find((acc: Account) => acc.id === accountId);
+       return this.$store.getters[`${accountStore}/accounts`].find((acc: Account) => acc.id === accountId);
     }
 
     private goBack(): void {

@@ -15,6 +15,7 @@ import Axios, { AxiosResponse } from 'axios';
 import { eventBus } from '@/event-bus';
 import VueRouter from 'vue-router';
 import { JwtHelper } from '@/jwt-helper';
+import { authStore } from '@/store/store';
 
 @Component
 export default class LoginForm extends Vue {
@@ -36,7 +37,7 @@ export default class LoginForm extends Vue {
     this.$http
       .post('/user/login', loginUserRequest, headers)
       .then((response: AxiosResponse) => {
-        this.$store.dispatch('login', response.data);
+        this.$store.dispatch(`${authStore}/login`, response.data);
         this.$router.push('/accounts');
       })
       .catch((error) => alert('Could not login.'));

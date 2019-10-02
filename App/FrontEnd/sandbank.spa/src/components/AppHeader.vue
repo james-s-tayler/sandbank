@@ -35,6 +35,7 @@
 import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
 import { Route } from 'vue-router';
+import { authStore } from '@/store/store';
 
 @Component
 export default class AppHeader extends Vue {
@@ -42,12 +43,12 @@ export default class AppHeader extends Vue {
   private activeIndex: string = '1';
 
   public logout() {
-    this.$store.dispatch('logout');
+    this.$store.dispatch(`${authStore}/logout`);
     this.$router.push('/');
   }
 
   private get isAuthenticated() {
-    return this.$store.getters.isAuthenticated;
+    return this.$store.getters[`${authStore}/isAuthenticated`];
   }
 }
 </script>
