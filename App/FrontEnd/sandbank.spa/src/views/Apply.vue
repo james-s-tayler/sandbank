@@ -15,7 +15,11 @@
                                     <p>{{ option.description }}</p>
                                 </div>
                             </div>
-                            <el-button type="primary">{{ option.callToAction }}</el-button>
+                            <router-link :to="{ name: option.linkTo }">
+                                <el-button type="primary">
+                                    {{ option.callToAction }}
+                                </el-button>
+                            </router-link>
                         </div>
                     </div>
                 </el-card>
@@ -38,6 +42,7 @@ export default class Accounts extends Vue {
                 type: 'Bank account',
                 description: 'Manage your money the way you want.',
                 callToAction: 'Open a bank account',
+                linkTo: 'openAccount',
             },
         ];
     }
@@ -80,6 +85,11 @@ div.el-card__body {
 
 div.el-collapse {
     border: none;
+}
+
+a {
+    color: white;
+    text-decoration: none;
 }
 </style>
 

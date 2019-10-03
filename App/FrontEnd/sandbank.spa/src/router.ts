@@ -7,6 +7,7 @@ import Transactions from './views/Transactions.vue';
 import Accounts from './views/Accounts.vue';
 import NotFound from './views/NotFound.vue';
 import Apply from '@/views/Apply.vue';
+import OpenAccount from '@/views/OpenAccount.vue';
 import store, { authStore } from '@/store/store';
 
 Vue.use(Router);
@@ -47,6 +48,12 @@ export const router = new Router({
       path: '/apply',
       name: 'apply',
       component: Apply,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/open/account',
+      name: 'openAccount',
+      component: OpenAccount,
       meta: { requiresAuth: true },
     },
     {
