@@ -6,6 +6,7 @@ import LoginPage from './views/LoginPage.vue';
 import Transactions from './views/Transactions.vue';
 import Accounts from './views/Accounts.vue';
 import NotFound from './views/NotFound.vue';
+import Apply from '@/views/Apply.vue';
 import store, { authStore } from '@/store/store';
 
 Vue.use(Router);
@@ -40,6 +41,12 @@ export const router = new Router({
       path: '/accounts',
       name: 'accounts',
       component: Accounts,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/apply',
+      name: 'apply',
+      component: Apply,
       meta: { requiresAuth: true },
     },
     {

@@ -16,6 +16,9 @@
           <el-menu-item v-if="isAuthenticated" index="2">
             <router-link to="/accounts">Accounts</router-link>
           </el-menu-item>
+          <el-menu-item v-if="isAuthenticated" index="3">
+            <router-link to="/apply">Apply & open</router-link>
+          </el-menu-item>
           <el-menu-item v-if="!isAuthenticated" index="3" style="float: right;">
             <router-link to="/login">Login</router-link>
           </el-menu-item>
