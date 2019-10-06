@@ -4,32 +4,31 @@
       <div class="container">
         <el-menu
           id="nav"
-          :default-active="activeIndex"
+          :default-active="$route.path"
           class="el-menu-demo"
           mode="horizontal"
+          router="true"
         >
-          <el-menu-item index="1">
-            <h1>
-              <router-link to="/">SandBank</router-link>
-            </h1>
+          <el-menu-item index="/">
+            <h1>SandBank</h1>
           </el-menu-item>
-          <el-menu-item v-if="isAuthenticated" index="2">
-            <router-link to="/accounts">Accounts</router-link>
+          <el-menu-item v-if="isAuthenticated" index="/accounts">
+            Accounts
           </el-menu-item>
-          <el-menu-item v-if="isAuthenticated" index="3">
-            <router-link to="/apply">Apply & open</router-link>
+          <el-menu-item v-if="isAuthenticated" index="/apply">
+            Apply & open
           </el-menu-item>
-          <el-menu-item v-if="isAuthenticated" index="4">
-            <router-link to="/transfer">Transfer</router-link>
+          <el-menu-item v-if="isAuthenticated" index="/transfer">
+            Transfer
           </el-menu-item>
-          <el-menu-item v-if="!isAuthenticated" index="3" style="float: right;">
-            <router-link to="/login">Login</router-link>
+          <el-menu-item v-if="!isAuthenticated" index="/login" style="float: right;">
+            Login
           </el-menu-item>
-          <el-menu-item v-if="!isAuthenticated" index="4" style="float: right;">
-            <router-link to="/register">Register</router-link>
+          <el-menu-item v-if="!isAuthenticated" index="/register" style="float: right;">
+            Register
           </el-menu-item>
-          <el-menu-item v-if="isAuthenticated" index="4" style="float: right;">
-            <a @click="logout()" href="#">Logout</a>
+          <el-menu-item v-if="isAuthenticated" @click="logout()" style="float: right;">
+            Logout
           </el-menu-item>
         </el-menu>
       </div>
@@ -45,8 +44,6 @@ import { authStore } from '@/store/store';
 
 @Component
 export default class AppHeader extends Vue {
-
-  private activeIndex: string = '1';
 
   public logout() {
     this.$store.dispatch(`${authStore}/logout`);

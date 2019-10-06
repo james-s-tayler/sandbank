@@ -13,7 +13,7 @@
         <el-button v-show="activeStep === reviewConfirm" @click="setStep(done)">Confirm your transfer</el-button>
         <el-button v-show="activeStep === reviewConfirm" @click="setStep(enterDetails)">Change details</el-button>
         <el-button v-show="activeStep !== done">Cancel</el-button>
-        <el-button v-show="activeStep === done">Done</el-button>
+        <el-button v-show="activeStep === done" @click="finish()">Done</el-button>
     </div>
 </template>
 
@@ -35,6 +35,10 @@ export default class Transfer extends Vue {
 
     private setStep(step: number) {
         this.activeStep = step;
+    }
+
+    private finish() {
+        this.$router.replace('/accounts');
     }
 }
 </script>
