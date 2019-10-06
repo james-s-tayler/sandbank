@@ -12,8 +12,19 @@
         <el-button v-show="activeStep === enterDetails" @click="setStep(reviewConfirm)">Review & confirm</el-button>
         <el-button v-show="activeStep === reviewConfirm" @click="setStep(done)">Confirm your transfer</el-button>
         <el-button v-show="activeStep === reviewConfirm" @click="setStep(enterDetails)">Change details</el-button>
-        <el-button v-show="activeStep !== done">Cancel</el-button>
-        <el-button v-show="activeStep === done" @click="finish()">Done</el-button>
+        <el-button v-show="activeStep !== done" @click="dialogVisible = true">Cancel</el-button>
+        <el-button v-show="activeStep === done" @click="finish">Done</el-button>
+
+        <el-dialog
+            title="You have unsaved changes"
+            :visible.sync="dialogVisible"
+            width="30%">
+            <span>Clicking confirm will lose your unsaved changes. Are you sure you want to proceed?</span>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible = false">Cancel</el-button>
+                <el-button type="primary" @click="finish">Confirm</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -30,6 +41,7 @@ export default class Transfer extends Vue {
     private enterDetails: number = 0;
     private reviewConfirm: number = 1;
     private done: number = 3;
+    private dialogVisible: boolean = false;
 
     private activeStep: number = this.enterDetails;
 

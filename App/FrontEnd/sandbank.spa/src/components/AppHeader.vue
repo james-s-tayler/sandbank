@@ -7,7 +7,7 @@
           :default-active="$route.path"
           class="el-menu-demo"
           mode="horizontal"
-          router="true"
+          :router="true"
         >
           <el-menu-item index="/">
             <h1>SandBank</h1>
