@@ -60,37 +60,13 @@ export default class Accounts extends Vue {
     }
 
     private get accounts(): Account[] {
+        console.log("get accounts");
         return this.$store.getters[`${accountStore}/accounts`];
     }
 
-    private async created() {
-        if (this.accounts.length === 0) {
-
-            const accounts: Account[] = await this.$http.get('/account')
-            .then((response: AxiosResponse) => {
-                return response.data;
-            })
-            .catch((error) => alert(error));
-
-            accounts.forEach((account: Account) => {
-                Axios.all(
-                    [
-                        this.$http.get(`/account/${account.id}/balance`),
-                        this.$http.get(`/account/${account.id}/transaction`),
-                    ],
-                )
-                .then(Axios.spread((balanceResponse: AxiosResponse, transactionResponse: AxiosResponse) => {
-                    account.balance = balanceResponse.data;
-                    account.transactions = transactionResponse.data;
-
-                    this.$store.commit(`${accountStore}/addAccount`, account);
-                }))
-                .catch((error) => {
-                    account.balance = 0;
-                    account.transactions = [];
-                });
-            });
-        }
+    private mounted() {
+        console.log("accounts mounted");
+        this.$store.dispatch(`${accountStore}/getAccounts`);
      }
 
      private goBack(): void {

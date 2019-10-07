@@ -1,20 +1,21 @@
 import { JwtHelper } from '@/jwt-helper';
+import { ActionContext } from 'vuex';
 
 const state = {
     isAuthenticated: false ,
 };
 
 const getters = {
-    isAuthenticated: (state) => {
-        return state.isAuthenticated;
+    isAuthenticated: (authState: any) => {
+        return authState.isAuthenticated;
     },
 };
 
 const actions = {
-    logout(context) {
+    logout(context: ActionContext< any, any>) {
         context.commit('logout');
     },
-    login(context, jwtToken: string) {
+    login(context: ActionContext< any, any>, jwtToken: string) {
         const parsedToken = new JwtHelper().decodeToken(jwtToken);
         if (typeof window !== 'undefined') {
             window.sessionStorage.setItem('authToken', jwtToken);
@@ -25,15 +26,15 @@ const actions = {
 };
 
 const mutations = {
-    updateAuthStatus(state, isAuthenticated: boolean) {
-        state.isAuthenticated = isAuthenticated;
+    updateAuthStatus(authState: any, isAuthenticated: boolean) {
+        authState.isAuthenticated = isAuthenticated;
     },
-    logout(state) {
+    logout(authState: any) {
         if (typeof window !== 'undefined') {
             window.sessionStorage.removeItem('authToken');
             window.sessionStorage.removeItem('authTokenExpiration');
         }
-        state.isAuthenticated = false ;
+        authState.isAuthenticated = false ;
     },
 };
 
