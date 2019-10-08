@@ -3,7 +3,7 @@
         <el-container>
             <h2>Your Accounts</h2>
         </el-container>     
-        <ul>
+        <ul v-show="loadedAccounts">
             <li v-for="(account, index) in accounts" v-bind:key="index">
                 <el-card class="box-card">
                     <div slot="header" class="clearfix">
@@ -60,12 +60,14 @@ export default class Accounts extends Vue {
     }
 
     private get accounts(): Account[] {
-        console.log("get accounts");
         return this.$store.getters[`${accountStore}/accounts`];
     }
 
+    private get loadedAccounts(): boolean {
+        return this.$store.getters[`${accountStore}/loadedHeaders`] && this.$store.getters[`${accountStore}/loadedBalances`];
+    }
+
     private mounted() {
-        console.log("accounts mounted");
         this.$store.dispatch(`${accountStore}/getAccounts`, { includeBalances: true, includeTransactions: true } );
      }
 

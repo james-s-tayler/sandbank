@@ -14,6 +14,12 @@ const getters = {
     accounts: (accountState: any) => {
         return accountState.accounts;
     },
+    loadedHeaders: (accountState: any) => {
+        return accountState.loadedHeaders;
+    },
+    loadedBalances: (accountState: any) => {
+        return accountState.loadedBalances;
+    },
 };
 
 const actions = {
@@ -44,6 +50,20 @@ const actions = {
             });
             context.commit('finishedLoadingBalances');
         }
+
+        if (!context.state.loadedTransactions && includeTransactions) {
+            context.state.accounts.forEach((account: Account) => {
+                Axios.get(`/account/${account.id}/transaction`)
+                .then((response: AxiosResponse) => {
+                    const transactions = response.data;
+                    context.commit('updateAccountTransactions', { account, transactions });
+                })
+                .catch((error) => {
+                    context.commit('updateAccountTransactions',  { account, transactions: [] });
+                });
+            });
+            context.commit('finishedLoadingTransactions');
+        }
     },
 };
 
@@ -54,11 +74,17 @@ const mutations = {
     updateAccountBalance(accountState: any, payload: any) {
         Vue.set(payload.account, 'balance', payload.balance);
     },
+    updateAccountTransactions(accountState: any, payload: any) {
+        Vue.set(payload.account, 'transactions', payload.transactions);
+    },
     finishedLoadingHeaders(accountState: any) {
         accountState.loadedHeaders = true;
     },
     finishedLoadingBalances(accountState: any) {
         accountState.loadedBalances = true;
+    },
+    finishedLoadingTransactions(accountState: any) {
+        accountState.loadedTransactions = true;
     },
 };
 
