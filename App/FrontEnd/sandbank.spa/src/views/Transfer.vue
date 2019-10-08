@@ -82,7 +82,7 @@ export default class Transfer extends Vue {
     }
 
     private created() {
-        this.$store.dispatch(`${accountStore}/getAccounts`);
+        this.$store.dispatch(`${accountStore}/getAccounts`, { includeBalances: true });
     }
 
     private setStep(step: number) {

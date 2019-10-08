@@ -1,9 +1,12 @@
+import Vue from 'vue';
 import { Account } from '@/account';
 import Axios, { AxiosResponse } from 'axios';
 import { ActionContext } from 'vuex';
 
 const state = {
-    loaded: false ,
+    loadedHeaders: false ,
+    loadedBalances: false ,
+    loadedTransactions: false ,
     accounts: Array< Account>(),
 };
 
@@ -14,35 +17,32 @@ const getters = {
 };
 
 const actions = {
-    async getAccounts(context: ActionContext< any, any>) {
-        if (!context.state.loaded) {
+    async getAccounts(context: ActionContext< any, any>, includeBalances: boolean, includeTransactions: boolean) {
+        if (!context.state.loadedHeaders) {
 
             const accounts: Account[] = await Axios.get('/account')
             .then((response: AxiosResponse) => {
                 return response.data;
             })
             .catch((error) => alert(error));
-
             accounts.forEach((account: Account) => {
-                Axios.all(
-                    [
-                        Axios.get(`/account/${account.id}/balance`),
-                        Axios.get(`/account/${account.id}/transaction`),
-                    ],
-                )
-                .then(Axios.spread((balanceResponse: AxiosResponse, transactionResponse: AxiosResponse) => {
-                    account.balance = balanceResponse.data;
-                    account.transactions = transactionResponse.data;
+                context.commit('addAccount', account);
+            });
+            context.commit('finishedLoadingHeaders');
+        }
 
-                    context.commit('addAccount', account);
-                }))
+        if (!context.state.loadedBalances && includeBalances) {
+            context.state.accounts.forEach((account: Account) => {
+                Axios.get(`/account/${account.id}/balance`)
+                .then((response: AxiosResponse) => {
+                    const balance = response.data;
+                    context.commit('updateAccountBalance', { account, balance });
+                })
                 .catch((error) => {
-                    account.balance = 0;
-                    account.transactions = [];
+                    context.commit('updateAccountBalance',  { account, balance: 0 });
                 });
             });
-
-            context.commit('finishedLoading');
+            context.commit('finishedLoadingBalances');
         }
     },
 };
@@ -51,8 +51,14 @@ const mutations = {
     addAccount(accountState: any, account: Account) {
         accountState.accounts.push(account);
     },
-    finishedLoading(accountState: any) {
-        accountState.loaded = true;
+    updateAccountBalance(accountState: any, payload: any) {
+        Vue.set(payload.account, 'balance', payload.balance);
+    },
+    finishedLoadingHeaders(accountState: any) {
+        accountState.loadedHeaders = true;
+    },
+    finishedLoadingBalances(accountState: any) {
+        accountState.loadedBalances = true;
     },
 };
 

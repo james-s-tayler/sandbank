@@ -66,7 +66,7 @@ export default class Accounts extends Vue {
 
     private mounted() {
         console.log("accounts mounted");
-        this.$store.dispatch(`${accountStore}/getAccounts`);
+        this.$store.dispatch(`${accountStore}/getAccounts`, { includeBalances: true, includeTransactions: true } );
      }
 
      private goBack(): void {
