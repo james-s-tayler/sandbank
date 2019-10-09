@@ -3,9 +3,9 @@
         <el-container>
             <h2>Your Accounts</h2>
         </el-container>     
-        <ul v-show="loadedAccounts">
+        <ul v-show="loadedHeaders">
             <li v-for="(account, index) in accounts" v-bind:key="index">
-                <el-card class="box-card">
+                <el-card v-loading ="!loadedAccounts" class="box-card">
                     <div slot="header" class="clearfix">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div style="display: flex; justify-content: flex-start; align-items: center;">
@@ -61,6 +61,10 @@ export default class Accounts extends Vue {
 
     private get accounts(): Account[] {
         return this.$store.getters[`${accountStore}/accounts`];
+    }
+
+    private get loadedHeaders(): boolean {
+        return this.$store.getters[`${accountStore}/loadedHeaders`];
     }
 
     private get loadedAccounts(): boolean {

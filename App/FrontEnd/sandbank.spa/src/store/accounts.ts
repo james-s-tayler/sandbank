@@ -38,17 +38,34 @@ const actions = {
         }
 
         if (!context.state.loadedBalances && includeBalances) {
+
+            const getBalancePromises = new Array< Promise< AxiosResponse< any>>>();
+            const accountMap = new Map();
+
             context.state.accounts.forEach((account: Account) => {
-                Axios.get(`/account/${account.id}/balance`)
-                .then((response: AxiosResponse) => {
-                    const balance = response.data;
-                    context.commit('updateAccountBalance', { account, balance });
-                })
-                .catch((error) => {
-                    context.commit('updateAccountBalance',  { account, balance: 0 });
-                });
+                const getBalanceUrl = `/account/${account.id}/balance`;
+                accountMap.set(getBalanceUrl, account);
+                getBalancePromises.push(Axios.get(getBalanceUrl));
             });
-            context.commit('finishedLoadingBalances');
+
+            Axios.all(getBalancePromises).then((responses: Array< AxiosResponse< any>>) => {
+                responses.forEach((response: AxiosResponse) => {
+                    let url = (response.config.url || '').replace(response.config.baseURL as string, '');
+
+                    const account = accountMap.get(url);
+                    const balance = response.data;
+
+                    context.commit('updateAccountBalance', { account, balance });
+                });
+            })
+            .catch((error) => {
+                accountMap.forEach((key: string, value: Account) => {
+                    context.commit('updateAccountBalance',  { value, balance: 0 });
+                });
+            })
+            .finally(() => {
+                context.commit('finishedLoadingBalances');
+            });
         }
 
         if (!context.state.loadedTransactions && includeTransactions) {
