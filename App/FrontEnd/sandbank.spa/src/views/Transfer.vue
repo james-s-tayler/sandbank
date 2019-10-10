@@ -38,6 +38,7 @@
                         </div>
                     </div>
                 </div>
+
                 <el-divider content-position="left">To</el-divider>
                 <div>
                     <el-select v-model="toAccountId" v-loading="!loadedAccounts">
@@ -66,7 +67,21 @@
                         </div>
                     </div>
                 </div>
+
                 <el-divider content-position="left">Transfer details</el-divider>
+                <div style="width: 220px;">
+                    <label for="amount">Amount</label>
+                    <el-input 
+                        v-model="amount"
+                        :disabled="fromAccount === undefined || toAccount === undefined || fromAccount === toAccount"
+                        name="amount"
+                        type="number"
+                        label="Amount"
+                        :min="0"
+                        :max="fromAccount === undefined ? 0 : fromAccount.balance">
+                        <template slot="prepend">$</template>
+                    </el-input>
+                </div>
             </div>
 
             <div v-show="activeStep === reviewConfirm">
@@ -168,6 +183,10 @@ export default class Transfer extends Vue {
 
 .transferContainer > div {
     width: 100%;
+}
+
+.el-divider {
+    background-color: #409EFF;
 }
 
 </style>
