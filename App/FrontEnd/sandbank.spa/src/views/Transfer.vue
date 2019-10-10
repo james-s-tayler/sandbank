@@ -14,16 +14,33 @@
                     <div>
                         <el-divider content-position="left">From</el-divider>
                         <el-form-item prop="fromAccount">
-                            <el-select v-model="from">
+                            <el-select v-model="fromAccountId" v-loading="!loadedAccounts">
+                                <el-option 
+                                    disabled
+                                    :selected="fromAccount === undefined"
+                                    :value="0" 
+                                    label="Select an account">
+                                </el-option>
                                 <el-option
                                     v-for="account in accounts"
                                     :key="account.id"
-                                    :selected="selectedIndex"
                                     :label="account.displayName"
-                                    :value="account.displayName">
+                                    :value="account.id">
+                                    <span style="float: left">{{ account.displayName }}</span>
+                                    <span style="float: right; color: #8492a6; font-size: 13px">${{ account.balance }}</span>
                                 </el-option>
                             </el-select>
                         </el-form-item>
+                        <div v-if="fromAccount !== undefined" style="display: flex; font-size: smaller;">
+                            <div style="padding-right: 15px;">
+                                <p>Account number</p>
+                                <p> {{ fromAccount.accountNumber }}</p>
+                            </div>
+                            <div>
+                                <p>Account balance</p>
+                                <p>${{ fromAccount.balance }}</p>
+                            </div>
+                        </div>
                     </div>
                     <el-divider content-position="left">To</el-divider>
                     <el-divider content-position="left">Transfer details</el-divider>
@@ -72,13 +89,20 @@ export default class Transfer extends Vue {
     private reviewConfirm: number = 1;
     private done: number = 3;
     private dialogVisible: boolean = false;
-    private from: string = '';
-    private selectedIndex: number = 0;
+    private fromAccountId: number = 0;
 
     private activeStep: number = this.enterDetails;
 
+    private get fromAccount(): Account {
+        return this.accounts.find((acc: Account) => acc.id === this.fromAccountId);
+    }
+
     private get accounts() {
         return this.$store.getters[`${accountStore}/accounts`];
+    }
+
+    private get loadedAccounts(): boolean {
+        return this.$store.getters[`${accountStore}/loadedHeaders`] && this.$store.getters[`${accountStore}/loadedBalances`];
     }
 
     private created() {
