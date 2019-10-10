@@ -9,42 +9,64 @@
             <el-step title="Done" icon="el-icon-check"></el-step>
         </el-steps>
         <el-container class="transferContainer">
-            <div v-show="activeStep === enterDetails">
-                <el-form>
-                    <div>
-                        <el-divider content-position="left">From</el-divider>
-                        <el-form-item prop="fromAccount">
-                            <el-select v-model="fromAccountId" v-loading="!loadedAccounts">
-                                <el-option 
-                                    disabled
-                                    :selected="fromAccount === undefined"
-                                    :value="0" 
-                                    label="Select an account">
-                                </el-option>
-                                <el-option
-                                    v-for="account in accounts"
-                                    :key="account.id"
-                                    :label="account.displayName"
-                                    :value="account.id">
-                                    <span style="float: left">{{ account.displayName }}</span>
-                                    <span style="float: right; color: #8492a6; font-size: 13px">${{ account.balance }}</span>
-                                </el-option>
-                            </el-select>
-                        </el-form-item>
-                        <div v-if="fromAccount !== undefined" style="display: flex; font-size: smaller;">
-                            <div style="padding-right: 15px;">
-                                <p>Account number</p>
-                                <p> {{ fromAccount.accountNumber }}</p>
-                            </div>
-                            <div>
-                                <p>Account balance</p>
-                                <p>${{ fromAccount.balance }}</p>
-                            </div>
+            <div v-show="activeStep === enterDetails">   
+                <el-divider content-position="left">From</el-divider>
+                <div>
+                    <el-select v-model="fromAccountId" v-loading="!loadedAccounts">
+                        <el-option 
+                            disabled
+                            :value="0" 
+                            label="Select an account">
+                        </el-option>
+                        <el-option
+                            v-for="account in accounts"
+                            :key="account.id"
+                            :label="account.displayName"
+                            :value="account.id">
+                            <span style="float: left">{{ account.displayName }}</span>
+                            <span style="float: right; color: #8492a6; font-size: 13px">${{ account.balance }}</span>
+                        </el-option>
+                    </el-select>
+                    <div v-if="fromAccount !== undefined" style="display: flex; font-size: smaller; padding-top: 10px;">
+                        <div style="padding-right: 15px;">
+                            <p>Account number</p>
+                            <p>{{ fromAccount.accountNumber }}</p>
+                        </div>
+                        <div>
+                            <p>Account balance</p>
+                            <p>${{ fromAccount.balance }}</p>
                         </div>
                     </div>
-                    <el-divider content-position="left">To</el-divider>
-                    <el-divider content-position="left">Transfer details</el-divider>
-                </el-form>
+                </div>
+                <el-divider content-position="left">To</el-divider>
+                <div>
+                    <el-select v-model="toAccountId" v-loading="!loadedAccounts">
+                        <el-option 
+                            disabled
+                            :value="0" 
+                            label="Select an account">
+                        </el-option>
+                        <el-option
+                            v-for="account in accounts"
+                            :key="account.id"
+                            :label="account.displayName"
+                            :value="account.id">
+                            <span style="float: left">{{ account.displayName }}</span>
+                            <span style="float: right; color: #8492a6; font-size: 13px">${{ account.balance }}</span>
+                        </el-option>
+                    </el-select>
+                    <div v-if="toAccount !== undefined" style="display: flex; font-size: smaller; padding-top: 10px;">
+                        <div style="padding-right: 15px;">
+                            <p>Account number</p>
+                            <p>{{ toAccount.accountNumber }}</p>
+                        </div>
+                        <div>
+                            <p>Account balance</p>
+                            <p>${{ toAccount.balance }}</p>
+                        </div>
+                    </div>
+                </div>
+                <el-divider content-position="left">Transfer details</el-divider>
             </div>
 
             <div v-show="activeStep === reviewConfirm">
@@ -56,7 +78,7 @@
             </div>
         </el-container>
 
-        <el-button v-show="activeStep === enterDetails" @click="setStep(reviewConfirm)">Review & confirm</el-button>
+        <el-button v-show="activeStep === enterDetails" :disabled="!validTransfer" @click="setStep(reviewConfirm)">Review & confirm</el-button>
         <el-button v-show="activeStep === reviewConfirm" @click="setStep(done)">Confirm your transfer</el-button>
         <el-button v-show="activeStep === reviewConfirm" @click="setStep(enterDetails)">Change details</el-button>
         <el-button v-show="activeStep !== done" @click="dialogVisible = true">Cancel</el-button>
@@ -90,11 +112,25 @@ export default class Transfer extends Vue {
     private done: number = 3;
     private dialogVisible: boolean = false;
     private fromAccountId: number = 0;
+    private toAccountId: number = 0;
+    private amount: number = 0;
 
     private activeStep: number = this.enterDetails;
 
+    private get validTransfer(): boolean {
+        return this.fromAccount !== undefined &&
+               this.toAccount !== undefined &&
+               this.fromAccount.id !== this.toAccount.id &&
+               this.amount > 0 &&
+               this.fromAccount.balance >= this.amount;
+    }
+
     private get fromAccount(): Account {
         return this.accounts.find((acc: Account) => acc.id === this.fromAccountId);
+    }
+
+    private get toAccount(): Account {
+        return this.accounts.find((acc: Account) => acc.id === this.toAccountId);
     }
 
     private get accounts() {
