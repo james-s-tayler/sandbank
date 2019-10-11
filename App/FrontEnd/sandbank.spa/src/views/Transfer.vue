@@ -84,8 +84,23 @@
                 </div>
             </div>
 
-            <div v-show="activeStep === reviewConfirm">
-                <p>Step 2</p>
+            <div v-if="activeStep === reviewConfirm && fromAccount !== undefined">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <el-card class="transferSummary">
+                        <p class="transferSummaryDisplayName">{{ fromAccount.displayName }}</p>
+                        <p class="transferSummaryAccountNumber">{{ fromAccount.accountNumber }}</p>
+                        <p class="transferSummaryAmount">Available: ${{ fromAccount.balance - amount}}</p>
+                    </el-card>
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: -webkit-xxx-large;">
+                        <p style="padding: 5px;">${{ amount }}</p>
+                        <i class="el-icon-right"></i>
+                    </div>
+                    <el-card class="transferSummary">
+                        <p class="transferSummaryDisplayName">{{ toAccount.displayName }}</p>
+                        <p class="transferSummaryAccountNumber">{{ toAccount.accountNumber }}</p>
+                        <p class="transferSummaryAmount">Available: ${{ toAccount.balance + amount}}</p>
+                    </el-card>
+                </div>
             </div>
 
             <div v-show="activeStep === done">
@@ -187,6 +202,24 @@ export default class Transfer extends Vue {
 
 .el-divider {
     background-color: #409EFF;
+}
+
+.transferSummary {
+    padding: 20px;
+}
+
+.transferSummaryAccountNumber {
+    margin-top: 10px; 
+    margin-bottom: 10px; 
+    font-weight: bold;
+}
+
+.transferSummaryDisplayName {
+    font-size: larger;
+}
+
+.transferSummaryAmount {
+    font-size: smaller;
 }
 
 </style>
