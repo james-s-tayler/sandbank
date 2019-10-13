@@ -36,7 +36,7 @@
                                     <strong>${{transaction.amount}}</strong> {{ transaction.description }}
                                 </el-timeline-item>
                             </el-timeline>
-                            <p v-show="!account.transactions">
+                            <p v-show="!account.transactions || account.transactions.length === 0">
                                 No recent transactions.
                             </p>
                         </el-collapse-item>
