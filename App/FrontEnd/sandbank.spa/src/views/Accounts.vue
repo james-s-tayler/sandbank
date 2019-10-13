@@ -24,8 +24,10 @@
                         </div>
                     </div>
                     <el-collapse v-model="activeName[index]" accordion>
-                        <el-collapse-item title="View Recent Transactions" :name="account.id">
-                            <el-timeline>
+                        <el-collapse-item 
+                            title="View Recent Transactions" 
+                            :name="account.id">
+                            <el-timeline v-show="account.transactions">
                                 <el-timeline-item
                                     v-for="(transaction, transactionIndex) in account.transactions"
                                     :key="transactionIndex"
@@ -34,6 +36,9 @@
                                     <strong>${{transaction.amount}}</strong> {{ transaction.description }}
                                 </el-timeline-item>
                             </el-timeline>
+                            <p v-show="!account.transactions">
+                                No recent transactions.
+                            </p>
                         </el-collapse-item>
                     </el-collapse>
                 </el-card>

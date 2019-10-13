@@ -104,7 +104,11 @@
             </div>
 
             <div v-show="activeStep === done">
-                <p>Your transfer of {{ amount }} has been made.</p>
+                <el-alert
+                    :title="'Your transfer of $' + amount + ' has been made.' "
+                    type="success"
+                    show-icon>
+                </el-alert>
             </div>
         </el-container>
 
