@@ -24,7 +24,7 @@ const getters = {
 };
 
 const actions = {
-    async getAccounts(context: ActionContext< any, any>, includeBalances: boolean, includeTransactions: boolean) {
+    async getAccounts(context: ActionContext< any, any>, payload: any) {
         if (!context.state.loadedHeaders) {
 
             const accounts: Account[] = await Axios.get('/account')
@@ -38,7 +38,7 @@ const actions = {
             context.commit('finishedLoadingHeaders');
         }
 
-        if (!context.state.loadedBalances && includeBalances) {
+        if (!context.state.loadedBalances && payload.includeBalances) {
 
             const getBalancePromises = new Array< Promise< AxiosResponse< any>>>();
             const accountMap = new Map();
@@ -69,7 +69,7 @@ const actions = {
             });
         }
 
-        if (!context.state.loadedTransactions && includeTransactions) {
+        if (!context.state.loadedTransactions && payload.includeTransactions) {
             context.state.accounts.forEach((account: Account) => {
                 Axios.get(`/account/${account.id}/transaction`)
                 .then((response: AxiosResponse) => {

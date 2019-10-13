@@ -70,17 +70,29 @@
 
                 <el-divider content-position="left">Transfer details</el-divider>
                 <div style="width: 220px;">
-                    <label for="amount">Amount</label>
-                    <el-input 
-                        v-model="amount"
-                        :disabled="fromAccount === undefined || toAccount === undefined || fromAccount === toAccount"
-                        name="amount"
-                        type="number"
-                        label="Amount"
-                        :min="0"
-                        :max="fromAccount === undefined ? 0 : fromAccount.balance">
-                        <template slot="prepend">$</template>
-                    </el-input>
+                    <div class="el-form-item">
+                        <label for="amount" class="el-form-item__label">Amount</label>
+                        <el-input 
+                            v-model="amount"
+                            :disabled="fromAccount === undefined || toAccount === undefined || fromAccount === toAccount"
+                            name="amount"
+                            type="number"
+                            label="Amount"
+                            :min="0"
+                            :max="fromAccount === undefined ? 0 : fromAccount.balance">
+                            <template slot="prepend">$</template>
+                        </el-input>
+                    </div>
+                    <div class="el-form-item">
+                        <label for="reference" class="el-form-item__label">Reference</label>
+                        <el-input 
+                            v-model="reference"
+                            :disabled="fromAccount === undefined || toAccount === undefined || fromAccount === toAccount"
+                            name="reference"
+                            type="text"
+                            label="Reference">
+                        </el-input>
+                    </div>
                 </div>
             </div>
 
@@ -150,6 +162,7 @@ export default class Transfer extends Vue {
     private fromAccountId: number = 0;
     private toAccountId: number = 0;
     private amount: number = 0;
+    private reference: string = '';
 
     private activeStep: number = this.enterDetails;
 
@@ -194,7 +207,7 @@ export default class Transfer extends Vue {
             fromAccount: this.fromAccount.accountNumber,
             toAccount: this.toAccount.accountNumber,
             amount: this.amount,
-            description: 'transfer',
+            description: this.reference !== '' ? this.reference : `Transfer to ${this.toAccount.accountNumber}`,
             merchantName: 'transfer',
         };
 
