@@ -2,6 +2,7 @@ import Vue from 'vue';
 import { Account } from '@/account';
 import Axios, { AxiosResponse } from 'axios';
 import { ActionContext } from 'vuex';
+import { PostPaymentRequest } from '@/models/requests/post-payment-request';
 
 const state = {
     loadedHeaders: false ,
@@ -50,7 +51,7 @@ const actions = {
 
             Axios.all(getBalancePromises).then((responses: Array< AxiosResponse< any>>) => {
                 responses.forEach((response: AxiosResponse) => {
-                    let url = (response.config.url || '').replace(response.config.baseURL as string, '');
+                    const url = (response.config.url || '').replace(response.config.baseURL as string, '');
 
                     const account = accountMap.get(url);
                     const balance = response.data;
@@ -81,6 +82,13 @@ const actions = {
             });
             context.commit('finishedLoadingTransactions');
         }
+    },
+    async transfer(context: ActionContext< any, any>, paymentRequest: PostPaymentRequest) {
+        Axios.post('/payment', paymentRequest).then(() => {
+            // should modify this method just to refresh a single account / balance / transactions here
+            return context.dispatch('getAccounts', { includeBalances: true, includeTransactions: true});
+        })
+        .catch((error) => alert(error));
     },
 };
 

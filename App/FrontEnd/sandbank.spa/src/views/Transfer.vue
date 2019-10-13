@@ -98,18 +98,18 @@
                     <el-card class="transferSummary">
                         <p class="transferSummaryDisplayName">{{ toAccount.displayName }}</p>
                         <p class="transferSummaryAccountNumber">{{ toAccount.accountNumber }}</p>
-                        <p class="transferSummaryAmount">Available: ${{ toAccount.balance + amount}}</p>
+                        <p class="transferSummaryAmount">Available: ${{ availableAfterTransfer }}</p>
                     </el-card>
                 </div>
             </div>
 
             <div v-show="activeStep === done">
-                <p>Step 3</p>
+                <p>Your transfer of {{ amount }} has been made.</p>
             </div>
         </el-container>
 
         <el-button v-show="activeStep === enterDetails" :disabled="!validTransfer" @click="setStep(reviewConfirm)">Review & confirm</el-button>
-        <el-button v-show="activeStep === reviewConfirm" @click="setStep(done)">Confirm your transfer</el-button>
+        <el-button v-show="activeStep === reviewConfirm" @click="confirmTransfer">Confirm your transfer</el-button>
         <el-button v-show="activeStep === reviewConfirm" @click="setStep(enterDetails)">Change details</el-button>
         <el-button v-show="activeStep !== done" @click="dialogVisible = true">Cancel</el-button>
         <el-button v-show="activeStep === done" @click="finish">Done</el-button>
@@ -133,6 +133,8 @@ import Component from 'vue-class-component';
 import Axios, { AxiosResponse } from 'axios';
 import { Account } from '@/account';
 import { accountStore } from '@/store/store';
+import { PostPaymentRequest } from '@/models/requests/post-payment-request';
+import { Position } from 'vue-router/types/router';
 
 @Component
 export default class Transfer extends Vue {
@@ -155,6 +157,13 @@ export default class Transfer extends Vue {
                this.fromAccount.balance >= this.amount;
     }
 
+    private get availableAfterTransfer(): number {
+        if (this.amount > 0) {
+            return Number(this.toAccount.balance) + Number(this.amount);
+        }
+        return 0;
+    }
+
     private get fromAccount(): Account {
         return this.accounts.find((acc: Account) => acc.id === this.fromAccountId);
     }
@@ -173,6 +182,22 @@ export default class Transfer extends Vue {
 
     private created() {
         this.$store.dispatch(`${accountStore}/getAccounts`, { includeBalances: true });
+    }
+
+    private confirmTransfer() {
+
+        const paymentRequest: PostPaymentRequest = {
+            fromAccount: this.fromAccount.accountNumber,
+            toAccount: this.toAccount.accountNumber,
+            amount: this.amount,
+            description: 'transfer',
+            merchantName: 'transfer',
+        };
+
+        this.$store.dispatch(`${accountStore}/transfer`, paymentRequest)
+        .then((response: any) => {
+            this.setStep(this.done);
+        });
     }
 
     private setStep(step: number) {
