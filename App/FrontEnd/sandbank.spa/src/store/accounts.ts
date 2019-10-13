@@ -86,7 +86,8 @@ const actions = {
     async transfer(context: ActionContext< any, any>, paymentRequest: PostPaymentRequest) {
         Axios.post('/payment', paymentRequest).then(() => {
             // should modify this method just to refresh a single account / balance / transactions here
-            return context.dispatch('getAccounts', { includeBalances: true, includeTransactions: true});
+            context.commit('reloadAccounts');
+            return context.dispatch('getAccounts', { includeBalances: true, includeTransactions: true });
         })
         .catch((error) => alert(error));
     },
@@ -94,13 +95,23 @@ const actions = {
 
 const mutations = {
     addAccount(accountState: any, account: Account) {
-        accountState.accounts.push(account);
+        const accountIndex = accountState.accounts.findIndex((acc: Account) => acc.id === account.id);
+        if (accountIndex !== -1) {
+            Vue.set(accountState.accounts, accountIndex, account);
+        } else {
+            accountState.accounts.push(account);
+        }
     },
     updateAccountBalance(accountState: any, payload: any) {
         Vue.set(payload.account, 'balance', payload.balance);
     },
     updateAccountTransactions(accountState: any, payload: any) {
         Vue.set(payload.account, 'transactions', payload.transactions);
+    },
+    reloadAccounts(accountState: any) {
+        accountState.loadedHeaders = false ;
+        accountState.loadedBalances = false ;
+        accountState.loadedTransactions = false ;
     },
     finishedLoadingHeaders(accountState: any) {
         accountState.loadedHeaders = true;
