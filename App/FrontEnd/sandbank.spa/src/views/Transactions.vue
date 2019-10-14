@@ -10,8 +10,11 @@
                 align="right"
                 unlink-panels
                 range-separator="To"
-                start-placeholder="Start date"
-                end-placeholder="End date"
+                format="yyyy/MM/dd"
+                value-format="yyyy-MM-dd"
+                :start-placeholder="defaultStartDate.toLocaleDateString(locale)"
+                :end-placeholder="defaultEndDate.toLocaleDateString(locale)"
+                :default-value="defaultRange"
                 :picker-options="pickerOptions">
             </el-date-picker>
         </el-container>
@@ -39,11 +42,12 @@ import { accountStore } from '@/store/store';
 @Component
 export default class Transactions extends Vue {
 
-        private range: string = '';
+        private range: string[] = [];
+        private locale: string = 'en-NZ';
 
         private pickerOptions: any = {
           shortcuts: [{
-            text: 'Last week',
+            text: 'Last 7 days',
             onClick(picker: any) {
               const end = new Date();
               const start = new Date();
@@ -51,7 +55,7 @@ export default class Transactions extends Vue {
               picker.$emit('pick', [start, end]);
             },
           }, {
-            text: 'Last month',
+            text: 'Last 30 days',
             onClick(picker: any) {
               const end = new Date();
               const start = new Date();
@@ -59,7 +63,7 @@ export default class Transactions extends Vue {
               picker.$emit('pick', [start, end]);
             },
           }, {
-            text: 'Last 3 months',
+            text: 'Last 90 days',
             onClick(picker: any) {
               const end = new Date();
               const start = new Date();
@@ -74,9 +78,25 @@ export default class Transactions extends Vue {
        return this.$store.getters[`${accountStore}/accounts`].find((acc: Account) => acc.id === accountId);
     }
 
+    private get defaultRange() {
+        return [this.defaultStartDate.toISOString().substring(0, 10),
+                this.defaultEndDate.toISOString().substring(0, 10)];
+    }
+
+    private get defaultStartDate() {
+        const start = new Date();
+        start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+        return start;
+    }
+
+    private get defaultEndDate() {
+        return new Date();
+    }
+
     @Watch('range')
-    private onRangeChanged(value: string, oldValue: string) {
-        // console.log(`oldRange: ${oldValue}, newRange: ${value}`);
+    private onRangeChanged(value: string[], oldValue: string[]) {
+        const start = value[0];
+        const end = value[1];
     }
 
     private goBack(): void {
