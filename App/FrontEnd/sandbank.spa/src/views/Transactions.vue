@@ -10,7 +10,7 @@
                 align="right"
                 unlink-panels
                 range-separator="To"
-                format="yyyy/MM/dd"
+                format="dd/MM/yyyy"
                 value-format="yyyy-MM-dd"
                 :start-placeholder="defaultStartDate.toLocaleDateString(locale)"
                 :end-placeholder="defaultEndDate.toLocaleDateString(locale)"
@@ -38,6 +38,7 @@ import Axios, { AxiosResponse } from 'axios';
 import { Transaction } from '../transaction';
 import { Account } from '@/account';
 import { accountStore } from '@/store/store';
+import { LoadTransactionsRequest } from '@/models/requests/load-transactions-request';
 
 @Component
 export default class Transactions extends Vue {
@@ -97,6 +98,13 @@ export default class Transactions extends Vue {
     private onRangeChanged(value: string[], oldValue: string[]) {
         const start = value[0];
         const end = value[1];
+
+        const loadTransactionsRequest: LoadTransactionsRequest = {
+            account: this.account,
+            range: [start, end],
+        };
+
+        this.$store.dispatch(`${accountStore}/getTransactions`, loadTransactionsRequest);
     }
 
     private goBack(): void {

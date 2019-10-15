@@ -3,6 +3,7 @@ import { Account } from '@/account';
 import Axios, { AxiosResponse } from 'axios';
 import { ActionContext } from 'vuex';
 import { PostPaymentRequest } from '@/models/requests/post-payment-request';
+import { LoadTransactionsRequest } from '@/models/requests/load-transactions-request';
 
 const state = {
     loadedHeaders: false ,
@@ -24,6 +25,17 @@ const getters = {
 };
 
 const actions = {
+    async getTransactions(context: ActionContext< any, any>, payload: LoadTransactionsRequest) {
+        const dateRange = payload.range ? `?from=${payload.range[0]}&to=${payload.range[1]}` : '';
+        Axios.get(`/account/${payload.account.id}/transaction` + dateRange)
+        .then((response: AxiosResponse) => {
+            const transactions = response.data;
+            context.commit('updateAccountTransactions', { account: payload.account, transactions });
+        })
+        .catch((error) => {
+            context.commit('updateAccountTransactions',  { account: payload.account, transactions: [] });
+        });
+    },
     async getAccounts(context: ActionContext< any, any>, payload: any) {
         if (!context.state.loadedHeaders) {
 
