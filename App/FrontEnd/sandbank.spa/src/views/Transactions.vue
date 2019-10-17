@@ -18,16 +18,28 @@
                 :picker-options="pickerOptions">
             </el-date-picker>
         </el-container>
-        <el-table :data="account.transactions" empty-text="No Transactions." stripe style="width: 100%">
+        <el-table :data="transactionsPage" empty-text="No Transactions." stripe style="width: 100%">
+            <el-table-column
+                prop="amount"
+                width="150px"
+                label="Amount">
+            </el-table-column>
             <el-table-column
                 prop="description"
                 label="Description">
             </el-table-column>
             <el-table-column
-                prop="amount"
-                label="Amount">
+                prop="transactionTimeUtc"
+                label="Date"
+                width="250px">
             </el-table-column>
         </el-table>
+        <el-pagination
+            background
+            layout="prev, pager, next"
+            :current-page.sync="currentPage"
+            :total="account.transactions.length">
+        </el-pagination>
     </div>
 </template>
 
@@ -45,6 +57,7 @@ export default class Transactions extends Vue {
 
         private range: string[] = [];
         private locale: string = 'en-NZ';
+        private currentPage: number = 1;
 
         private pickerOptions: any = {
           shortcuts: [{
@@ -73,6 +86,11 @@ export default class Transactions extends Vue {
             },
           }],
         };
+
+    private get transactionsPage() {
+        const pageSize = 10;
+        return this.account.transactions.slice((this.currentPage - 1) * pageSize, this.currentPage * pageSize);
+    }
 
     private get account(): Account {
        const accountId: number = Number(this.$route.params.accountId);
