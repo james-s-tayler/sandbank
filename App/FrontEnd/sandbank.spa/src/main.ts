@@ -4,6 +4,7 @@ import { router } from './router';
 import axios, { AxiosRequestConfig } from 'axios';
 import VueAxios from 'vue-axios';
 import ElementUI from 'element-ui';
+import locale from 'element-ui/lib/locale/lang/en';
 import 'element-ui/lib/theme-chalk/index.css';
 import store from '@/store/store';
 
@@ -26,7 +27,7 @@ axios.interceptors.request.use((config: AxiosRequestConfig) => {
 });
 
 Vue.use(VueAxios, axios);
-Vue.use(ElementUI, {});
+Vue.use(ElementUI, { locale });
 
 const app = new Vue({
   router,
