@@ -20,7 +20,7 @@
                                     </p>
                                 </div>
                             </div>
-                            <p>Balance ${{ account.balance }}</p>
+                            <p>Balance {{ account.balance | asCurrency(locale, 'NZD') }}</p>
                         </div>
                     </div>
                     <el-collapse v-model="activeName[index]" accordion>
@@ -32,8 +32,8 @@
                                     v-for="(transaction, transactionIndex) in account.transactions"
                                     :key="transactionIndex"
                                     :color="transaction.amount < 0 ? 'darkgray' : '#409EFF'"
-                                    :timestamp="transaction.transactionTimeUtc">
-                                    <strong>${{transaction.amount}}</strong> {{ transaction.description }}
+                                    :timestamp="transaction.transactionTimeUtc | asDate">
+                                    <strong>{{ transaction.amount | asCurrency(locale, 'NZD') }}</strong> {{ transaction.description }}
                                 </el-timeline-item>
                             </el-timeline>
                             <p v-show="!account.transactions || account.transactions.length === 0">
@@ -54,14 +54,15 @@ import { Account } from '../account';
 import { Route } from 'vue-router';
 import Axios, { AxiosResponse } from 'axios';
 import { accountStore } from '@/store/store';
+import { authStore } from '@/store/store';
 
 @Component
 export default class Accounts extends Vue {
 
     private activeName: number[] = [];
 
-    constructor() {
-        super();
+    private get locale() {
+        return this.$store.getters[`${authStore}/locale`];
     }
 
     private get accounts(): Account[] {

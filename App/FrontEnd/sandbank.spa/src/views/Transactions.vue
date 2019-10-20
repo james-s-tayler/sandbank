@@ -1,7 +1,11 @@
 <template>
     <div>
         
-        <el-page-header style="padding-top: 20px;" @back="goBack" :content="'Balance: $' + account.balance" title="Back"></el-page-header>
+        <el-page-header
+            style="padding-top: 20px;" 
+            @back="goBack" 
+            :content="account.balance | asCurrency(locale, 'NZD') | prepend('Balance: ')" 
+            title="Back"></el-page-header>
         <el-container style="display: flex; justify-content: space-between; align-items: center;">
             <h2>Transactions</h2>
             <el-date-picker
@@ -12,8 +16,8 @@
                 range-separator="To"
                 format="dd/MM/yyyy"
                 value-format="yyyy-MM-dd"
-                :start-placeholder="defaultStartDate.toLocaleDateString(locale)"
-                :end-placeholder="defaultEndDate.toLocaleDateString(locale)"
+                :start-placeholder="defaultStartDate | asDate"
+                :end-placeholder="defaultEndDate | asDate"
                 :default-value="defaultRange"
                 :picker-options="pickerOptions">
             </el-date-picker>
@@ -22,7 +26,8 @@
             <el-table-column
                 prop="amount"
                 width="150px"
-                label="Amount">
+                label="Amount"
+                :formatter="formatMoney">
             </el-table-column>
             <el-table-column
                 prop="description"
@@ -31,7 +36,8 @@
             <el-table-column
                 prop="transactionTimeUtc"
                 label="Date"
-                width="250px">
+                width="250px"
+                :formatter="formatDate">
             </el-table-column>
         </el-table>
         <el-pagination
@@ -50,14 +56,19 @@ import Axios, { AxiosResponse } from 'axios';
 import { Transaction } from '../transaction';
 import { Account } from '@/account';
 import { accountStore } from '@/store/store';
+import { authStore } from '@/store/store';
 import { LoadTransactionsRequest } from '@/models/requests/load-transactions-request';
 
 @Component
 export default class Transactions extends Vue {
 
         private range: string[] = [];
-        private locale: string = 'en-NZ';
         private currentPage: number = 1;
+
+        private moneyFormatter: Intl.NumberFormat = new Intl.NumberFormat(this.locale, {
+            style: 'currency',
+            currency: 'NZD',
+        });
 
         private pickerOptions: any = {
           shortcuts: [{
@@ -87,6 +98,10 @@ export default class Transactions extends Vue {
           }],
         };
 
+    private get locale() {
+        return this.$store.getters[`${authStore}/locale`];
+    }
+
     private get transactionsPage() {
         const pageSize = 10;
         return this.account.transactions.slice((this.currentPage - 1) * pageSize, this.currentPage * pageSize);
@@ -110,6 +125,15 @@ export default class Transactions extends Vue {
 
     private get defaultEndDate() {
         return new Date();
+    }
+
+    // would be nice to be able to re-use the proper i18n filters in main.ts
+    private formatDate(row: number, column: number , cellValue: string, index: number) {
+        return new Date(cellValue).toLocaleString(this.locale);
+    }
+
+    private formatMoney(row: number, column: number , cellValue: string, index: number) {
+        return this.moneyFormatter.format(Number(cellValue));
     }
 
     @Watch('range')

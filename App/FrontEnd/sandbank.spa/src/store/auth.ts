@@ -3,11 +3,15 @@ import { ActionContext } from 'vuex';
 
 const state = {
     isAuthenticated: false ,
+    locale: 'en-NZ',
 };
 
 const getters = {
     isAuthenticated: (authState: any) => {
         return authState.isAuthenticated;
+    },
+    locale: (authState: any) => {
+        return authState.locale;
     },
 };
 

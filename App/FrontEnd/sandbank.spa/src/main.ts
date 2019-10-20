@@ -4,7 +4,7 @@ import { router } from './router';
 import axios, { AxiosRequestConfig } from 'axios';
 import VueAxios from 'vue-axios';
 import ElementUI from 'element-ui';
-import locale from 'element-ui/lib/locale/lang/en';
+import elementLocale from 'element-ui/lib/locale/lang/en';
 import 'element-ui/lib/theme-chalk/index.css';
 import store from '@/store/store';
 
@@ -27,7 +27,26 @@ axios.interceptors.request.use((config: AxiosRequestConfig) => {
 });
 
 Vue.use(VueAxios, axios);
-Vue.use(ElementUI, { locale });
+Vue.use(ElementUI, { elementLocale });
+
+Vue.filter('asCurrency', (value: string, locale: string, isoCurrency: string) => {
+  const moneyFormatter = new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: isoCurrency,
+   });
+  return moneyFormatter.format(Number(value));
+});
+
+Vue.filter('asDate', (value: string) => {
+  const dateFormatter = new Intl.DateTimeFormat(store.getters['authStore/locale'], {
+    // options here?
+  });
+  return dateFormatter.format(new Date(value));
+});
+
+Vue.filter('prepend', (value: string, prependThis: string) => {
+  return prependThis + value;
+});
 
 const app = new Vue({
   router,
