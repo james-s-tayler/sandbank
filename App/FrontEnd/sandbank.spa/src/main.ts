@@ -4,7 +4,7 @@ import { router } from './router';
 import axios, { AxiosRequestConfig } from 'axios';
 import VueAxios from 'vue-axios';
 import ElementUI from 'element-ui';
-import elementLocale from 'element-ui/lib/locale/lang/en';
+import locale from 'element-ui/lib/locale/lang/en';
 import 'element-ui/lib/theme-chalk/index.css';
 import store from '@/store/store';
 
@@ -27,10 +27,10 @@ axios.interceptors.request.use((config: AxiosRequestConfig) => {
 });
 
 Vue.use(VueAxios, axios);
-Vue.use(ElementUI, { elementLocale });
+Vue.use(ElementUI, { locale });
 
-Vue.filter('asCurrency', (value: string, locale: string, isoCurrency: string) => {
-  const moneyFormatter = new Intl.NumberFormat(locale, {
+Vue.filter('asCurrency', (value: string, localeString: string, isoCurrency: string) => {
+  const moneyFormatter = new Intl.NumberFormat(localeString, {
     style: 'currency',
     currency: isoCurrency,
    });
