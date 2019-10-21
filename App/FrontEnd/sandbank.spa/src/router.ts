@@ -8,6 +8,7 @@ import Accounts from './views/Accounts.vue';
 import NotFound from './views/NotFound.vue';
 import Apply from '@/views/Apply.vue';
 import Transfer from '@/views/Transfer.vue';
+import Payment from '@/views/Payment.vue';
 import OpenAccount from '@/views/OpenAccount.vue';
 import store, { authStore } from '@/store/store';
 
@@ -49,6 +50,12 @@ export const router = new Router({
       path: '/transfer',
       name: 'transfer',
       component: Transfer,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/payment',
+      name: 'payment',
+      component: Payment,
       meta: { requiresAuth: true },
     },
     {

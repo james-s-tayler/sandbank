@@ -21,6 +21,9 @@
           <el-menu-item v-if="isAuthenticated" index="/transfer">
             Transfer
           </el-menu-item>
+          <el-menu-item v-if="isAuthenticated" index="/payment">
+            Pay a person or a bill
+          </el-menu-item>
           <el-menu-item v-if="!isAuthenticated" index="/login" style="float: right;">
             Login
           </el-menu-item>
