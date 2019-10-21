@@ -1,8 +1,8 @@
-export class Transaction {
-    public id: number;
-    public amount: number;
-    public transactionTimeUtc: string;
-    public transactionType: string;
-    public merchantName: string;
-    public description: string;
+export interface Transaction {
+    id: number;
+    amount: number;
+    transactionTimeUtc: string;
+    transactionType: string;
+    merchantName: string;
+    description: string;
 }

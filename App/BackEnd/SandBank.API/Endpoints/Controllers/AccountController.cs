@@ -118,6 +118,7 @@ namespace Endpoints.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<TransactionViewModel>))]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        //[CalledBy("Transactions.vue")]
         public async Task<IActionResult> GetTransactions([FromRoute] int accountId, [FromQuery] DateTime? from = null, [FromQuery] DateTime? to = null)
         {
             if (from == null || to == null)

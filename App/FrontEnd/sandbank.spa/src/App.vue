@@ -1,13 +1,26 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Register</router-link> |
-      <router-link to="/login">Login</router-link> | 
-      <router-link :to="{ name: 'accounts', params: { userId: 12 }}">Accounts</router-link>
+    <AppHeader/>
+    <div class="main-content">
+      <router-view/>
     </div>
-    <router-view/>
   </div>
 </template>
+
+<script lang="ts">
+import Vue from 'vue';
+import { Component } from 'vue-property-decorator';
+import AppHeader from '@/components/AppHeader.vue';
+
+@Component({
+  components: {
+    AppHeader,
+    },
+})
+export default class App extends Vue {
+
+}
+</script>
 
 <style>
 #app {
@@ -17,16 +30,11 @@
   text-align: center;
   color: #2c3e50;
 }
-#nav {
-  padding: 30px;
-}
 
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
+.main-content {
+  height: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  width: 40%;
 }
 </style>

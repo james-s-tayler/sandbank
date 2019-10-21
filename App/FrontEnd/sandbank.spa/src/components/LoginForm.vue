@@ -1,33 +1,27 @@
 <template>
-  <div class="home">
-    <div v-if="isAuthenticated">
-      <p>You are logged in.</p>
-      <button @click="logout()">Logout</button>
-    </div>
-    <div v-else>
-      <form>
-        <label for="email">Email</label>
-        <input v-model="email" name="email" type="email">
-        <input @click="login()" value="Login">
-      </form>
-    </div>
-  </div>
+  <el-form status-icon label-width="120px" class="demo-ruleForm">
+    <el-form-item label="Email" prop="email">
+      <el-input type="email" v-model="email"></el-input>
+    </el-form-item>
+    <el-form-item>
+      <el-button type="primary" @click="login()">Login</el-button>
+    </el-form-item>
+  </el-form>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import Axios, { AxiosResponse } from 'axios';
+import { eventBus } from '@/event-bus';
 import VueRouter from 'vue-router';
 import { JwtHelper } from '@/jwt-helper';
+import { authStore } from '@/store/store';
 
 @Component
 export default class LoginForm extends Vue {
-
   private email: string = '';
-  private isAuthenticated: boolean = false;
 
-  public login(): void {
-
+  private login() {
     const loginUserRequest = {
       email: this.email,
       password: 'a',
@@ -40,32 +34,13 @@ export default class LoginForm extends Vue {
       },
     };
 
-    this.$http.post('/user/login', loginUserRequest, headers)
+    this.$http
+      .post('/user/login', loginUserRequest, headers)
       .then((response: AxiosResponse) => {
-        const jwtToken = response.data;
-        const parsedToken = new JwtHelper().decodeToken(jwtToken);
-
-        window.localStorage.setItem('authToken', jwtToken);
-        window.localStorage.setItem('authTokenExpiration', parsedToken.exp);
-        this.isAuthenticated = true;
-        this.email = '';
-    })
-    .catch((error) => alert('Could not login.'));
-  }
-
-  public logout(): void {
-    window.localStorage.removeItem('authToken');
-    window.localStorage.removeItem('authTokenExpiration');
-    this.isAuthenticated = false;
-  }
-
-  private created() {
-    const expiration = window.localStorage.getItem('authTokenExpiration');
-    const unixTimestamp = new Date().getUTCMilliseconds() / 1000;
-
-    if (expiration !== null && parseInt(expiration, 10) - unixTimestamp > 0) {
-      this.isAuthenticated = true;
-    }
+        this.$store.dispatch(`${authStore}/login`, response.data);
+        this.$router.push('/accounts');
+      })
+      .catch((error) => alert('Could not login.'));
   }
 }
 </script>
