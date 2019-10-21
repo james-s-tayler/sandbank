@@ -4,7 +4,7 @@
         <el-page-header
             style="padding-top: 20px;" 
             @back="goBack" 
-            :content="account.balance | asCurrency(locale, 'NZD') | prepend('Balance: ')" 
+            :content="account.balance | asCurrency('NZD') | prepend('Balance: ')" 
             title="Back"></el-page-header>
         <el-container style="display: flex; justify-content: space-between; align-items: center;">
             <h2>Transactions</h2>

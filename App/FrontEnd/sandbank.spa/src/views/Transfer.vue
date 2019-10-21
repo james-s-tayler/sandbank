@@ -24,7 +24,7 @@
                             :label="account.displayName"
                             :value="account.id">
                             <span style="float: left">{{ account.displayName }}</span>
-                            <span style="float: right; color: #8492a6; font-size: 13px">${{ account.balance }}</span>
+                            <span style="float: right; color: #8492a6; font-size: 13px">{{ account.balance | asCurrency('NZD') }}</span>
                         </el-option>
                     </el-select>
                     <div v-if="fromAccount !== undefined" style="display: flex; font-size: smaller; padding-top: 10px;">
@@ -34,7 +34,7 @@
                         </div>
                         <div>
                             <p>Account balance</p>
-                            <p>${{ fromAccount.balance }}</p>
+                            <p>{{ fromAccount.balance | asCurrency('NZD') }}</p>
                         </div>
                     </div>
                 </div>
@@ -53,7 +53,7 @@
                             :label="account.displayName"
                             :value="account.id">
                             <span style="float: left">{{ account.displayName }}</span>
-                            <span style="float: right; color: #8492a6; font-size: 13px">${{ account.balance }}</span>
+                            <span style="float: right; color: #8492a6; font-size: 13px">{{ account.balance | asCurrency('NZD') }}</span>
                         </el-option>
                     </el-select>
                     <div v-if="toAccount !== undefined" style="display: flex; font-size: smaller; padding-top: 10px;">
@@ -63,7 +63,7 @@
                         </div>
                         <div>
                             <p>Account balance</p>
-                            <p>${{ toAccount.balance }}</p>
+                            <p>{{ toAccount.balance | asCurrency('NZD') }}</p>
                         </div>
                     </div>
                 </div>
@@ -101,23 +101,23 @@
                     <el-card class="transferSummary">
                         <p class="transferSummaryDisplayName">{{ fromAccount.displayName }}</p>
                         <p class="transferSummaryAccountNumber">{{ fromAccount.accountNumber }}</p>
-                        <p class="transferSummaryAmount">Available: ${{ fromAccount.balance - amount}}</p>
+                        <p class="transferSummaryAmount">Available: {{ fromAccount.balance - amount | asCurrency('NZD') }}</p>
                     </el-card>
                     <div style="display: flex; justify-content: space-between; align-items: center; font-size: -webkit-xxx-large;">
-                        <p style="padding: 5px;">${{ amount }}</p>
+                        <p style="padding: 5px;">{{ amount | asCurrency('NZD') }}</p>
                         <i class="el-icon-right"></i>
                     </div>
                     <el-card class="transferSummary">
                         <p class="transferSummaryDisplayName">{{ toAccount.displayName }}</p>
                         <p class="transferSummaryAccountNumber">{{ toAccount.accountNumber }}</p>
-                        <p class="transferSummaryAmount">Available: ${{ availableAfterTransfer }}</p>
+                        <p class="transferSummaryAmount">Available: {{ availableAfterTransfer | asCurrency('NZD') }}</p>
                     </el-card>
                 </div>
             </div>
 
             <div v-show="activeStep === done">
                 <el-alert
-                    :title="'Your transfer of $' + amount + ' has been made.' "
+                    :title="amount | asCurrency('NZD') | splice('Your transfer of ', ' has been made.')"
                     type="success"
                     show-icon>
                 </el-alert>

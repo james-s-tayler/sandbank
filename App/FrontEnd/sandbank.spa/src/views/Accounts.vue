@@ -20,7 +20,7 @@
                                     </p>
                                 </div>
                             </div>
-                            <p>Balance {{ account.balance | asCurrency(locale, 'NZD') }}</p>
+                            <p>Balance {{ account.balance | asCurrency('NZD') }}</p>
                         </div>
                     </div>
                     <el-collapse v-model="activeName[index]" accordion>
@@ -33,7 +33,7 @@
                                     :key="transactionIndex"
                                     :color="transaction.amount < 0 ? 'darkgray' : '#409EFF'"
                                     :timestamp="transaction.transactionTimeUtc | asDate">
-                                    <strong>{{ transaction.amount | asCurrency(locale, 'NZD') }}</strong> {{ transaction.description }}
+                                    <strong>{{ transaction.amount | asCurrency('NZD') }}</strong> {{ transaction.description }}
                                 </el-timeline-item>
                             </el-timeline>
                             <p v-show="!account.transactions || account.transactions.length === 0">
