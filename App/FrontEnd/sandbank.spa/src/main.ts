@@ -4,8 +4,8 @@ import { router } from './router';
 import axios, { AxiosRequestConfig } from 'axios';
 import VueAxios from 'vue-axios';
 import ElementUI from 'element-ui';
-import locale from 'element-ui/lib/locale/lang/en';
-import 'element-ui/lib/theme-chalk/index.css';
+import Buefy from 'buefy';
+import 'buefy/dist/buefy.css';
 import store, { authStore } from '@/store/store';
 
 Vue.config.productionTip = false ;
@@ -27,7 +27,8 @@ axios.interceptors.request.use((config: AxiosRequestConfig) => {
 });
 
 Vue.use(VueAxios, axios);
-Vue.use(ElementUI, { locale });
+Vue.use(ElementUI, {});
+Vue.use(Buefy);
 
 Vue.filter('asCurrency', (value: string, isoCurrency: string) => {
   const moneyFormatter = new Intl.NumberFormat(store.getters[`${authStore}/locale`], {
