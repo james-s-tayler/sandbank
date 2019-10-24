@@ -1,7 +1,36 @@
 <template>
     <div>
+        <h1>BUEFY - Your Accounts</h1>
+        <ul v-show="loadedHeaders">
+            <li v-for="(account, index) in accounts" v-bind:key="index">
+                <div class="box">
+                    <div class="columns is-mobile level">
+                        <div class="column is-narrow">
+                            <p class="image">
+                                <img style="border-radius: 50%;" src="https://source.unsplash.com/random/100x100">
+                            </p>
+                        </div>
+                        <div class="column is-hidden-mobile">
+                            <router-link :to="{ name: 'transactions', params: { accountId: account.id }}">{{ account.displayName }}</router-link>
+                            <p>
+                                <small>{{ account.accountNumber }}</small>
+                            </p>
+                        </div>
+                        <div class="column is-hidden-mobile has-text-right">
+                            <p>Balance {{ account.balance | asCurrency('NZD') }}</p>
+                        </div>
+                        <div class="column is-hidden-tablet">
+                            <router-link :to="{ name: 'transactions', params: { accountId: account.id }}">{{ account.displayName }}</router-link>
+                            <p>
+                                <small>Balance {{ account.balance | asCurrency('NZD') }}</small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        </ul>
         <el-container>
-            <h2>Your Accounts</h2>
+            <h2>ELEMENT - Your Accounts</h2>
         </el-container>     
         <ul v-show="loadedHeaders">
             <li v-for="(account, index) in accounts" v-bind:key="index">
