@@ -1,13 +1,13 @@
 <template>
     <div>
-        <h1>BUEFY - Your Accounts</h1>
+        <h1 class="title is-hidden-mobile">Your Accounts</h1>
         <ul v-show="loadedHeaders">
             <li v-for="(account, index) in accounts" v-bind:key="index">
                 <div class="box">
                     <div class="columns is-mobile level">
                         <div class="column is-narrow">
                             <p class="image">
-                                <img style="border-radius: 50%;" src="https://source.unsplash.com/random/100x100">
+                                <img class="is-rounded" src="https://source.unsplash.com/random/100x100">
                             </p>
                         </div>
                         <div class="column is-hidden-mobile">
@@ -26,51 +26,54 @@
                             </p>
                         </div>
                     </div>
-                </div>
-            </li>
-        </ul>
-        <el-container>
-            <h2>ELEMENT - Your Accounts</h2>
-        </el-container>     
-        <ul v-show="loadedHeaders">
-            <li v-for="(account, index) in accounts" v-bind:key="index">
-                <el-card v-loading ="!loadedAccounts" class="box-card">
-                    <div slot="header" class="clearfix">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div style="display: flex; justify-content: flex-start; align-items: center;">
-                                <el-image :key="index"
-                                    style="width: 100px; height: 100px; border-radius: 50%;"
-                                    src="https://source.unsplash.com/random/100x100"
-                                    fit="cover"></el-image>
-                                <div style="display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; padding: 10px;">
-                                    <router-link :to="{ name: 'transactions', params: { accountId: account.id }}">{{ account.displayName }}</router-link>
-                                    <p>
-                                        <small>{{ account.accountNumber }}</small>
-                                    </p>
-                                </div>
-                            </div>
-                            <p>Balance {{ account.balance | asCurrency('NZD') }}</p>
+                     <b-collapse class="card is-shadowless is-hidden-mobile" :open="false">
+                    <div
+                        slot="trigger" 
+                        slot-scope="props"
+                        class="card-header"
+                        role="button">
+                        <p class="card-header-title">
+                            View recent transactions
+                        </p>
+                        <a class="card-header-icon">
+                            <b-icon
+                                :icon="props.open ? 'caret-down' : 'caret-up'">
+                            </b-icon>
+                        </a>
+                    </div>
+                    <div class="card-content is-paddingless">
+                        <div class="content">
+                              <b-table :data="account.transactions" striped>
+                                <template slot-scope="props">
+                                    <b-table-column field="amount" label="Amount">
+                                        {{ props.row.amount | asCurrency('NZD') }}
+                                    </b-table-column>
+                                    <b-table-column field="date" label="Date" numeric>
+                                        {{ props.row.transactionTimeUtc | asDate }}
+                                    </b-table-column>
+                                    <b-table-column field="description" label="Description">
+                                        {{ props.row.description }}
+                                    </b-table-column>
+                                </template>
+
+                                <template slot="empty">
+                                    <section class="section">
+                                        <div class="content has-text-grey has-text-centered">
+                                            <p>
+                                                <b-icon
+                                                    icon="emoticon-sad"
+                                                    size="is-large">
+                                                </b-icon>
+                                            </p>
+                                            <p>Nothing here.</p>
+                                        </div>
+                                    </section>
+                                </template>
+                            </b-table>
                         </div>
                     </div>
-                    <el-collapse v-model="activeName[index]" accordion>
-                        <el-collapse-item 
-                            title="View Recent Transactions" 
-                            :name="account.id">
-                            <el-timeline v-show="account.transactions">
-                                <el-timeline-item
-                                    v-for="(transaction, transactionIndex) in account.transactions"
-                                    :key="transactionIndex"
-                                    :color="transaction.amount < 0 ? 'darkgray' : '#409EFF'"
-                                    :timestamp="transaction.transactionTimeUtc | asDate">
-                                    <strong>{{ transaction.amount | asCurrency('NZD') }}</strong> {{ transaction.description }}
-                                </el-timeline-item>
-                            </el-timeline>
-                            <p v-show="!account.transactions || account.transactions.length === 0">
-                                No recent transactions.
-                            </p>
-                        </el-collapse-item>
-                    </el-collapse>
-                </el-card>
+                    </b-collapse>
+                </div>
             </li>
         </ul>
     </div>
@@ -89,6 +92,7 @@ import { authStore } from '@/store/store';
 export default class Accounts extends Vue {
 
     private activeName: number[] = [];
+    private isOpen: boolean[] = [];
 
     private get locale() {
         return this.$store.getters[`${authStore}/locale`];

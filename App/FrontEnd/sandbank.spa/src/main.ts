@@ -28,7 +28,9 @@ axios.interceptors.request.use((config: AxiosRequestConfig) => {
 
 Vue.use(VueAxios, axios);
 Vue.use(ElementUI, {});
-Vue.use(Buefy);
+Vue.use(Buefy, {
+  defaultIconPack: 'fas',
+});
 
 Vue.filter('asCurrency', (value: string, isoCurrency: string) => {
   const moneyFormatter = new Intl.NumberFormat(store.getters[`${authStore}/locale`], {
