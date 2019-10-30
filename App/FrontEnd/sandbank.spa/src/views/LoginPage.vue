@@ -1,17 +1,49 @@
 <template>
-  <div style="width: 40%; margin: auto; margin-top: 40px;">
-    <LoginForm />
+  <div>
+    <section>
+      <b-field label="Email">
+        <b-input 
+          type="email"
+          placeholder="you@sandbank.com"
+          v-model="email"
+          icon-pack="fas"
+          icon="envelope">
+        </b-input>
+      </b-field>
+      <a class="button is-primary" @click="login" @keyup.enter="login">Log on</a>
+    </section>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import LoginForm from '@/components/LoginForm.vue'; // @ is an alias to /src
+import { AxiosResponse } from 'axios';
+import { authStore } from '@/store/store';
 
-@Component({
-  components: {
-    LoginForm,
-  },
-})
-export default class LoginPage extends Vue {}
+@Component
+export default class LoginPage extends Vue {
+   private email: string = '';
+
+  private login() {
+    const loginUserRequest = {
+      email: this.email,
+      password: 'a',
+    };
+
+    const headers = {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    };
+
+    this.$http
+      .post('/user/login', loginUserRequest, headers)
+      .then((response: AxiosResponse) => {
+        this.$store.dispatch(`${authStore}/login`, response.data);
+        this.$router.push('/accounts');
+      })
+      .catch((error) => alert('Could not login.'));
+  }
+}
 </script>
