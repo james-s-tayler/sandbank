@@ -1,7 +1,9 @@
 <template>
   <div id="app">
     <AppHeader/>
-    <router-view/>
+    <div class="container is-fullhd">
+      <router-view/>
+    </div>
   </div>
 </template>
 

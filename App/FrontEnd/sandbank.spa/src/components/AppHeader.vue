@@ -1,5 +1,5 @@
 <template>
-  <b-navbar class="is-info">
+  <b-navbar class="is-info" wrapper-class="container">
         <template slot="brand">
             <b-navbar-item tag="router-link" :to="{ path: '/' }">
                 <h1>Sandbank</h1>
