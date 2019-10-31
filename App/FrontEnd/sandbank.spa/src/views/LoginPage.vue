@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <section>
+  <div class="columns">
+    <div class="column">
       <b-field label="Email">
         <b-input 
           type="email"
@@ -10,8 +10,8 @@
           icon="envelope">
         </b-input>
       </b-field>
-      <a class="button is-primary" @click="login" @keyup.enter="login">Log on</a>
-    </section>
+      <a class="button is-primary" @click="login">Log on</a>
+    </div>
   </div>
 </template>
 
