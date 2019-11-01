@@ -1,14 +1,20 @@
 <template>
     <div>
-        <h1 class="title is-hidden-mobile">Your Accounts</h1>
+        <div class="hero is-small is-hidden-mobile">
+            <div class="hero-body">
+                <div class="container">
+                    <h1 class="title">Your Accounts</h1>
+                </div>
+            </div>
+        </div>
         <ul v-show="loadedHeaders">
             <li v-for="(account, index) in accounts" v-bind:key="index">
                 <div class="box">
                     <div class="columns is-mobile level">
                         <div class="column is-narrow">
-                            <p class="image">
+                            <figure class="image is-96x96">
                                 <img class="is-rounded" src="https://source.unsplash.com/random/100x100">
-                            </p>
+                            </figure>
                         </div>
                         <div class="column is-hidden-mobile">
                             <router-link :to="{ name: 'transactions', params: { accountId: account.id }}">{{ account.displayName }}</router-link>

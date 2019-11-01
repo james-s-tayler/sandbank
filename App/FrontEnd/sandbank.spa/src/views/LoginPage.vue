@@ -1,6 +1,6 @@
 <template>
-  <div class="columns">
-    <div class="column">
+  <div class="columns is-mobile is-centered is-gapless">
+    <div class="column is-one-quarter-desktop is-three-quarters-mobile">
       <b-field label="Email">
         <b-input 
           type="email"
