@@ -1,5 +1,5 @@
 <template>
-  <div class="columns is-mobile is-centered is-gapless">
+  <div class="columns is-mobile is-flex is-centered is-vcentered is-gapless is-full-height">
     <div class="column is-one-quarter-desktop is-three-quarters-mobile">
       <b-field label="Email">
         <b-input 

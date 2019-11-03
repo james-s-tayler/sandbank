@@ -1,7 +1,7 @@
 <template>
   <div id="app" class="is-full-height is-light">
     <AppHeader/>
-    <section>
+    <section class="is-flex is-at-least-three-quarter-height">
       <div class="container is-fullhd">
         <router-view/>
       </div>
@@ -36,9 +36,6 @@ export default class App extends Vue {
 </script>
 
 <style>
-.is-full-height {
-  height: 100vh;
-}
 .is-light {
   background-color: #fafafa;
 }
