@@ -9,16 +9,16 @@
             </b-navbar-item>
         </template>
         <template v-if="isAuthenticated" slot="start">
-            <b-navbar-item href="/accounts">
+            <b-navbar-item tag="router-link" to="/accounts">
                 Accounts
             </b-navbar-item>
-            <b-navbar-item href="/apply">
+            <b-navbar-item tag="router-link" to="/apply">
                 Apply & open
             </b-navbar-item>
-            <b-navbar-item href="/transfer">
+            <b-navbar-item tag="router-link" to="/transfer">
                 Transfer funds
             </b-navbar-item>
-            <b-navbar-item href="/payment">
+            <b-navbar-item tag="router-link" to="/payment">
                 Pay a person or a bill
             </b-navbar-item>
             
@@ -27,18 +27,18 @@
         <template slot="end">
             <b-navbar-item tag="div">
                 <div class="buttons">
-                    <a 
+                    <router-link 
                       v-if="!isAuthenticated"
                       class="button is-light" 
-                      href="/register">
+                      to="/register">
                         <strong>Sign up</strong>
-                    </a>
-                    <a
+                    </router-link>
+                    <router-link
                       v-if="!isAuthenticated" 
                       class="button is-primary" 
-                      href="/login">
+                      to="/login">
                         Log in
-                    </a>
+                    </router-link>
                     <a
                       v-if="isAuthenticated" 
                       class="button is-primary" 
