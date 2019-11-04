@@ -1,8 +1,12 @@
 <template>
     <div>
-        <el-container>
-            <h2>Account Application</h2>
-        </el-container>     
+        <div class="hero is-small is-hidden-mobile">
+            <div class="hero-body">
+                <div class="container">
+                    <h1 class="title">Account Application</h1>
+                </div>
+            </div>
+        </div>   
         <el-form status-icon label-width="120px">
             <el-form-item label="Account Type" prop="accountType">
                 <el-select v-model="accountType">
