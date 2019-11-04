@@ -1,12 +1,6 @@
 <template>
     <div>
-        <div class="hero is-small is-hidden-mobile">
-            <div class="hero-body">
-                <div class="container">
-                    <h1 class="title">Your Accounts</h1>
-                </div>
-            </div>
-        </div>
+        <PageTitle title="Your Accounts"></PageTitle>
         <ul v-show="loadedHeaders">
             <li v-for="(account, index) in accounts" v-bind:key="index">
                 <div class="box">
@@ -93,8 +87,13 @@ import { Route } from 'vue-router';
 import Axios, { AxiosResponse } from 'axios';
 import { accountStore } from '@/store/store';
 import { authStore } from '@/store/store';
+import PageTitle from '@/components/PageTitle.vue';
 
-@Component
+@Component({
+    components: {
+        PageTitle,
+    },
+})
 export default class Accounts extends Vue {
 
     private activeName: number[] = [];

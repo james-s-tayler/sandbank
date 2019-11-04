@@ -1,12 +1,6 @@
 <template>
     <div>
-        <div class="hero is-small is-hidden-mobile">
-            <div class="hero-body">
-                <div class="container">
-                    <h1 class="title">Account Application</h1>
-                </div>
-            </div>
-        </div>   
+        <PageTitle title="Account Application"></PageTitle>
         <el-form status-icon label-width="120px">
             <el-form-item label="Account Type" prop="accountType">
                 <el-select v-model="accountType">
@@ -37,8 +31,13 @@ import Component from 'vue-class-component';
 import Axios, { AxiosResponse } from 'axios';
 import { Account } from '@/account';
 import { accountStore } from '@/store/store';
+import PageTitle from '@/components/PageTitle.vue';
 
-@Component
+@Component({
+    components: {
+        PageTitle,
+    },
+})
 export default class Accounts extends Vue {
 
     private displayName: string = '';

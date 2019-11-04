@@ -1,8 +1,6 @@
 <template>
     <div>
-        <el-container>
-            <h2>Pay a person or a bill</h2>
-        </el-container>     
+        <PageTitle title="Pay a person or a bill"></PageTitle>     
         <el-steps :active="activeStep" finish-status="success">
             <el-step title="Enter Details" icon="el-icon-bank-card"></el-step>
             <el-step title="Review & Confirm" icon="el-icon-search"></el-step>
@@ -135,8 +133,13 @@ import { Account } from '@/account';
 import { accountStore } from '@/store/store';
 import { PostPaymentRequest } from '@/models/requests/post-payment-request';
 import { Position } from 'vue-router/types/router';
+import PageTitle from '@/components/PageTitle.vue';
 
-@Component
+@Component({
+    components: {
+        PageTitle,
+    },
+})
 export default class Transfer extends Vue {
 
     private enterDetails: number = 0;
