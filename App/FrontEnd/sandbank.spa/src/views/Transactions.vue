@@ -22,30 +22,20 @@
                 :picker-options="pickerOptions">
             </el-date-picker>
         </el-container>
-        <el-table :data="transactionsPage" empty-text="No Transactions." stripe style="width: 100%">
-            <el-table-column
-                prop="amount"
-                width="150px"
-                label="Amount"
-                :formatter="formatMoney">
-            </el-table-column>
-            <el-table-column
-                prop="description"
-                label="Description">
-            </el-table-column>
-            <el-table-column
-                prop="transactionTimeUtc"
-                label="Date"
-                width="250px"
-                :formatter="formatDate">
-            </el-table-column>
-        </el-table>
-        <el-pagination
-            background
-            layout="prev, pager, next"
-            :current-page.sync="currentPage"
-            :total="account.transactions.length">
-        </el-pagination>
+        <b-table :data="transactionsPage" striped>
+            <template slot-scope="props">
+                <b-table-column field="amount" label="Amount">
+                    {{ props.row.amount | asCurrency('NZD') }}
+                </b-table-column>
+                <b-table-column field="description" label="Description">
+                    {{ props.row.description }}
+                </b-table-column>
+                <b-table-column field="transactionTimeUtc" label="Date">
+                    {{ props.row.transactionTimeUtc }}
+                </b-table-column>
+            </template>
+            <!-- add empty slot too -->
+        </b-table>
     </div>
 </template>
 
