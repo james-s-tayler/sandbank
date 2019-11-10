@@ -1,27 +1,30 @@
 <template>
     <div>
-        
-        <el-page-header
-            style="padding-top: 20px;" 
-            @back="goBack" 
-            :content="account.balance | asCurrency('NZD') | prepend('Balance: ')" 
-            title="Back"></el-page-header>
-        <el-container style="display: flex; justify-content: space-between; align-items: center;">
-            <h2>Transactions</h2>
-            <el-date-picker
-                v-model="range"
-                type="daterange"
-                align="right"
-                unlink-panels
-                range-separator="To"
-                format="dd/MM/yyyy"
-                value-format="yyyy-MM-dd"
-                :start-placeholder="defaultStartDate | asDate"
-                :end-placeholder="defaultEndDate | asDate"
-                :default-value="defaultRange"
-                :picker-options="pickerOptions">
-            </el-date-picker>
-        </el-container>
+        <div class="columns is-vcentered is-gapless">
+            <div class="column">
+                <p class="title">Balance: {{ account.balance | asCurrency('NZD') }}</p>
+            </div>
+            <div class="column">
+                <b-field label="Select a date range">
+                    <b-datepicker
+                        placeholder="Click to select"
+                        v-model="range"
+                        range>
+                        <div class="buttons">
+                            <button class="button is-info" @click="range = customRange(7)">
+                                <span>7 Days</span>
+                            </button>
+                            <button class="button is-info" @click="range = customRange(30)">
+                                <span>30 Days</span>
+                            </button>
+                            <button class="button is-info" @click="range = customRange(90)">
+                                <span>90 Days</span>
+                            </button>
+                        </div>
+                    </b-datepicker>
+                </b-field>
+            </div>
+        </div>
         <b-table :data="transactionsPage" striped>
             <template slot-scope="props">
                 <b-table-column field="amount" label="Amount">
@@ -31,7 +34,7 @@
                     {{ props.row.description }}
                 </b-table-column>
                 <b-table-column field="transactionTimeUtc" label="Date">
-                    {{ props.row.transactionTimeUtc }}
+                    {{ props.row.transactionTimeUtc | asDate }}
                 </b-table-column>
             </template>
             <!-- add empty slot too -->
@@ -52,41 +55,8 @@ import { LoadTransactionsRequest } from '@/models/requests/load-transactions-req
 @Component
 export default class Transactions extends Vue {
 
-        private range: string[] = [];
-        private currentPage: number = 1;
-
-        private moneyFormatter: Intl.NumberFormat = new Intl.NumberFormat(this.locale, {
-            style: 'currency',
-            currency: 'NZD',
-        });
-
-        private pickerOptions: any = {
-          shortcuts: [{
-            text: 'Last 7 days',
-            onClick(picker: any) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit('pick', [start, end]);
-            },
-          }, {
-            text: 'Last 30 days',
-            onClick(picker: any) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit('pick', [start, end]);
-            },
-          }, {
-            text: 'Last 90 days',
-            onClick(picker: any) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit('pick', [start, end]);
-            },
-          }],
-        };
+    private range: Date[] = [];
+    private currentPage: number = 1;
 
     private get locale() {
         return this.$store.getters[`${authStore}/locale`];
@@ -103,8 +73,15 @@ export default class Transactions extends Vue {
     }
 
     private get defaultRange() {
-        return [this.defaultStartDate.toISOString().substring(0, 10),
-                this.defaultEndDate.toISOString().substring(0, 10)];
+        return [this.defaultStartDate,
+                this.defaultEndDate];
+    }
+
+    private customRange(days: number) {
+        const end = new Date();
+        const start = new Date();
+        start.setTime(start.getTime() - 3600 * 1000 * 24 * days);
+        return [start, end];
     }
 
     private get defaultStartDate() {
@@ -117,19 +94,10 @@ export default class Transactions extends Vue {
         return new Date();
     }
 
-    // would be nice to be able to re-use the proper i18n filters in main.ts
-    private formatDate(row: number, column: number , cellValue: string, index: number) {
-        return new Date(cellValue).toLocaleString(this.locale);
-    }
-
-    private formatMoney(row: number, column: number , cellValue: string, index: number) {
-        return this.moneyFormatter.format(Number(cellValue));
-    }
-
     @Watch('range')
-    private onRangeChanged(value: string[], oldValue: string[]) {
-        const start = value[0];
-        const end = value[1];
+    private onRangeChanged(value: Date[], oldValue: Date[]) {
+        const start = value[0].toISOString();
+        const end = value[1].toISOString();
 
         const loadTransactionsRequest: LoadTransactionsRequest = {
             account: this.account,
@@ -141,6 +109,10 @@ export default class Transactions extends Vue {
 
     private goBack(): void {
         this.$router.go(-1);
+    }
+
+    private created() {
+        this.range = this.defaultRange;
     }
 }
 </script>
