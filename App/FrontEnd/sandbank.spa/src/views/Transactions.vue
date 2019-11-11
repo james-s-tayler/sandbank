@@ -25,7 +25,13 @@
                 </b-field>
             </div>
         </div>
-        <b-table :data="transactionsPage" striped>
+        <b-table 
+            :data="account.transactions" 
+            striped 
+            paginated
+            :per-page="pageSize"
+            :current-page.sync="currentPage">
+            
             <template slot-scope="props">
                 <b-table-column field="amount" label="Amount">
                     {{ props.row.amount | asCurrency('NZD') }}
@@ -37,7 +43,14 @@
                     {{ props.row.transactionTimeUtc | asDate }}
                 </b-table-column>
             </template>
-            <!-- add empty slot too -->
+
+            <template slot="empty">
+                <section class="section">
+                    <div class="content has-text-grey has-text-centered">
+                        <p>No Transactions.</p>
+                    </div>
+                </section>
+            </template>
         </b-table>
     </div>
 </template>
@@ -57,14 +70,10 @@ export default class Transactions extends Vue {
 
     private range: Date[] = [];
     private currentPage: number = 1;
+    private pageSize: number = 15;
 
     private get locale() {
         return this.$store.getters[`${authStore}/locale`];
-    }
-
-    private get transactionsPage() {
-        const pageSize = 10;
-        return this.account.transactions.slice((this.currentPage - 1) * pageSize, this.currentPage * pageSize);
     }
 
     private get account(): Account {
