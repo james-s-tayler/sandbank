@@ -76,14 +76,14 @@ export default class Transactions extends Vue {
         return this.$store.getters[`${authStore}/locale`];
     }
 
-    private get account(): Account {
-       const accountId: number = Number(this.$route.params.accountId);
-       return this.$store.getters[`${accountStore}/accounts`].find((acc: Account) => acc.id === accountId);
-    }
-
     private get defaultRange() {
         return [this.defaultStartDate,
                 this.defaultEndDate];
+    }
+
+    private get account(): Account {
+        const accountId: number = Number(this.$route.params.accountId);
+        return this.$store.getters[`${accountStore}/accounts`].find((acc: Account) => acc.id === accountId);
     }
 
     private customRange(days: number) {
@@ -122,6 +122,10 @@ export default class Transactions extends Vue {
 
     private created() {
         this.range = this.defaultRange;
+    }
+
+    private mounted() {
+        this.$store.dispatch(`${accountStore}/getAccounts`, { includeBalances: true, includeTransactions: true } );
     }
 }
 </script>

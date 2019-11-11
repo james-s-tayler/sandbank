@@ -59,12 +59,6 @@
                                 <template slot="empty">
                                     <section class="section">
                                         <div class="content has-text-grey has-text-centered">
-                                            <p>
-                                                <b-icon
-                                                    icon="emoticon-sad"
-                                                    size="is-large">
-                                                </b-icon>
-                                            </p>
                                             <p>Nothing here.</p>
                                         </div>
                                     </section>
@@ -117,11 +111,11 @@ export default class Accounts extends Vue {
 
     private mounted() {
         this.$store.dispatch(`${accountStore}/getAccounts`, { includeBalances: true, includeTransactions: true } );
-     }
+    }
 
-     private goBack(): void {
+    private goBack(): void {
          this.$router.go(-1);
-     }
+    }
 }
 </script>
 
