@@ -4,7 +4,7 @@
             <div class="column">
                 <p class="title">Balance: {{ account.balance | asCurrency('NZD') }}</p>
             </div>
-            <div class="column">
+            <div class="column is-hidden-mobile">
                 <b-field label="Select a date range">
                     <b-datepicker
                         placeholder="Click to select"
@@ -23,6 +23,20 @@
                         </div>
                     </b-datepicker>
                 </b-field>
+            </div>
+            <div class="column is-hidden-tablet">
+                <!-- working around a bug in buefy where the datepicker is broken on mobile -->
+                <div class="buttons">
+                    <button class="button is-info" @click="range = customRange(7)">
+                        <span>7 Days</span>
+                    </button>
+                    <button class="button is-info" @click="range = customRange(30)">
+                        <span>30 Days</span>
+                    </button>
+                    <button class="button is-info" @click="range = customRange(90)">
+                        <span>90 Days</span>
+                    </button>
+                </div>
             </div>
         </div>
         <b-table 

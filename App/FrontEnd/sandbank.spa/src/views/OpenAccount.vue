@@ -1,7 +1,8 @@
 <template>
     <div>
         <PageTitle title="Account Application"></PageTitle>
-        <div class="columns">
+        <div class="box">
+        <div class="columns is-gapless">
             <div class="column">
                 <section>
                     <b-field label="Account Type">
@@ -30,6 +31,7 @@
             </div>
             <div class="column">
             </div>
+        </div>
         </div>
     </div>
 </template>
