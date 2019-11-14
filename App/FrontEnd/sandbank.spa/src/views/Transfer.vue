@@ -7,108 +7,114 @@
                 <b-step-item label="Review & Confirm" icon-pack="fas" icon="search"></b-step-item>
                 <b-step-item label="Done" icon-pack="fas" icon="check-circle"></b-step-item>
             </b-steps>
-            <div v-show="activeStep === enterDetails">   
-                <b-field label="From">
-                    <b-select v-model="fromAccountId">
-                        <option :value="0" disabled>
-                            Select an account
-                        </option>
-                        <option v-for="account in accounts" 
-                            :key="account.id"
-                            :value="account.id">
-                            <div class="level">
-                                <div class="level-left">
-                                    <div class="level-item">
-                                        {{ account.displayName }}
+            <div class="columns is-gapless">
+                <div class="column is-3">
+                    <div v-show="activeStep === enterDetails">   
+                        <b-field label="From">
+                            <b-select v-model="fromAccountId">
+                                <option :value="0" disabled>
+                                    Select an account
+                                </option>
+                                <option v-for="account in accounts" 
+                                    :key="account.id"
+                                    :value="account.id">
+                                    <div class="level">
+                                        <div class="level-left">
+                                            <div class="level-item">
+                                                {{ account.displayName }}
+                                            </div>
+                                        </div>
+                                        <div class="level-right">
+                                            <div class="level-item">
+                                                {{ account.balance | asCurrency('NZD') }}
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="level-right">
-                                    <div class="level-item">
-                                        {{ account.balance | asCurrency('NZD') }}
+                                </option>
+                            </b-select>
+                        </b-field>
+
+                        <b-field label="To">
+                            <b-select v-model="toAccountId">
+                                <option :value="0" disabled>
+                                    Select an account
+                                </option>
+                                <option v-for="account in accounts" 
+                                    :key="account.id"
+                                    :value="account.id">
+                                    <div class="level">
+                                        <div class="level-left">
+                                            <div class="level-item">
+                                                {{ account.displayName }}
+                                            </div>
+                                        </div>
+                                        <div class="level-right">
+                                            <div class="level-item">
+                                                {{ account.balance | asCurrency('NZD') }}
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
+                                </option>
+                            </b-select>
+                        </b-field>
+                        <b-field label="Amount">
+                            <b-input
+                                v-model="amount"
+                                :disabled="fromAccount === undefined || toAccount === undefined || fromAccount === toAccount"
+                                is-numeric
+                                :min="0"
+                                icon-pack="fas"
+                                icon="dollar-sign"
+                                :max="fromAccount === undefined ? 0 : fromAccount.balance">
+                            </b-input>
+                        </b-field>
+                        <b-field label="Reference">
+                            <b-input
+                                v-model="reference"
+                                :disabled="fromAccount === undefined || toAccount === undefined || fromAccount === toAccount">
+                            </b-input>
+                        </b-field>
+                        <b-field label="Confirm">
+                            <div class="buttons">
+                                <b-button v-show="activeStep === enterDetails" type="is-info" :disabled="!validTransfer" @click="setStep(reviewConfirm)">Review & confirm</b-button>
+                                <b-button v-show="activeStep !== done" type="is-info" @click="dialogVisible = true">Cancel</b-button>
                             </div>
-                        </option>
-                    </b-select>
-                </b-field>
-
-                <b-field label="To">
-                    <b-select v-model="toAccountId">
-                        <option :value="0" disabled>
-                            Select an account
-                        </option>
-                        <option v-for="account in accounts" 
-                            :key="account.id"
-                            :value="account.id">
-                            <div class="level">
-                                <div class="level-left">
-                                    <div class="level-item">
-                                        {{ account.displayName }}
-                                    </div>
-                                </div>
-                                <div class="level-right">
-                                    <div class="level-item">
-                                        {{ account.balance | asCurrency('NZD') }}
-                                    </div>
-                                </div>
-                            </div>
-                        </option>
-                    </b-select>
-                </b-field>
-
-                <p class="title">Transfer Details</p>
-                <b-field label="Amount">
-                    <b-input
-                        v-model="amount"
-                        :disabled="fromAccount === undefined || toAccount === undefined || fromAccount === toAccount"
-                        is-numeric
-                        :min="0"
-                        icon-pack="fas"
-                        icon="dollar-sign"
-                        :max="fromAccount === undefined ? 0 : fromAccount.balance">
-                    </b-input>
-                </b-field>
-                <b-field label="Reference">
-                    <b-input
-                        v-model="reference"
-                        :disabled="fromAccount === undefined || toAccount === undefined || fromAccount === toAccount">
-                    </b-input>
-                </b-field>
-            </div>
-
-            <div v-if="activeStep === reviewConfirm && fromAccount !== undefined">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <el-card class="transferSummary">
-                        <p class="transferSummaryDisplayName">{{ fromAccount.displayName }}</p>
-                        <p class="transferSummaryAccountNumber">{{ fromAccount.accountNumber }}</p>
-                        <p class="transferSummaryAmount">Available: {{ fromAccount.balance - amount | asCurrency('NZD') }}</p>
-                    </el-card>
-                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: -webkit-xxx-large;">
-                        <p style="padding: 5px;">{{ amount | asCurrency('NZD') }}</p>
-                        <i class="el-icon-right"></i>
+                        </b-field>
                     </div>
-                    <el-card class="transferSummary">
-                        <p class="transferSummaryDisplayName">{{ toAccount.displayName }}</p>
-                        <p class="transferSummaryAccountNumber">{{ toAccount.accountNumber }}</p>
-                        <p class="transferSummaryAmount">Available: {{ availableAfterTransfer | asCurrency('NZD') }}</p>
-                    </el-card>
+
+                    <div v-if="activeStep === reviewConfirm && fromAccount !== undefined">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <el-card class="transferSummary">
+                                <p class="transferSummaryDisplayName">{{ fromAccount.displayName }}</p>
+                                <p class="transferSummaryAccountNumber">{{ fromAccount.accountNumber }}</p>
+                                <p class="transferSummaryAmount">Available: {{ fromAccount.balance - amount | asCurrency('NZD') }}</p>
+                            </el-card>
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: -webkit-xxx-large;">
+                                <p style="padding: 5px;">{{ amount | asCurrency('NZD') }}</p>
+                                <i class="el-icon-right"></i>
+                            </div>
+                            <el-card class="transferSummary">
+                                <p class="transferSummaryDisplayName">{{ toAccount.displayName }}</p>
+                                <p class="transferSummaryAccountNumber">{{ toAccount.accountNumber }}</p>
+                                <p class="transferSummaryAmount">Available: {{ availableAfterTransfer | asCurrency('NZD') }}</p>
+                            </el-card>
+                        </div>
+                    </div>
+
+                    <div v-show="activeStep === done">
+                        <el-alert
+                            :title="amount | asCurrency('NZD') | splice('Your transfer of ', ' has been made.')"
+                            type="success"
+                            show-icon>
+                        </el-alert>
+                    </div>
+
+                    <div class="buttons">
+                        <b-button v-show="activeStep === reviewConfirm" type="is-info" @click="confirmTransfer">Confirm your transfer</b-button>
+                        <b-button v-show="activeStep === reviewConfirm" type="is-info" @click="setStep(enterDetails)">Change details</b-button>
+                        <b-button v-show="activeStep === done" type="is-info" @click="finish">Done</b-button>
+                    </div>
                 </div>
-            </div>
-
-            <div v-show="activeStep === done">
-                <el-alert
-                    :title="amount | asCurrency('NZD') | splice('Your transfer of ', ' has been made.')"
-                    type="success"
-                    show-icon>
-                </el-alert>
-            </div>
-
-            <div class="buttons">
-                <b-button v-show="activeStep === enterDetails" type="is-info" :disabled="!validTransfer" @click="setStep(reviewConfirm)">Review & confirm</b-button>
-                <b-button v-show="activeStep === reviewConfirm" type="is-info" @click="confirmTransfer">Confirm your transfer</b-button>
-                <b-button v-show="activeStep === reviewConfirm" type="is-info" @click="setStep(enterDetails)">Change details</b-button>
-                <b-button v-show="activeStep !== done" type="is-info" @click="dialogVisible = true">Cancel</b-button>
-                <b-button v-show="activeStep === done" type="is-info" @click="finish">Done</b-button>
             </div>
         </div>
 
