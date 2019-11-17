@@ -7,9 +7,9 @@
                 <b-step-item label="Review & Confirm" icon-pack="fas" icon="search"></b-step-item>
                 <b-step-item label="Done" icon-pack="fas" icon="check-circle"></b-step-item>
             </b-steps>
-            <div class="columns is-gapless">
-                <div class="column is-3">
-                    <div v-show="activeStep === enterDetails">   
+            <div v-show="activeStep === enterDetails">
+                <div class="columns is-gapless">
+                    <div class="column is-3">
                         <b-field label="From">
                             <b-select v-model="fromAccountId">
                                 <option :value="0" disabled>
@@ -74,46 +74,55 @@
                                 :disabled="fromAccount === undefined || toAccount === undefined || fromAccount === toAccount">
                             </b-input>
                         </b-field>
-                        <b-field label="Confirm">
+                        <b-field>
                             <div class="buttons">
                                 <b-button v-show="activeStep === enterDetails" type="is-info" :disabled="!validTransfer" @click="setStep(reviewConfirm)">Review & confirm</b-button>
                                 <b-button v-show="activeStep !== done" type="is-info" @click="dialogVisible = true">Cancel</b-button>
                             </div>
                         </b-field>
                     </div>
+                </div>
+            </div>
 
-                    <div v-if="activeStep === reviewConfirm && fromAccount !== undefined">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <el-card class="transferSummary">
-                                <p class="transferSummaryDisplayName">{{ fromAccount.displayName }}</p>
-                                <p class="transferSummaryAccountNumber">{{ fromAccount.accountNumber }}</p>
-                                <p class="transferSummaryAmount">Available: {{ fromAccount.balance - amount | asCurrency('NZD') }}</p>
-                            </el-card>
-                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: -webkit-xxx-large;">
-                                <p style="padding: 5px;">{{ amount | asCurrency('NZD') }}</p>
-                                <i class="el-icon-right"></i>
-                            </div>
-                            <el-card class="transferSummary">
-                                <p class="transferSummaryDisplayName">{{ toAccount.displayName }}</p>
-                                <p class="transferSummaryAccountNumber">{{ toAccount.accountNumber }}</p>
-                                <p class="transferSummaryAmount">Available: {{ availableAfterTransfer | asCurrency('NZD') }}</p>
-                            </el-card>
+            <div v-if="activeStep === reviewConfirm && fromAccount !== undefined">
+                <div class="columns is-vcentered">
+                    <div class="column">
+                        <div class="box">
+                            <p class="title is-marginless"> {{ fromAccount.displayName }}</p>
+                            <p class="subtitle is-marginless"> {{ fromAccount.accountNumber }}</p>
+                            <p class="is-size-6">After: {{ fromAccount.balance - amount | asCurrency('NZD') }}</p>
                         </div>
                     </div>
-
-                    <div v-show="activeStep === done">
-                        <el-alert
-                            :title="amount | asCurrency('NZD') | splice('Your transfer of ', ' has been made.')"
-                            type="success"
-                            show-icon>
-                        </el-alert>
+                    <div class="column">
+                        <p class="title has-text-centered is-marginless">Transfer</p>
+                        <p v-if="reference" class="is-size-6 has-text-centered">{{ reference }}</p>
+                        <p class="subtitle has-text-centered is-marginless">{{ amount | asCurrency('NZD') }}</p>
+                        
                     </div>
-
-                    <div class="buttons">
-                        <b-button v-show="activeStep === reviewConfirm" type="is-info" @click="confirmTransfer">Confirm your transfer</b-button>
-                        <b-button v-show="activeStep === reviewConfirm" type="is-info" @click="setStep(enterDetails)">Change details</b-button>
-                        <b-button v-show="activeStep === done" type="is-info" @click="finish">Done</b-button>
+                    <div class="column">
+                        <div class="box">
+                            <p class="title is-marginless"> {{ toAccount.displayName }}</p>
+                            <p class="subtitle is-marginless"> {{ toAccount.accountNumber }}</p>
+                            <p class="is-size-6">After: {{ availableAfterTransfer | asCurrency('NZD') }}</p>
+                        </div>
                     </div>
+                </div>
+                <div class="buttons">
+                    <b-button v-show="activeStep === reviewConfirm" type="is-info" @click="confirmTransfer">Confirm transfer</b-button>
+                    <b-button v-show="activeStep === reviewConfirm" type="is-info" @click="setStep(enterDetails)">Change</b-button>
+                    <b-button v-show="activeStep !== done" type="is-info" @click="dialogVisible = true">Cancel</b-button>
+                </div>
+            </div>
+
+            <div v-show="activeStep === done">
+                <b-notification
+                    type="is-success"
+                    has-icon
+                    :closable="false">
+                    Your transfer of {{ amount | asCurrency('NZD') }} has been made.
+                </b-notification>
+                <div class="buttons">
+                    <b-button v-show="activeStep === done" type="is-info" @click="finish">Done</b-button>
                 </div>
             </div>
         </div>
