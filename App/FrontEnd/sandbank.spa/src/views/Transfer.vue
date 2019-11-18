@@ -77,7 +77,7 @@
                         <b-field>
                             <div class="buttons">
                                 <b-button v-show="activeStep === enterDetails" type="is-info" :disabled="!validTransfer" @click="setStep(reviewConfirm)">Review & confirm</b-button>
-                                <b-button v-show="activeStep !== done" type="is-info" @click="dialogVisible = true">Cancel</b-button>
+                                <b-button v-show="activeStep !== done" type="is-info" @click="confirmCancel">Cancel</b-button>
                             </div>
                         </b-field>
                     </div>
@@ -110,7 +110,7 @@
                 <div class="buttons">
                     <b-button v-show="activeStep === reviewConfirm" type="is-info" @click="confirmTransfer">Confirm transfer</b-button>
                     <b-button v-show="activeStep === reviewConfirm" type="is-info" @click="setStep(enterDetails)">Change</b-button>
-                    <b-button v-show="activeStep !== done" type="is-info" @click="dialogVisible = true">Cancel</b-button>
+                    <b-button v-show="activeStep !== done" type="is-info" @click="confirmCancel">Cancel</b-button>
                 </div>
             </div>
 
@@ -126,20 +126,6 @@
                 </div>
             </div>
         </div>
-        
-
-        <!-- fix this -->
-
-        <el-dialog
-            title="You have unsaved changes"
-            :visible.sync="dialogVisible"
-            width="30%">
-            <span>Clicking confirm will lose your unsaved changes. Are you sure you want to proceed?</span>
-            <span slot="footer" class="dialog-footer">
-                <el-button @click="dialogVisible = false">Cancel</el-button>
-                <el-button type="primary" @click="finish">Confirm</el-button>
-            </span>
-        </el-dialog>
     </div>
 </template>
 
@@ -220,6 +206,17 @@ export default class Transfer extends Vue {
         .then((response: any) => {
             this.setStep(this.done);
         });
+    }
+
+    private confirmCancel() {
+        this.$buefy.dialog.confirm({
+                    title: 'You have unsaved changes',
+                    message: 'Clicking confirm will lose your unsaved changes. Are you sure you want to proceed?',
+                    confirmText: 'Confirm',
+                    type: 'is-danger',
+                    hasIcon: true,
+                    onConfirm: () => this.finish(),
+                });
     }
 
     private setStep(step: number) {
