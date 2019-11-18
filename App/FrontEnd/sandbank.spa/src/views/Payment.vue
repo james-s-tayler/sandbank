@@ -35,13 +35,18 @@
                         </b-field>
 
                         <b-field label="To">
-                           <b-input v-model="toAccountNumber">
-                           </b-input>
+                            <b-input
+                                ref="accountInput"
+                                v-model="toAccountNumber" 
+                                pattern="[0-9]{2}-[0-9]{4}-[0-9]{7}-[0-9]{2}"
+                                validation-message="Please match the format: 00-0000-0000000-00"
+                                @keyup.native="$refs['accountInput'].checkHtml5Validity()"
+                                placeholder="00-0000-0000000-00"></b-input>
                         </b-field>
                         <b-field label="Amount">
                             <b-input
                                 v-model="amount"
-                                :disabled="fromAccount === undefined || toAccountNumber === '' || fromAccount.accountNumber === toAccountNumber"
+                                :disabled="!validToAccount"
                                 is-numeric
                                 :min="0"
                                 icon-pack="fas"
@@ -52,7 +57,7 @@
                         <b-field label="Reference">
                             <b-input
                                 v-model="reference"
-                                :disabled="fromAccount === undefined || toAccountNumber === '' || fromAccount.accountNumber === toAccountNumber">
+                                :disabled="!validToAccount">
                             </b-input>
                         </b-field>
                         <b-field>
@@ -138,12 +143,21 @@ export default class Transfer extends Vue {
 
     private activeStep: number = this.enterDetails;
 
-    private get validTransfer(): boolean {
+    private get validToAccount(): boolean {
         return this.fromAccount !== undefined &&
                this.toAccountNumber !== '' &&
                this.fromAccount.accountNumber !== this.toAccountNumber &&
-               this.amount > 0 &&
+               this.$refs["accountInput"].isValid;
+    }
+
+    private get validAmount(): boolean {
+        return this.amount > 0 &&
                this.fromAccount.balance >= this.amount;
+    }
+
+    private get validTransfer(): boolean {
+        return this.validToAccount &&
+               this.validAmount;
     }
 
     private get fromAccount(): Account {
