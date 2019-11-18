@@ -1,7 +1,8 @@
 <template>
     <div>
+        <b-loading :is-full-page="true" :active="!loadedAccounts"></b-loading>
         <PageTitle title="Your Accounts"></PageTitle>
-        <ul v-show="loadedHeaders">
+        <ul >
             <li v-for="(account, index) in accounts" v-bind:key="index">
                 <div class="box">
                     <div class="columns is-mobile level">

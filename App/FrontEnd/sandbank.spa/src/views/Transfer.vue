@@ -126,6 +126,9 @@
                 </div>
             </div>
         </div>
+        
+
+        <!-- fix this -->
 
         <el-dialog
             title="You have unsaved changes"
@@ -159,7 +162,7 @@ export default class Transfer extends Vue {
 
     private enterDetails: number = 0;
     private reviewConfirm: number = 1;
-    private done: number = 3;
+    private done: number = 2;
     private dialogVisible: boolean = false;
     private fromAccountId: number = 0;
     private toAccountId: number = 0;
@@ -195,8 +198,8 @@ export default class Transfer extends Vue {
         return this.$store.getters[`${accountStore}/accounts`];
     }
 
-    private get loadedAccounts(): boolean {
-        return this.$store.getters[`${accountStore}/loadedHeaders`] && this.$store.getters[`${accountStore}/loadedBalances`];
+    private loadedAccounts() {
+        return this.$store.getters[`${accountStore}/loadedAccounts`];
     }
 
     private created() {
