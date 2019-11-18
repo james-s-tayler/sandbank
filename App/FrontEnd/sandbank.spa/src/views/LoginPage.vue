@@ -7,7 +7,8 @@
           placeholder="you@sandbank.com"
           v-model="email"
           icon-pack="fas"
-          icon="envelope">
+          icon="envelope"
+          @keyup.native.enter="login">
         </b-input>
       </b-field>
       <a class="button is-primary" @click="login">Log on</a>

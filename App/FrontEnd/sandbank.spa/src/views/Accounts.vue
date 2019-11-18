@@ -4,7 +4,7 @@
         <PageTitle title="Your Accounts"></PageTitle>
         <ul >
             <li v-for="(account, index) in accounts" v-bind:key="index">
-                <div class="box">
+                <div class="box is-radiusless">
                     <div class="columns is-mobile level">
                         <div class="column is-narrow">
                             <figure class="image is-96x96">
