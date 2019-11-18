@@ -1,8 +1,9 @@
 <template>
     <div>
+        <PageTitle :title="'Account: ' + account.displayName"></PageTitle>
         <div class="columns is-vcentered is-gapless">
             <div class="column">
-                <p class="title">Balance: {{ account.balance | asCurrency('NZD') }}</p>
+                <p class="is-size-5">Balance: {{ account.balance | asCurrency('NZD') }}</p>
             </div>
             <div class="column is-hidden-mobile">
                 <b-field label="Select a date range">
@@ -78,8 +79,11 @@ import { Account } from '@/account';
 import { accountStore } from '@/store/store';
 import { authStore } from '@/store/store';
 import { LoadTransactionsRequest } from '@/models/requests/load-transactions-request';
+import PageTitle from '@/components/PageTitle.vue';
 
-@Component
+@Component({components: {
+    PageTitle,
+}})
 export default class Transactions extends Vue {
 
     private range: Date[] = [];

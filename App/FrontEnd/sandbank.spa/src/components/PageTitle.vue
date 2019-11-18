@@ -1,6 +1,6 @@
 <template>
     <div class="hero is-small is-hidden-mobile">
-        <div class="hero-body">
+        <div class="hero-body is-paddingless-left">
             <div class="container">
                 <h1 v-if="title" class="title">{{ title }}</h1>
                 <h2 v-if="subtitle" class="subtitle">{{ subtitle }}</h2>
@@ -25,5 +25,8 @@ export default class PageTitle extends Vue {
 }
 </script>
 
-<style>
+<style scoped>
+.is-paddingless-left {
+    padding-left: 0;
+}
 </style>
