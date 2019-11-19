@@ -1,29 +1,38 @@
 <template>
     <div>
-        <el-container>
-            <h2>Account Application</h2>
-        </el-container>     
-        <el-form status-icon label-width="120px">
-            <el-form-item label="Account Type" prop="accountType">
-                <el-select v-model="accountType">
-                    <el-option
-                        v-for="type in accountTypes"
-                        :key="type.value"
-                        :label="type.name"
-                        :value="type.value">
-                    </el-option>
-                </el-select>
-            </el-form-item>
-            <el-form-item label="Account Name" prop="displayName">
-                <el-input type="text" v-model="displayName" required></el-input>
-            </el-form-item>
-            <el-form-item>
-                 <el-checkbox v-model="seedData">Seed dummy transaction data</el-checkbox>
-            </el-form-item>
-            <el-form-item>
-                <el-button v-loading="processing" type="primary" @click="openAccount()">Open account</el-button>
-            </el-form-item>
-        </el-form>
+        <PageTitle title="Account Application"></PageTitle>
+        <div class="box">
+        <div class="columns is-gapless">
+            <div class="column">
+                <section>
+                    <b-field label="Account Type">
+                        <b-select 
+                            v-model="accountType"
+                            placeholder="Select an account type"
+                            required>
+                            <option 
+                                v-for="(type, index) in accountTypes"
+                                :key="index"
+                                :value="type.value">
+                                {{ type.name }}
+                            </option>
+                        </b-select>
+                    </b-field>
+                    <b-field label="Account Name">
+                        <b-input v-model="displayName" required></b-input>
+                    </b-field>
+                    <b-field>
+                        <b-checkbox v-model="seedData">Seed dummy transaction data</b-checkbox>
+                    </b-field>
+                    <b-button @click="openAccount" type="is-info" :loading="processing">Open account</b-button>
+                </section>
+            </div>
+            <div class="column">
+            </div>
+            <div class="column">
+            </div>
+        </div>
+        </div>
     </div>
 </template>
 
@@ -33,8 +42,13 @@ import Component from 'vue-class-component';
 import Axios, { AxiosResponse } from 'axios';
 import { Account } from '@/account';
 import { accountStore } from '@/store/store';
+import PageTitle from '@/components/PageTitle.vue';
 
-@Component
+@Component({
+    components: {
+        PageTitle,
+    },
+})
 export default class Accounts extends Vue {
 
     private displayName: string = '';

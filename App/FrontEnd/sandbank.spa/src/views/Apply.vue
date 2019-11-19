@@ -1,28 +1,34 @@
 <template>
     <div>
-        <el-container>
-            <h2>Apply & open</h2>
-        </el-container>     
+        <PageTitle title="Apply & open"></PageTitle>
         <ul>
             <li v-for="(option, index) in options" v-bind:key="index">
-                <el-card class="box-card">
-                    <div slot="header" class="clearfix">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div style="display: flex; justify-content: flex-start; align-items: center;">
-                                <i :class="option.icon"></i>
-                                <div style="display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; padding-left: 10px;">
-                                    <h3>{{ option.type }}</h3>
-                                    <p>{{ option.description }}</p>
-                                </div>
-                            </div>
-                            <router-link :to="{ name: option.linkTo }">
-                                <el-button type="primary">
-                                    {{ option.callToAction }}
-                                </el-button>
-                            </router-link>
-                        </div>
+                <div class="box">
+                <div class="columns is-vcentered">
+                    <div class="column is-narrow is-hidden-mobile">
+                        <b-icon 
+                            icon="money-bill" 
+                            size="is-large"
+                            type="is-info">
+                        </b-icon>
                     </div>
-                </el-card>
+                    <div class="column">
+                        <h2 class="subtitle is-marginless">
+                            <strong>{{option.type}}</strong>
+                        </h2>
+                        <p>{{option.description}}</p>
+                    </div>
+                    <div class="column">
+                        <router-link :to="{ name: option.linkTo }">
+                            <b-button type="is-info">
+                                {{ option.callToAction }}
+                            </b-button>
+                        </router-link>
+                    </div>
+                    <div class="column">
+                    </div>
+                </div>
+                </div>
             </li>
         </ul>
     </div>
@@ -31,14 +37,19 @@
 <script lang="ts">
 import Vue from 'vue';
 import Component from 'vue-class-component';
+import PageTitle from '@/components/PageTitle.vue';
 
-@Component
+@Component({
+    components: {
+        PageTitle,
+    },
+})
 export default class Accounts extends Vue {
 
     private get options() {
         return [
             {
-                icon: 'el-icon-money',
+                icon: 'money',
                 type: 'Bank account',
                 description: 'Manage your money the way you want.',
                 callToAction: 'Open a bank account',

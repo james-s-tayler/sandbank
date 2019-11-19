@@ -1,51 +1,72 @@
 <template>
     <div>
-        
-        <el-page-header
-            style="padding-top: 20px;" 
-            @back="goBack" 
-            :content="account.balance | asCurrency('NZD') | prepend('Balance: ')" 
-            title="Back"></el-page-header>
-        <el-container style="display: flex; justify-content: space-between; align-items: center;">
-            <h2>Transactions</h2>
-            <el-date-picker
-                v-model="range"
-                type="daterange"
-                align="right"
-                unlink-panels
-                range-separator="To"
-                format="dd/MM/yyyy"
-                value-format="yyyy-MM-dd"
-                :start-placeholder="defaultStartDate | asDate"
-                :end-placeholder="defaultEndDate | asDate"
-                :default-value="defaultRange"
-                :picker-options="pickerOptions">
-            </el-date-picker>
-        </el-container>
-        <el-table :data="transactionsPage" empty-text="No Transactions." stripe style="width: 100%">
-            <el-table-column
-                prop="amount"
-                width="150px"
-                label="Amount"
-                :formatter="formatMoney">
-            </el-table-column>
-            <el-table-column
-                prop="description"
-                label="Description">
-            </el-table-column>
-            <el-table-column
-                prop="transactionTimeUtc"
-                label="Date"
-                width="250px"
-                :formatter="formatDate">
-            </el-table-column>
-        </el-table>
-        <el-pagination
-            background
-            layout="prev, pager, next"
-            :current-page.sync="currentPage"
-            :total="account.transactions.length">
-        </el-pagination>
+        <PageTitle :title="'Account: ' + account.displayName"></PageTitle>
+        <div class="columns is-vcentered is-gapless">
+            <div class="column">
+                <p class="is-size-5">Balance: {{ account.balance | asCurrency('NZD') }}</p>
+            </div>
+            <div class="column is-hidden-mobile">
+                <b-field label="Select a date range">
+                    <b-datepicker
+                        placeholder="Click to select"
+                        v-model="range"
+                        range>
+                        <div class="buttons">
+                            <button class="button is-info" @click="range = customRange(7)">
+                                <span>7 Days</span>
+                            </button>
+                            <button class="button is-info" @click="range = customRange(30)">
+                                <span>30 Days</span>
+                            </button>
+                            <button class="button is-info" @click="range = customRange(90)">
+                                <span>90 Days</span>
+                            </button>
+                        </div>
+                    </b-datepicker>
+                </b-field>
+            </div>
+            <div class="column is-hidden-tablet">
+                <!-- working around a bug in buefy where the datepicker is broken on mobile -->
+                <div class="buttons">
+                    <button class="button is-info" @click="range = customRange(7)">
+                        <span>7 Days</span>
+                    </button>
+                    <button class="button is-info" @click="range = customRange(30)">
+                        <span>30 Days</span>
+                    </button>
+                    <button class="button is-info" @click="range = customRange(90)">
+                        <span>90 Days</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <b-table 
+            :data="account.transactions" 
+            striped 
+            paginated
+            :per-page="pageSize"
+            :current-page.sync="currentPage">
+            
+            <template slot-scope="props">
+                <b-table-column field="amount" label="Amount">
+                    {{ props.row.amount | asCurrency('NZD') }}
+                </b-table-column>
+                <b-table-column field="description" label="Description">
+                    {{ props.row.description }}
+                </b-table-column>
+                <b-table-column field="transactionTimeUtc" label="Date">
+                    {{ props.row.transactionTimeUtc | asDate }}
+                </b-table-column>
+            </template>
+
+            <template slot="empty">
+                <section class="section">
+                    <div class="content has-text-grey has-text-centered">
+                        <p>No Transactions.</p>
+                    </div>
+                </section>
+            </template>
+        </b-table>
     </div>
 </template>
 
@@ -58,63 +79,36 @@ import { Account } from '@/account';
 import { accountStore } from '@/store/store';
 import { authStore } from '@/store/store';
 import { LoadTransactionsRequest } from '@/models/requests/load-transactions-request';
+import PageTitle from '@/components/PageTitle.vue';
 
-@Component
+@Component({components: {
+    PageTitle,
+}})
 export default class Transactions extends Vue {
 
-        private range: string[] = [];
-        private currentPage: number = 1;
-
-        private moneyFormatter: Intl.NumberFormat = new Intl.NumberFormat(this.locale, {
-            style: 'currency',
-            currency: 'NZD',
-        });
-
-        private pickerOptions: any = {
-          shortcuts: [{
-            text: 'Last 7 days',
-            onClick(picker: any) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit('pick', [start, end]);
-            },
-          }, {
-            text: 'Last 30 days',
-            onClick(picker: any) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit('pick', [start, end]);
-            },
-          }, {
-            text: 'Last 90 days',
-            onClick(picker: any) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit('pick', [start, end]);
-            },
-          }],
-        };
+    private range: Date[] = [];
+    private currentPage: number = 1;
+    private pageSize: number = 15;
 
     private get locale() {
         return this.$store.getters[`${authStore}/locale`];
     }
 
-    private get transactionsPage() {
-        const pageSize = 10;
-        return this.account.transactions.slice((this.currentPage - 1) * pageSize, this.currentPage * pageSize);
+    private get defaultRange() {
+        return [this.defaultStartDate,
+                this.defaultEndDate];
     }
 
     private get account(): Account {
-       const accountId: number = Number(this.$route.params.accountId);
-       return this.$store.getters[`${accountStore}/accounts`].find((acc: Account) => acc.id === accountId);
+        const accountId: number = Number(this.$route.params.accountId);
+        return this.$store.getters[`${accountStore}/accounts`].find((acc: Account) => acc.id === accountId);
     }
 
-    private get defaultRange() {
-        return [this.defaultStartDate.toISOString().substring(0, 10),
-                this.defaultEndDate.toISOString().substring(0, 10)];
+    private customRange(days: number) {
+        const end = new Date();
+        const start = new Date();
+        start.setTime(start.getTime() - 3600 * 1000 * 24 * days);
+        return [start, end];
     }
 
     private get defaultStartDate() {
@@ -127,19 +121,10 @@ export default class Transactions extends Vue {
         return new Date();
     }
 
-    // would be nice to be able to re-use the proper i18n filters in main.ts
-    private formatDate(row: number, column: number , cellValue: string, index: number) {
-        return new Date(cellValue).toLocaleString(this.locale);
-    }
-
-    private formatMoney(row: number, column: number , cellValue: string, index: number) {
-        return this.moneyFormatter.format(Number(cellValue));
-    }
-
     @Watch('range')
-    private onRangeChanged(value: string[], oldValue: string[]) {
-        const start = value[0];
-        const end = value[1];
+    private onRangeChanged(value: Date[], oldValue: Date[]) {
+        const start = value[0].toISOString();
+        const end = value[1].toISOString();
 
         const loadTransactionsRequest: LoadTransactionsRequest = {
             account: this.account,
@@ -151,6 +136,14 @@ export default class Transactions extends Vue {
 
     private goBack(): void {
         this.$router.go(-1);
+    }
+
+    private created() {
+        this.range = this.defaultRange;
+    }
+
+    private mounted() {
+        this.$store.dispatch(`${accountStore}/getAccounts`, { includeBalances: true, includeTransactions: true } );
     }
 }
 </script>

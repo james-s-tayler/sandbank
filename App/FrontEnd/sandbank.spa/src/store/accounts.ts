@@ -22,6 +22,9 @@ const getters = {
     loadedBalances: (accountState: any) => {
         return accountState.loadedBalances;
     },
+    loadedAccounts: (accountState: any) => {
+        return accountState.loadedHeaders && accountState.loadedBalances;
+    },
 };
 
 const actions = {

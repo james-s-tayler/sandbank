@@ -1,9 +1,18 @@
 <template>
-  <div id="app">
+  <div id="app" class="is-full-height is-light">
     <AppHeader/>
-    <div class="main-content">
-      <router-view/>
-    </div>
+    <section class="is-flex is-at-least-three-quarter-height">
+      <div class="container is-fullhd">
+        <router-view/>
+      </div>
+    </section>
+    <footer class="footer is-hidden-touch">
+      <div class="container has-text-centered">
+        <p class="is-size-7">
+          Copyright {{ currentYear }} © SandBank Inc. All rights reserved.
+        </p>
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -19,22 +28,15 @@ import AppHeader from '@/components/AppHeader.vue';
 })
 export default class App extends Vue {
 
+  private get currentYear() {
+    return new Date().getFullYear();
+  }
+
 }
 </script>
 
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-
-.main-content {
-  height: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  width: 40%;
+.is-light {
+  background-color: #fafafa;
 }
 </style>

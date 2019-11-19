@@ -1,145 +1,131 @@
 <template>
     <div>
-        <el-container>
-            <h2>Transfer funds</h2>
-        </el-container>     
-        <el-steps :active="activeStep" finish-status="success">
-            <el-step title="Enter Details" icon="el-icon-bank-card"></el-step>
-            <el-step title="Review & Confirm" icon="el-icon-search"></el-step>
-            <el-step title="Done" icon="el-icon-check"></el-step>
-        </el-steps>
-        <el-container class="transferContainer">
-            <div v-show="activeStep === enterDetails">   
-                <el-divider content-position="left">From</el-divider>
-                <div>
-                    <el-select v-model="fromAccountId" v-loading="!loadedAccounts">
-                        <el-option 
-                            disabled
-                            :value="0" 
-                            label="Select an account">
-                        </el-option>
-                        <el-option
-                            v-for="account in accounts"
-                            :key="account.id"
-                            :label="account.displayName"
-                            :value="account.id">
-                            <span style="float: left">{{ account.displayName }}</span>
-                            <span style="float: right; color: #8492a6; font-size: 13px">{{ account.balance | asCurrency('NZD') }}</span>
-                        </el-option>
-                    </el-select>
-                    <div v-if="fromAccount !== undefined" style="display: flex; font-size: smaller; padding-top: 10px;">
-                        <div style="padding-right: 15px;">
-                            <p>Account number</p>
-                            <p>{{ fromAccount.accountNumber }}</p>
-                        </div>
-                        <div>
-                            <p>Account balance</p>
-                            <p>{{ fromAccount.balance | asCurrency('NZD') }}</p>
-                        </div>
-                    </div>
-                </div>
+        <PageTitle title="Transfer funds"></PageTitle>
+        <div class="box">
+            <b-steps v-model="activeStep" type="is-info" size="is-medium" :has-navigation="false">
+                <b-step-item label="Enter Details" icon-pack="fas" icon="money-check-alt"></b-step-item>
+                <b-step-item label="Review & Confirm" icon-pack="fas" icon="search"></b-step-item>
+                <b-step-item label="Done" icon-pack="fas" icon="check-circle"></b-step-item>
+            </b-steps>
+            <div v-show="activeStep === enterDetails">
+                <div class="columns is-gapless">
+                    <div class="column is-3">
+                        <b-field label="From">
+                            <b-select v-model="fromAccountId">
+                                <option :value="0" disabled>
+                                    Select an account
+                                </option>
+                                <option v-for="account in accounts" 
+                                    :key="account.id"
+                                    :value="account.id">
+                                    <div class="level">
+                                        <div class="level-left">
+                                            <div class="level-item">
+                                                {{ account.displayName }}
+                                            </div>
+                                        </div>
+                                        <div class="level-right">
+                                            <div class="level-item">
+                                                {{ account.balance | asCurrency('NZD') }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </option>
+                            </b-select>
+                        </b-field>
 
-                <el-divider content-position="left">To</el-divider>
-                <div>
-                    <el-select v-model="toAccountId" v-loading="!loadedAccounts">
-                        <el-option 
-                            disabled
-                            :value="0" 
-                            label="Select an account">
-                        </el-option>
-                        <el-option
-                            v-for="account in accounts"
-                            :key="account.id"
-                            :label="account.displayName"
-                            :value="account.id">
-                            <span style="float: left">{{ account.displayName }}</span>
-                            <span style="float: right; color: #8492a6; font-size: 13px">{{ account.balance | asCurrency('NZD') }}</span>
-                        </el-option>
-                    </el-select>
-                    <div v-if="toAccount !== undefined" style="display: flex; font-size: smaller; padding-top: 10px;">
-                        <div style="padding-right: 15px;">
-                            <p>Account number</p>
-                            <p>{{ toAccount.accountNumber }}</p>
-                        </div>
-                        <div>
-                            <p>Account balance</p>
-                            <p>{{ toAccount.balance | asCurrency('NZD') }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <el-divider content-position="left">Transfer details</el-divider>
-                <div style="width: 220px;">
-                    <div class="el-form-item">
-                        <label for="amount" class="el-form-item__label">Amount</label>
-                        <el-input 
-                            v-model="amount"
-                            :disabled="fromAccount === undefined || toAccount === undefined || fromAccount === toAccount"
-                            name="amount"
-                            type="number"
-                            label="Amount"
-                            :min="0"
-                            :max="fromAccount === undefined ? 0 : fromAccount.balance">
-                            <template slot="prepend">$</template>
-                        </el-input>
-                    </div>
-                    <div class="el-form-item">
-                        <label for="reference" class="el-form-item__label">Reference</label>
-                        <el-input 
-                            v-model="reference"
-                            :disabled="fromAccount === undefined || toAccount === undefined || fromAccount === toAccount"
-                            name="reference"
-                            type="text"
-                            label="Reference">
-                        </el-input>
+                        <b-field label="To">
+                            <b-select v-model="toAccountId">
+                                <option :value="0" disabled>
+                                    Select an account
+                                </option>
+                                <option v-for="account in accounts" 
+                                    :key="account.id"
+                                    :value="account.id">
+                                    <div class="level">
+                                        <div class="level-left">
+                                            <div class="level-item">
+                                                {{ account.displayName }}
+                                            </div>
+                                        </div>
+                                        <div class="level-right">
+                                            <div class="level-item">
+                                                {{ account.balance | asCurrency('NZD') }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </option>
+                            </b-select>
+                        </b-field>
+                        <b-field label="Amount">
+                            <b-input
+                                v-model="amount"
+                                :disabled="fromAccount === undefined || toAccount === undefined || fromAccount === toAccount"
+                                is-numeric
+                                :min="0"
+                                icon-pack="fas"
+                                icon="dollar-sign"
+                                :max="fromAccount === undefined ? 0 : fromAccount.balance">
+                            </b-input>
+                        </b-field>
+                        <b-field label="Reference">
+                            <b-input
+                                v-model="reference"
+                                :disabled="fromAccount === undefined || toAccount === undefined || fromAccount === toAccount">
+                            </b-input>
+                        </b-field>
+                        <b-field>
+                            <div class="buttons">
+                                <b-button v-show="activeStep === enterDetails" type="is-info" :disabled="!validTransfer" @click="setStep(reviewConfirm)">Review & confirm</b-button>
+                                <b-button v-show="activeStep !== done" type="is-info" @click="confirmCancel">Cancel</b-button>
+                            </div>
+                        </b-field>
                     </div>
                 </div>
             </div>
 
             <div v-if="activeStep === reviewConfirm && fromAccount !== undefined">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <el-card class="transferSummary">
-                        <p class="transferSummaryDisplayName">{{ fromAccount.displayName }}</p>
-                        <p class="transferSummaryAccountNumber">{{ fromAccount.accountNumber }}</p>
-                        <p class="transferSummaryAmount">Available: {{ fromAccount.balance - amount | asCurrency('NZD') }}</p>
-                    </el-card>
-                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: -webkit-xxx-large;">
-                        <p style="padding: 5px;">{{ amount | asCurrency('NZD') }}</p>
-                        <i class="el-icon-right"></i>
+                <div class="columns is-vcentered">
+                    <div class="column">
+                        <div class="box">
+                            <p class="title is-marginless"> {{ fromAccount.displayName }}</p>
+                            <p class="subtitle is-marginless"> {{ fromAccount.accountNumber }}</p>
+                            <p class="is-size-6">After: {{ fromAccount.balance - amount | asCurrency('NZD') }}</p>
+                        </div>
                     </div>
-                    <el-card class="transferSummary">
-                        <p class="transferSummaryDisplayName">{{ toAccount.displayName }}</p>
-                        <p class="transferSummaryAccountNumber">{{ toAccount.accountNumber }}</p>
-                        <p class="transferSummaryAmount">Available: {{ availableAfterTransfer | asCurrency('NZD') }}</p>
-                    </el-card>
+                    <div class="column">
+                        <p class="title has-text-centered is-marginless">Transfer</p>
+                        <p v-if="reference" class="is-size-6 has-text-centered">{{ reference }}</p>
+                        <p class="subtitle has-text-centered is-marginless">{{ amount | asCurrency('NZD') }}</p>
+                        
+                    </div>
+                    <div class="column">
+                        <div class="box">
+                            <p class="title is-marginless"> {{ toAccount.displayName }}</p>
+                            <p class="subtitle is-marginless"> {{ toAccount.accountNumber }}</p>
+                            <p class="is-size-6">After: {{ availableAfterTransfer | asCurrency('NZD') }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="buttons">
+                    <b-button v-show="activeStep === reviewConfirm" type="is-info" @click="confirmTransfer">Confirm transfer</b-button>
+                    <b-button v-show="activeStep === reviewConfirm" type="is-info" @click="setStep(enterDetails)">Change</b-button>
+                    <b-button v-show="activeStep !== done" type="is-info" @click="confirmCancel">Cancel</b-button>
                 </div>
             </div>
 
             <div v-show="activeStep === done">
-                <el-alert
-                    :title="amount | asCurrency('NZD') | splice('Your transfer of ', ' has been made.')"
-                    type="success"
-                    show-icon>
-                </el-alert>
+                <b-notification
+                    type="is-success"
+                    has-icon
+                    :closable="false">
+                    Your transfer of {{ amount | asCurrency('NZD') }} has been made.
+                </b-notification>
+                <div class="buttons">
+                    <b-button v-show="activeStep === done" type="is-info" @click="finish">Done</b-button>
+                </div>
             </div>
-        </el-container>
-
-        <el-button v-show="activeStep === enterDetails" :disabled="!validTransfer" @click="setStep(reviewConfirm)">Review & confirm</el-button>
-        <el-button v-show="activeStep === reviewConfirm" @click="confirmTransfer">Confirm your transfer</el-button>
-        <el-button v-show="activeStep === reviewConfirm" @click="setStep(enterDetails)">Change details</el-button>
-        <el-button v-show="activeStep !== done" @click="dialogVisible = true">Cancel</el-button>
-        <el-button v-show="activeStep === done" @click="finish">Done</el-button>
-
-        <el-dialog
-            title="You have unsaved changes"
-            :visible.sync="dialogVisible"
-            width="30%">
-            <span>Clicking confirm will lose your unsaved changes. Are you sure you want to proceed?</span>
-            <span slot="footer" class="dialog-footer">
-                <el-button @click="dialogVisible = false">Cancel</el-button>
-                <el-button type="primary" @click="finish">Confirm</el-button>
-            </span>
-        </el-dialog>
+        </div>
     </div>
 </template>
 
@@ -151,13 +137,18 @@ import { Account } from '@/account';
 import { accountStore } from '@/store/store';
 import { PostPaymentRequest } from '@/models/requests/post-payment-request';
 import { Position } from 'vue-router/types/router';
+import PageTitle from '@/components/PageTitle.vue';
 
-@Component
+@Component({
+    components: {
+        PageTitle,
+    },
+})
 export default class Transfer extends Vue {
 
     private enterDetails: number = 0;
     private reviewConfirm: number = 1;
-    private done: number = 3;
+    private done: number = 2;
     private dialogVisible: boolean = false;
     private fromAccountId: number = 0;
     private toAccountId: number = 0;
@@ -193,8 +184,8 @@ export default class Transfer extends Vue {
         return this.$store.getters[`${accountStore}/accounts`];
     }
 
-    private get loadedAccounts(): boolean {
-        return this.$store.getters[`${accountStore}/loadedHeaders`] && this.$store.getters[`${accountStore}/loadedBalances`];
+    private loadedAccounts() {
+        return this.$store.getters[`${accountStore}/loadedAccounts`];
     }
 
     private created() {
@@ -215,6 +206,17 @@ export default class Transfer extends Vue {
         .then((response: any) => {
             this.setStep(this.done);
         });
+    }
+
+    private confirmCancel() {
+        this.$buefy.dialog.confirm({
+                    title: 'You have unsaved changes',
+                    message: 'Clicking confirm will lose your unsaved changes. Are you sure you want to proceed?',
+                    confirmText: 'Confirm',
+                    type: 'is-danger',
+                    hasIcon: true,
+                    onConfirm: () => this.finish(),
+                });
     }
 
     private setStep(step: number) {
