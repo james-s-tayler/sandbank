@@ -27,46 +27,45 @@
                             </p>
                         </div>
                     </div>
-                     <b-collapse class="card is-shadowless is-hidden-mobile" :open="false">
-                    <div
-                        slot="trigger" 
-                        slot-scope="props"
-                        class="card-header"
-                        role="button">
-                        <p class="card-header-title">
-                            View recent transactions
-                        </p>
-                        <a class="card-header-icon">
-                            <b-icon
-                                :icon="props.open ? 'caret-down' : 'caret-up'">
-                            </b-icon>
-                        </a>
-                    </div>
-                    <div class="card-content is-paddingless">
-                        <div class="content">
-                              <b-table :data="account.transactions" striped>
-                                <template slot-scope="props">
-                                    <b-table-column field="amount" label="Amount">
-                                        {{ props.row.amount | asCurrency('NZD') }}
-                                    </b-table-column>
-                                    <b-table-column field="date" label="Date" numeric>
-                                        {{ props.row.transactionTimeUtc | asDate }}
-                                    </b-table-column>
-                                    <b-table-column field="description" label="Description">
-                                        {{ props.row.description }}
-                                    </b-table-column>
-                                </template>
-
-                                <template slot="empty">
-                                    <section class="section">
-                                        <div class="content has-text-grey has-text-centered">
-                                            <p>Nothing here.</p>
-                                        </div>
-                                    </section>
-                                </template>
-                            </b-table>
+                    <b-collapse class="card is-shadowless is-hidden-mobile" :open="false">
+                        <div
+                            slot="trigger" 
+                            slot-scope="props"
+                            class="card-header is-shadowless"
+                            role="button">
+                            <p class="card-header-title has-text-grey-light is-paddingless">
+                                View recent transactions
+                                <b-icon
+                                    class="has-text-grey-light"
+                                    :icon="props.open ? 'caret-down' : 'caret-up'">
+                                </b-icon>
+                            </p>
                         </div>
-                    </div>
+                        <div class="card-content is-paddingless">
+                            <div class="content">
+                                <b-table :data="account.transactions" striped>
+                                    <template slot-scope="props">
+                                        <b-table-column field="amount" label="Amount">
+                                            {{ props.row.amount | asCurrency('NZD') }}
+                                        </b-table-column>
+                                        <b-table-column field="date" label="Date" numeric>
+                                            {{ props.row.transactionTimeUtc | asDate }}
+                                        </b-table-column>
+                                        <b-table-column field="description" label="Description">
+                                            {{ props.row.description }}
+                                        </b-table-column>
+                                    </template>
+
+                                    <template slot="empty">
+                                        <section class="section">
+                                            <div class="content has-text-grey has-text-centered">
+                                                <p>Nothing here.</p>
+                                            </div>
+                                        </section>
+                                    </template>
+                                </b-table>
+                            </div>
+                        </div>
                     </b-collapse>
                 </div>
             </li>
