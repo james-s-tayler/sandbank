@@ -8,6 +8,7 @@ services:
      - "5100:80"
     environment:
      - ASPNETCORE_ENVIRONMENT=Development
+     - CONNECTIONSTRINGS__DEFAULTCONNECTION=${SANDBANK_POSTGRES_LOCAL}
     build:
       context: App/BackEnd/SandBank.API/
       dockerfile: Endpoints/Dockerfile
@@ -18,7 +19,7 @@ services:
     image: postgres:latest
     container_name: db
     environment:
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_PASSWORD=postgres
 
   pgAdmin:
     image: dpage/pgadmin4:latest
