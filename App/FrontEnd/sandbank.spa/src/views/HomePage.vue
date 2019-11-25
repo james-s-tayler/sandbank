@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="hero is-medium">
+        <div class="hero">
             <div class="hero-body">
                 <div class="container">
                     <h1 class="title">Sandbank</h1>
