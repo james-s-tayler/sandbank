@@ -1,5 +1,6 @@
 .idea
 .vscode
+.terraform
 **/obj/
 **/bin/
 **/node_modules
