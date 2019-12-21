@@ -1,3 +1,5 @@
+### VPC INFRA ###
+
 resource "aws_vpc" "vpc" {
   cidr_block = var.network_address_space
   enable_dns_hostnames = "true"
@@ -52,4 +54,10 @@ resource "aws_security_group" "http-sg" {
         protocol = "-1"
         cidr_blocks = ["0.0.0.0/0"]
     }
+}
+
+### CONTAINER INFRA ###
+
+resource "aws_ecr_repository" "docker-repo" {
+    name = "docker-repo"
 }
