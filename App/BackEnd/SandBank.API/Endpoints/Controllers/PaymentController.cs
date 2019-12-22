@@ -1,17 +1,22 @@
 using System;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
-using Domain.Account;
-using Domain.Payment;
-using Domain.Transaction;
 using Endpoints.Data;
 using Integration.OutboundTransactions;
+using Database;
+using Entities.Domain.Accounts;
+using Entities.Domain.Payment;
+using Entities.Domain.Transactions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoints.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]
@@ -21,16 +26,23 @@ namespace Endpoints.Controllers
         private readonly SandBankDbContext _db;
         private readonly EventPublisher<Transaction> _transactionEventPublisher;
         private static ILogger<PaymentController> _logger;
+        private readonly IConfiguration _config;
+        private readonly ILogger<PaymentController> _logger;
         
-        public PaymentController(SandBankDbContext db, EventPublisher<Transaction> transactionEventPublisher, ILogger<PaymentController> logger)
+        public PaymentController(SandBankDbContext db, 
+            EventPublisher<Transaction> transactionEventPublisher, 
+            IConfiguration config,
+            ILogger<PaymentController> logger)
         { 
             _db = db;
             _transactionEventPublisher = transactionEventPublisher;
+            _config = config;
             _logger = logger;
         }
 
         [HttpPost]
-        [ProducesResponseType(200)]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> PostPayment([FromBody] PostPaymentRequest postPaymentRequest)
         {
             _logger.LogInformation("incoming post payment request", postPaymentRequest);
@@ -47,19 +59,30 @@ namespace Endpoints.Controllers
                 
                 fromAccount.PostTransaction(debit);
 
+                var interIntra = "";
+                
                 if (IsIntrabank(postPaymentRequest))
                 {
                     _logger.LogInformation("intrabank payment request", postPaymentRequest);
-                    var toAccount = await GetAccount(postPaymentRequest.ToAccount);
+                    var toAccount = await GetAccount(postPaymentRequest.ToAccount, false);
+                    
+                    if (toAccount == null)
+                    {
+                        return NotFound();
+                    }
+                    
                     toAccount.PostTransaction(credit);
+                    interIntra = "intra";
                 }
                 else
                 {
                     _logger.LogInformation("outbound payment request", postPaymentRequest);
                     AddToSettlementBatch(credit);
+                    interIntra = "inter";
                 }
 
                 await _db.SaveChangesAsync();
+                _logger.LogInformation($"Posted {interIntra}-bank transaction of ${credit.Amount} from {postPaymentRequest.FromAccount} to {postPaymentRequest.ToAccount}");
 
                 return Ok();
             }
@@ -90,17 +113,24 @@ namespace Endpoints.Controllers
             return (debitTransaction, creditTransaction);
         }
 
-        private async Task<Account> GetAccount(string accountNumber)
+        //refactor pull out to service / specification
+        private async Task<Account> GetAccount(string accountNumber, bool isOwnAccount = true)
         {
-            return await _db.Accounts
+            if (isOwnAccount)
+            { 
+                return await _db.Accounts
+                   .Include(acc => acc.AccountTransactions)
+                   .FirstOrDefaultAsync(acc => acc.AccountNumber == accountNumber);
+            }
+            
+            return await _db.Accounts.IgnoreQueryFilters()
                 .Include(acc => acc.AccountTransactions)
                 .FirstOrDefaultAsync(acc => acc.AccountNumber == accountNumber);
         }
 
         private bool IsIntrabank(PostPaymentRequest postPaymentRequest)
         {
-            //this should route based on account prefix
-            return IsExistingAccount(postPaymentRequest.ToAccount);
+            return postPaymentRequest.ToAccount.StartsWith(_config["BankPrefix"]);
         }
 
         private bool IsValid(PostPaymentRequest postPaymentRequest)

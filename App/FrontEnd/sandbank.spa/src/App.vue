@@ -1,32 +1,42 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Register</router-link> |
-      <router-link to="/login">Login</router-link> | 
-      <router-link :to="{ name: 'accounts', params: { userId: 12 }}">Accounts</router-link>
-    </div>
-    <router-view/>
+  <div id="app" class="is-full-height is-light">
+    <AppHeader/>
+    <section class="is-flex is-at-least-three-quarter-height">
+      <div class="container is-fullhd">
+        <router-view/>
+      </div>
+    </section>
+    <footer class="footer is-hidden-touch">
+      <div class="container has-text-centered">
+        <p class="is-size-7">
+          Copyright {{ currentYear }} © SandBank Inc. All rights reserved.
+        </p>
+      </div>
+    </footer>
   </div>
 </template>
 
+<script lang="ts">
+import Vue from 'vue';
+import { Component } from 'vue-property-decorator';
+import AppHeader from '@/components/AppHeader.vue';
+
+@Component({
+  components: {
+    AppHeader,
+    },
+})
+export default class App extends Vue {
+
+  private get currentYear() {
+    return new Date().getFullYear();
+  }
+
+}
+</script>
+
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-#nav {
-  padding: 30px;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
+.is-light {
+  background-color: #fafafa;
 }
 </style>

@@ -5,14 +5,32 @@ using Endpoints.Configuration;
 using Endpoints.Data;
 using Integration.AWS.SNS;
 using Integration.OutboundTransactions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Core.Jwt;
+using Core.MultiTenant;
+using Database;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Services.Domain.Accounts;
+using Services.System.NumberRange;
 using Swashbuckle.AspNetCore.Swagger;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Endpoints
 {
@@ -27,8 +45,8 @@ namespace Endpoints
             _config = config;
         }
 
-        public IConfiguration Configuration { get; }
-        private static readonly string _localDevCorsPolicy = "localDevCorsPolicy";
+        private IConfiguration Configuration { get; }
+        private const string _localDevCorsPolicy = "localDevCorsPolicy";
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -59,6 +77,16 @@ namespace Endpoints
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "SandBank API", Version = "v1" });
+
+                c.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                {
+                    Name = "Authorization",
+                    In = "header",
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+                    Type = "apiKey"
+                });
+
+                c.OperationFilter<SecurityRequirementsOperationFilter>();
             });
 
             services.AddTransient<INumberRangeService, NumberRangeService>();
@@ -83,13 +111,39 @@ namespace Endpoints
             services.AddAWSService<IAmazonSQS>(awsSqsOptions);
             
             services.AddLogging();
+            services.AddTransient<IAccountService, AccountService>();
+            
+            var jwtConfigSection = Configuration.GetSection(nameof(JwtTokenConfiguration));
+            var jwtTokenConfiguration = jwtConfigSection.Get<JwtTokenConfiguration>();
+            var secret = Encoding.UTF8.GetBytes(jwtTokenConfiguration.Secret);
+            services.Configure<JwtTokenConfiguration>(jwtConfigSection);
+            services.AddTransient<IJwtTokenService, JwtTokenService>();
+            services.AddTransient<ISeedTransactionDataService, SeedTransactionDataService>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped<ITenantProvider, TenantProvider>();
+
+            services.AddAuthentication(x =>
+                {
+                    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(secret),
+                        ValidIssuer = jwtTokenConfiguration.Issuer,
+                        ValidAudience = jwtTokenConfiguration.Audience,
+                        ValidateIssuer = true,
+                        ValidateAudience = true
+                    };
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            UpdateDatabase(app);
-            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -98,29 +152,37 @@ namespace Endpoints
             {
                 app.UseHsts();
             }
-
+            
             //app.UseHttpsRedirection();
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "SandBank API V1");
             });
-
-            if (env.IsDevelopment())
-            {
-                app.UseCors(_localDevCorsPolicy);    
-            }
+            
+            app.UseCors(_localDevCorsPolicy);
+            app.UseAuthentication();
             app.UseMvc();
         }
-        
-        private static void UpdateDatabase(IApplicationBuilder app)
+    }
+
+    public class SecurityRequirementsOperationFilter : IOperationFilter
+    {
+        public void Apply(Operation operation, OperationFilterContext context)
         {
-            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            if (!context
+                    .MethodInfo
+                    .GetCustomAttributes(true)
+                    .OfType<AllowAnonymousAttribute>()
+                    .Any())
             {
-                using (var context = serviceScope.ServiceProvider.GetService<SandBankDbContext>())
+                operation.Security = new List<IDictionary<string, IEnumerable<string>>>
                 {
-                    context.Database.Migrate();
-                }
+                    new Dictionary<string, IEnumerable<string>>
+                    {
+                        {"Bearer", Array.Empty<string>()}
+                    }
+                };
             }
         }
     }

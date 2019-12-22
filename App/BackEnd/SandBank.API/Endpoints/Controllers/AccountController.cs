@@ -2,21 +2,26 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
-using CsvHelper;
-using Domain.Account;
-using Domain.Transaction;
-using Endpoints.Configuration;
-using Endpoints.Data;
+using Core.MultiTenant;
+using Database;
+using Entities.Domain.Accounts;
+using Entities.Domain.Transactions;
+using Entities.System.NumberRanges;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Services.Domain.Accounts;
+using Services.System.NumberRange;
 
 namespace Endpoints.Controllers
 {
+    [Authorize]
     [ApiController]
-    [Route("api/User/{id}/[controller]")]
+    [Route("api/[controller]")]
     [Produces("application/json")]
     [Consumes("application/json")]
     public class AccountController : ControllerBase
@@ -24,99 +29,111 @@ namespace Endpoints.Controllers
         private readonly SandBankDbContext _db;
         private readonly INumberRangeService _numberRangeService;
         private readonly IConfiguration _config;
+        private readonly ITenantProvider _tenantProvider;
+        private readonly ISeedTransactionDataService _seedTransactionDataService;
+        private readonly IAccountService _accountService;
 
         public AccountController(SandBankDbContext db,
             INumberRangeService numberRangeService,
-            IConfiguration config)
+            IConfiguration config,
+            ITenantProvider tenantProvider,
+            ISeedTransactionDataService seedTransactionDataService,
+            IAccountService accountService)
         {
             _db = db;
             _numberRangeService = numberRangeService;
             _config = config;
+            _tenantProvider = tenantProvider;
+            _seedTransactionDataService = seedTransactionDataService;
+            _accountService = accountService;
         }
 
-        [HttpGet("")]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<AccountViewModel>))]
-        public async Task<IActionResult> GetAccounts([FromRoute] int id)
+        [HttpGet]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<AccountViewModel>))]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public IActionResult GetAccounts()
         {
-            var accounts = _db.Accounts.Where(acc => acc.AccountOwnerId == id).ToList();
+            var accounts = _db.Accounts.Where(acc => acc.AccountOwnerId == _tenantProvider.GetTenantId()).ToList();
             
             if (accounts != null)
             {
                 return Ok(accounts.Select(acc => new AccountViewModel(acc)));
             }
+            
             return NotFound();
         }
         
         [HttpGet("{accountId}")]
-        [ProducesResponseType(200, Type = typeof(AccountViewModel))]
-        public async Task<IActionResult> GetAccount([FromRoute] int id, [FromRoute] int accountId)
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(AccountViewModel))]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> GetAccount([FromRoute] int accountId)
         {
             var account = await _db.Accounts
-                .FirstOrDefaultAsync(acc => acc.AccountOwnerId == id && acc.Id == accountId);
+                .FirstOrDefaultAsync(acc => acc.AccountOwnerId == _tenantProvider.GetTenantId() && acc.Id == accountId);
             
             if (account != null)
             {
                 return Ok(new AccountViewModel(account));
             }
+            
             return NotFound();
         }
         
         [HttpPost]
-        [ProducesResponseType(200, Type = typeof(AccountViewModel))]
-        public async Task<IActionResult> PostAccount([FromBody] OpenAccountRequest openAccountRequest, [FromRoute] int id)
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(AccountViewModel))]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> OpenAccount([FromBody] OpenAccountRequest openAccountRequest)
         {
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == _tenantProvider.GetTenantId());
             
             if (user == null)
             {
                 return NotFound();
             }
 
-            var account = openAccountRequest.ToDomainModel();
-            account.AccountOwnerId = id;
-
-            //hacked this slightly to be NZ format. Not nice, but it works.
-            var nextAccountNum = await _numberRangeService.GetNextValue(account.AccountType == AccountType.TRANSACTION
-                ? NumberRangeType.Cheque
-                : NumberRangeType.Savings);
-            var bankPrefix = _config["BankPrefix"];
-            var branch = "0001";
-            var suffix = account.AccountType == AccountType.TRANSACTION ? "00" : "30"; 
-            account.AccountNumber = $"{bankPrefix}-{branch}-{nextAccountNum}-{suffix}";
-
-            await _db.Accounts.AddAsync(account);
+            var account = await _accountService.OpenAccount(openAccountRequest, _tenantProvider.GetTenantId());
             await _db.SaveChangesAsync();
             
             return Ok(new AccountViewModel(account));
         }
         
         [HttpGet("{accountId}/Balance")]
-        [ProducesResponseType(200, Type = typeof(decimal))]
-        public async Task<IActionResult> GetBalance([FromRoute] int id, [FromRoute] int accountId)
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(decimal))]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> GetBalance([FromRoute] int accountId)
         {
             var account = await _db.Accounts
                 .Include(acc => acc.AccountTransactions)
-                .FirstOrDefaultAsync(acc => acc.AccountOwnerId == id && acc.Id == accountId);
+                .FirstOrDefaultAsync(acc => acc.AccountOwnerId == _tenantProvider.GetTenantId() && acc.Id == accountId);
             
             if (account != null)
             {
                 return Ok(account.AccountTransactions.Sum(txn => txn.Amount));
             }
+            
             return NotFound();
         }
         
         [HttpGet("{accountId}/Transaction")]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<TransactionViewModel>))]
-        public async Task<IActionResult> GetTransactions([FromRoute] int id, [FromRoute] int accountId, [FromQuery] DateTime? from = null, [FromQuery] DateTime? to = null)
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<TransactionViewModel>))]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        //[CalledBy("Transactions.vue")]
+        public async Task<IActionResult> GetTransactions([FromRoute] int accountId, [FromQuery] DateTime? from = null, [FromQuery] DateTime? to = null)
         {
             if (from == null || to == null)
             {
                 from = DateTime.UtcNow.Subtract(TimeSpan.FromDays(30));
                 to = DateTime.UtcNow;
             }
+
+            if (from.Value > to.Value)
+            {
+                return BadRequest();
+            }
             
             var account = await _db.Accounts
-                .FirstOrDefaultAsync(acc => acc.AccountOwnerId == id && acc.Id == accountId);
+                .FirstOrDefaultAsync(acc => acc.AccountOwnerId == _tenantProvider.GetTenantId() && acc.Id == accountId);
 
             if (account == null)
             {
@@ -133,12 +150,14 @@ namespace Endpoints.Controllers
         }
         
         [HttpPost("{accountId}/Seed")]
-        [ProducesResponseType(200)]
-        public async Task<IActionResult> SeedTransactions([FromRoute] int id, [FromRoute] int accountId)
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.UnprocessableEntity)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> SeedTransactions([FromRoute] int accountId)
         {
             var account = await _db.Accounts
                 .Include(acc => acc.AccountTransactions)
-                .FirstOrDefaultAsync(acc => acc.AccountOwnerId == id && acc.Id == accountId);
+                .FirstOrDefaultAsync(acc => acc.AccountOwnerId == _tenantProvider.GetTenantId() && acc.Id == accountId);
 
             if (account == null)
             {
@@ -152,17 +171,12 @@ namespace Endpoints.Controllers
 
             try
             {
-                using (var reader = System.IO.File.OpenText("seed-transactions.csv"))
-                using (var csv = new CsvReader(reader))
+                var transactions = _seedTransactionDataService.ReadFromFile();
+                foreach (var transaction in transactions)
                 {
-                    var transactionsCsvModels = csv.GetRecords<TransactionCsvModel>();
-                    var transactions = transactionsCsvModels.Select(t => t.ConvertToTransaction());
-                    foreach (var transaction in transactions)
-                    {
-                        account.PostTransaction(transaction);
-                    }
-                    await _db.SaveChangesAsync();
+                    account.PostTransaction(transaction);
                 }
+                await _db.SaveChangesAsync();
             }
             catch
             {
@@ -173,8 +187,11 @@ namespace Endpoints.Controllers
         }
         
         [HttpPost("{accountId}/SeedFile")]
-        [ProducesResponseType(200)]
-        public async Task<IActionResult> SeedTransactions([FromRoute] int id, [FromRoute] int accountId, IFormFile csvFile)
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.UnprocessableEntity)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(string))]
+        public async Task<IActionResult> SeedTransactions([FromRoute] int accountId, IFormFile csvFile)
         {
             if (csvFile == null)
             {
@@ -183,7 +200,7 @@ namespace Endpoints.Controllers
             
             var account = await _db.Accounts
                 .Include(acc => acc.AccountTransactions)
-                .FirstOrDefaultAsync(acc => acc.AccountOwnerId == id && acc.Id == accountId);
+                .FirstOrDefaultAsync(acc => acc.AccountOwnerId == _tenantProvider.GetTenantId() && acc.Id == accountId);
 
             if (account == null)
             {
@@ -197,18 +214,12 @@ namespace Endpoints.Controllers
 
             try
             {
-                using (var csvStream = csvFile.OpenReadStream())
-                using (var reader = new StreamReader(csvStream))
-                using (var csv = new CsvReader(reader))
+                var transactions = _seedTransactionDataService.ReadFromFormPost(csvFile);
+                foreach (var transaction in transactions)
                 {
-                    var transactionsCsvModels = csv.GetRecords<TransactionCsvModel>();
-                    var transactions = transactionsCsvModels.Select(t => t.ConvertToTransaction());
-                    foreach (var transaction in transactions)
-                    {
-                        account.PostTransaction(transaction);
-                    }
-                    await _db.SaveChangesAsync();
+                    account.PostTransaction(transaction);
                 }
+                await _db.SaveChangesAsync();
             }
             catch
             {
