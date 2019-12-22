@@ -4,3 +4,4 @@
 **/obj/
 **/bin/
 **/node_modules
+.terraform
