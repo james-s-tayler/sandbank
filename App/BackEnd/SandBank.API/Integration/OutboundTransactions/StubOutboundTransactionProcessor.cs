@@ -1,13 +1,13 @@
 using System.Threading.Tasks;
-using Domain.Transaction;
+using Entities.Domain.Transactions;
 
 namespace Integration.OutboundTransactions
 {
     public class StubOutboundTransactionProcessor : IOutboundTransactionProcessor
     {
-        public async Task Process(Transaction outboundTransaction)
+        public Task Process(Transaction outboundTransaction)
         {
-            //swallow
+            return Task.CompletedTask;
         }
     }
 }

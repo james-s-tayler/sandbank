@@ -1,12 +1,9 @@
-using System;
 using System.Threading.Tasks;
 using Amazon;
 using Amazon.S3;
-using Amazon.S3.Model;
-using Amazon.S3.Util;
 using Amazon.SimpleNotificationService;
 using Microsoft.Extensions.Configuration;
-using Domain.Transaction;
+using Entities.Domain.Transactions;
 using Newtonsoft.Json;
 
 namespace Integration.OutboundTransactions

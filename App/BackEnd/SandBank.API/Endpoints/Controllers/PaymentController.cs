@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Endpoints.Data;
 using Integration.OutboundTransactions;
 using Database;
 using Entities.Domain.Accounts;
@@ -16,7 +15,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoints.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]
@@ -25,7 +23,6 @@ namespace Endpoints.Controllers
     {
         private readonly SandBankDbContext _db;
         private readonly EventPublisher<Transaction> _transactionEventPublisher;
-        private static ILogger<PaymentController> _logger;
         private readonly IConfiguration _config;
         private readonly ILogger<PaymentController> _logger;
         
@@ -77,7 +74,7 @@ namespace Endpoints.Controllers
                 else
                 {
                     _logger.LogInformation("outbound payment request", postPaymentRequest);
-                    AddToSettlementBatch(credit);
+                    await AddToSettlementBatch(credit);
                     interIntra = "inter";
                 }
 

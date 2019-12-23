@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Domain.Transaction;
+using Entities.Domain.Transactions;
 
 namespace Integration.OutboundTransactions
 {

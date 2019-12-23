@@ -1,8 +1,8 @@
-FROM mcr.microsoft.com/dotnet/core/aspnet:2.1 AS base
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1 AS base
 WORKDIR /app
 EXPOSE 80
 
-FROM mcr.microsoft.com/dotnet/core/sdk:2.1 AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 WORKDIR /app
 COPY . .
 WORKDIR /app
@@ -14,6 +14,7 @@ RUN dotnet publish --no-restore -c Release -o output
 
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/Endpoints/output .
+RUN ls -ltr
+COPY --from=publish /app/output .
 COPY --from=publish /app/Endpoints/seed-transactions.csv .
 ENTRYPOINT ["dotnet", "Endpoints.dll"]

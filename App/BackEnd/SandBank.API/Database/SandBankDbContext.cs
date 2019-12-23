@@ -10,9 +10,6 @@ using Entities.Domain.Transactions;
 using Entities.System.Users;
 using Entities.System.NumberRanges;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 
 namespace Database
 {
@@ -24,13 +21,6 @@ namespace Database
         public DbSet<NumberRange> NumberRanges { get; set; }
 
         private readonly ITenantProvider _tenantProvider;
-        private static readonly LoggerFactory ConsoleLoggerFactory =
-            new LoggerFactory(new[]
-            {
-                new ConsoleLoggerProvider((category, level) =>
-                    category == DbLoggerCategory.Database.Command.Name &&
-                    level == LogLevel.Information, true)
-            });
 
         public SandBankDbContext(DbContextOptions<SandBankDbContext> options, ITenantProvider tenantProvider)
             : base(options)
@@ -40,7 +30,7 @@ namespace Database
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuild)
         {
-            optionsBuild.UseLoggerFactory(ConsoleLoggerFactory);
+            //optionsBuild.UseLoggerFactory(ConsoleLoggerFactory);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -49,7 +39,7 @@ namespace Database
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 modelBuilder.Entity(entityType.Name).Property<Guid>("ShadowId");
-                modelBuilder.Entity(entityType.Name).ForNpgsqlUseXminAsConcurrencyToken();
+                modelBuilder.Entity(entityType.Name).UseXminAsConcurrencyToken();
 
                 var baseType = entityType.ClrType.BaseType;
 

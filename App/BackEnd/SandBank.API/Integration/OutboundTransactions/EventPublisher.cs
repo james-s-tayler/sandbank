@@ -1,6 +1,5 @@
 using System.Reflection;
 using System.Threading.Tasks;
-using Amazon;
 using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
 using Core;
