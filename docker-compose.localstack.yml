@@ -6,17 +6,16 @@ services:
     ports:
       - '4563-4599:4563-4599'
       - '8099:8080'
+      - '443:443'
     environment:
-      - SERVICES=sns,sqs
+      - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY}
+      - SERVICES=edge,sns,sqs,cloudwatch
       - DEBUG=1
       - DEFAULT_REGION=us-east-1
       - HOSTNAME_EXTERNAL=localstack
       - DATA_DIR=/tmp/localstack/data
       - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:
-      - localstack-data:/tmp/localstack
+      - '/tmp/localstack:/tmp/localstack'
       - '/var/run/docker.sock:/var/run/docker.sock'
       - ./DevOps/localstack:/docker-entrypoint-initaws.d
-
-volumes:
-  localstack-data:

@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Amazon.CloudWatch;
+using Amazon.CloudWatch.Model;
 using Integration.OutboundTransactions;
 using Database;
 using Entities.Domain.Accounts;
@@ -24,16 +27,19 @@ namespace Endpoints.Controllers
         private readonly EventPublisher<Transaction> _transactionEventPublisher;
         private readonly IConfiguration _config;
         private readonly ILogger<PaymentController> _logger;
+        private readonly IAmazonCloudWatch _cloudWatch;
         
         public PaymentController(SandBankDbContext db, 
             EventPublisher<Transaction> transactionEventPublisher, 
             IConfiguration config,
-            ILogger<PaymentController> logger)
+            ILogger<PaymentController> logger,
+            IAmazonCloudWatch cloudWatch)
         { 
             _db = db;
             _transactionEventPublisher = transactionEventPublisher;
             _config = config;
             _logger = logger;
+            _cloudWatch = cloudWatch;
         }
 
         [HttpPost]
@@ -79,7 +85,15 @@ namespace Endpoints.Controllers
 
                 await _db.SaveChangesAsync();
                 _logger.LogInformation($"Posted {interIntra}-bank transaction of ${credit.Amount} from {postPaymentRequest.FromAccount} to {postPaymentRequest.ToAccount}");
-
+                await _cloudWatch.PutMetricDataAsync(new PutMetricDataRequest
+                {
+                    Namespace = "Payments",
+                    MetricData = new List<MetricDatum>
+                    {
+                        new MetricDatum { MetricName = "IntraBank", Unit = StandardUnit.Count, Value = 1, TimestampUtc = DateTime.UtcNow }
+                    }
+                });
+                
                 return Ok();
             }
 
@@ -100,6 +114,7 @@ namespace Endpoints.Controllers
             
             var creditTransaction = new Transaction
             {
+                //this needs tweaking... doesn't work for outbound transactions because it doesn't capture the account number to send it to
                 Amount = postPaymentRequest.Amount,
                 TransactionTimeUtc = utcNow,
                 Description = postPaymentRequest.Description,

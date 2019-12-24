@@ -9,6 +9,7 @@ using System.Text;
 using Core.Jwt;
 using Core.MultiTenant;
 using Database;
+using Integration.AWS.CloudWatch;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -85,10 +86,14 @@ namespace Endpoints
             if (_env.IsDevelopment())
             {
                 services.AddTransient(x => new LocalstackSNSClientFactory().CreateClient());
+                services.AddTransient(x => new LocalstackCloudWatchClientFactory().CreateClient());
+                services.AddTransient(x => new LocalstackCloudWatchLogsClientFactory().CreateClient());
             }
             else
             {
                 services.AddTransient(x => new DefaultSNSClientFactory().CreateClient());
+                services.AddTransient(x => new DefaultCloudWatchClientFactory().CreateClient());
+                services.AddTransient(x => new DefaultCloudWatchLogsClientFactory().CreateClient());
             }
             
             var awsSqsOptions = new AWSOptions();
@@ -99,7 +104,7 @@ namespace Endpoints
             awsSqsOptions.DefaultClientConfig.UseHttp = true;
             services.AddAWSService<IAmazonSQS>(awsSqsOptions);
             
-            services.AddLogging();
+            //services.AddLogging();
             services.AddTransient<IAccountService, AccountService>();
             
             var jwtConfigSection = _config.GetSection(nameof(JwtTokenConfiguration));

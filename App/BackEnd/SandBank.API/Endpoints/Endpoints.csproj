@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="AWS.Logger.AspNetCore" Version="2.1.1" />
         <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.3.100.1" />
         <PackageReference Include="AWSSDK.SQS" Version="3.3.102.3" />
         <PackageReference Include="CsvHelper" Version="12.2.2" />
