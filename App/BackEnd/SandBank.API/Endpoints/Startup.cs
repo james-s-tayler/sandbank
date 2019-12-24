@@ -24,6 +24,7 @@ using Microsoft.OpenApi.Models;
 using Services.Domain.Accounts;
 using Services.System.NumberRange;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Serilog;
 
 namespace Endpoints
 {
@@ -86,7 +87,8 @@ namespace Endpoints
             if (_env.IsDevelopment())
             {
                 services.AddTransient(x => new LocalstackSNSClientFactory().CreateClient());
-                services.AddTransient(x => new LocalstackCloudWatchClientFactory().CreateClient());
+                //services.AddTransient(x => new LocalstackCloudWatchClientFactory().CreateClient());
+                services.AddTransient(x => new DefaultCloudWatchClientFactory().CreateClient());
                 services.AddTransient(x => new LocalstackCloudWatchLogsClientFactory().CreateClient());
             }
             else
@@ -153,12 +155,12 @@ namespace Endpoints
                 app.UseHttpsRedirection();
                 app.UseHsts();
             }
-
+            
+            app.UseSerilogRequestLogging();
             app.UseRouting();
             app.UseCors(_localDevCorsPolicy);
             app.UseAuthentication();
             app.UseAuthorization();
-            
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers().RequireAuthorization();
             });

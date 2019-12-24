@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace Endpoints.Controllers
 {
@@ -84,13 +85,36 @@ namespace Endpoints.Controllers
                 }
 
                 await _db.SaveChangesAsync();
+                
                 _logger.LogInformation($"Posted {interIntra}-bank transaction of ${credit.Amount} from {postPaymentRequest.FromAccount} to {postPaymentRequest.ToAccount}");
+                
                 await _cloudWatch.PutMetricDataAsync(new PutMetricDataRequest
                 {
                     Namespace = "Payments",
                     MetricData = new List<MetricDatum>
                     {
-                        new MetricDatum { MetricName = "IntraBank", Unit = StandardUnit.Count, Value = 1, TimestampUtc = DateTime.UtcNow }
+                        new MetricDatum
+                        {
+                            MetricName = "TransferEvent",
+                            Unit = StandardUnit.Count, 
+                            Value = 1, 
+                            TimestampUtc = DateTime.UtcNow,
+                            Dimensions = new List<Dimension>
+                            {
+                                new Dimension { Name = "InterIntra", Value = interIntra }
+                            }
+                        },
+                        new MetricDatum
+                        {
+                            MetricName = "TransferValue",
+                            Unit = StandardUnit.None, 
+                            Value = (double) credit.Amount, 
+                            TimestampUtc = DateTime.UtcNow,
+                            Dimensions = new List<Dimension>
+                            {
+                                new Dimension { Name = "InterIntra", Value = interIntra }
+                            }
+                        }
                     }
                 });
                 
