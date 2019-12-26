@@ -3,7 +3,7 @@ using Newtonsoft.Json.Converters;
 
 namespace Entities.Domain.Accounts
 {
-    [JsonConverter(typeof(StringEnumConverter))]
+  [JsonConverter(typeof(StringEnumConverter))]
     public enum AccountType
     {
         TRANSACTION,

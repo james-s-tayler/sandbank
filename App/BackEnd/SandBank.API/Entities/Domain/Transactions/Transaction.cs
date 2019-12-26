@@ -5,6 +5,7 @@ using Entities.Domain.Accounts;
 
 namespace Entities.Domain.Transactions
 {
+    [EventTopic("OutboundTransactionTopic")]
     public class Transaction : DomainEntity<long>
     {
         

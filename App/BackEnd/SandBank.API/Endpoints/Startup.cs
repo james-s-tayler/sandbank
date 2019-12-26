@@ -1,42 +1,50 @@
-﻿using System;
+﻿using Amazon;
+using Amazon.Extensions.NETCore.Setup;
+using Amazon.SQS;
+using Integration.AWS.SNS;
+using Integration.OutboundTransactions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Core.Jwt;
 using Core.MultiTenant;
 using Database;
+using Integration.AWS.CloudWatch;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
+using Microsoft.OpenApi.Models;
 using Services.Domain.Accounts;
 using Services.System.NumberRange;
-using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Serilog;
 
 namespace Endpoints
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-
-        private IConfiguration Configuration { get; }
+        private IConfiguration _config { get; }
+        private IWebHostEnvironment _env { get; }
+        
         private const string _localDevCorsPolicy = "localDevCorsPolicy";
+
+        public Startup(IWebHostEnvironment env, IConfiguration config)
+        {
+            _env = env;
+            _config = config;
+        }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var connectionString = Configuration.GetConnectionString("DefaultConnection");
+            var connectionString = _config.GetConnectionString("DefaultConnection");
 
             services.AddDbContext<SandBankDbContext>(options =>
                 options.UseNpgsql(connectionString));
@@ -51,33 +59,57 @@ namespace Endpoints
                             .AllowAnyMethod();
                     });
             });
-            
-            services.AddMvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
-                .AddJsonOptions(options =>
-            {
-                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            });
-            
+
+            services.AddControllers()
+                //System.Text.Json is slightly faster, but has many unacceptable breaking changes as of now
+                //Performance-wise Utf8json blows everything out of the water, but I haven't tested it for compatibility yet
+                .AddNewtonsoftJson(); 
+
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "SandBank API", Version = "v1" });
-
-                c.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "SandBank API", Version = "v1" });
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
+                    Description = "JWT Authorization header using the Bearer scheme.",
                     Name = "Authorization",
-                    In = "header",
-                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
-                    Type = "apiKey"
+                    In = ParameterLocation.Header,
+                    Scheme = "bearer",
+                    Type = SecuritySchemeType.Http,
+                    BearerFormat = "Bearer {token}"
                 });
-
                 c.OperationFilter<SecurityRequirementsOperationFilter>();
             });
 
             services.AddTransient<INumberRangeService, NumberRangeService>();
+            services.AddTransient<IOutboundTransactionProcessor, StubOutboundTransactionProcessor>();
+            services.AddTransient(typeof(EventPublisher<>), typeof(EventPublisher<>));
+
+            if (_env.IsDevelopment())
+            {
+                services.AddTransient(x => new LocalstackSNSClientFactory().CreateClient());
+                //services.AddTransient(x => new LocalstackCloudWatchClientFactory().CreateClient());
+                services.AddTransient(x => new DefaultCloudWatchClientFactory().CreateClient());
+                services.AddTransient(x => new LocalstackCloudWatchLogsClientFactory().CreateClient());
+            }
+            else
+            {
+                services.AddTransient(x => new DefaultSNSClientFactory().CreateClient());
+                services.AddTransient(x => new DefaultCloudWatchClientFactory().CreateClient());
+                services.AddTransient(x => new DefaultCloudWatchLogsClientFactory().CreateClient());
+            }
+            
+            var awsSqsOptions = new AWSOptions();
+            awsSqsOptions.DefaultClientConfig.ProxyPort = 4576;
+            awsSqsOptions.DefaultClientConfig.ProxyHost = "localstack";
+            awsSqsOptions.DefaultClientConfig.ServiceURL = "http://localstack:4576";
+            awsSqsOptions.DefaultClientConfig.RegionEndpoint = RegionEndpoint.USEast1;
+            awsSqsOptions.DefaultClientConfig.UseHttp = true;
+            services.AddAWSService<IAmazonSQS>(awsSqsOptions);
+            
+            //services.AddLogging();
             services.AddTransient<IAccountService, AccountService>();
             
-            var jwtConfigSection = Configuration.GetSection(nameof(JwtTokenConfiguration));
+            var jwtConfigSection = _config.GetSection(nameof(JwtTokenConfiguration));
             var jwtTokenConfiguration = jwtConfigSection.Get<JwtTokenConfiguration>();
             var secret = Encoding.UTF8.GetBytes(jwtTokenConfiguration.Secret);
             services.Configure<JwtTokenConfiguration>(jwtConfigSection);
@@ -88,6 +120,7 @@ namespace Endpoints
 
             services.AddAuthentication(x =>
                 {
+                    
                     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
@@ -106,33 +139,37 @@ namespace Endpoints
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "SandBank API V1");
+                });
             }
             else
             {
+                app.UseHttpsRedirection();
                 app.UseHsts();
             }
             
-            //app.UseHttpsRedirection();
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "SandBank API V1");
-            });
-            
+            app.UseSerilogRequestLogging();
+            app.UseRouting();
             app.UseCors(_localDevCorsPolicy);
             app.UseAuthentication();
-            app.UseMvc();
+            app.UseAuthorization();
+            app.UseEndpoints(endpoints => {
+                endpoints.MapControllers().RequireAuthorization();
+            });
         }
     }
 
     public class SecurityRequirementsOperationFilter : IOperationFilter
     {
-        public void Apply(Operation operation, OperationFilterContext context)
+        public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
             if (!context
                     .MethodInfo
@@ -140,11 +177,17 @@ namespace Endpoints
                     .OfType<AllowAnonymousAttribute>()
                     .Any())
             {
-                operation.Security = new List<IDictionary<string, IEnumerable<string>>>
+                operation.Security = new List<OpenApiSecurityRequirement>
                 {
-                    new Dictionary<string, IEnumerable<string>>
+                    new OpenApiSecurityRequirement
                     {
-                        {"Bearer", Array.Empty<string>()}
+                        {
+                            new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+                            },
+                            new List<string>()
+                        }
                     }
                 };
             }
