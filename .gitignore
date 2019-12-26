@@ -1,5 +1,7 @@
 .idea
 .vscode
+.localstack
 **/obj/
 **/bin/
 **/node_modules
+.terraform

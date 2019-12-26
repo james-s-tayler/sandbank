@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <LangVersion>8</LangVersion>
+        <Nullable>disable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Entities\Entities.csproj" />
+      <ProjectReference Include="..\MuchNeededAttributes\MuchNeededAttributes.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AWSSDK.CloudWatch" Version="3.3.104.12" />
+      <PackageReference Include="AWSSDK.CloudWatchLogs" Version="3.3.101.65" />
+      <PackageReference Include="AWSSDK.S3" Version="3.3.110.5" />
+      <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.3.101.105" />
+      <PackageReference Include="AWSSDK.XRay" Version="3.3.101.103" />
+    </ItemGroup>
+
+</Project>

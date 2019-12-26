@@ -1,20 +1,23 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Amazon.CloudWatch;
+using Amazon.CloudWatch.Model;
+using Integration.OutboundTransactions;
 using Database;
 using Entities.Domain.Accounts;
 using Entities.Domain.Payment;
 using Entities.Domain.Transactions;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace Endpoints.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]
@@ -22,16 +25,22 @@ namespace Endpoints.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly SandBankDbContext _db;
+        private readonly EventPublisher<Transaction> _transactionEventPublisher;
         private readonly IConfiguration _config;
         private readonly ILogger<PaymentController> _logger;
-
-        public PaymentController(SandBankDbContext db,
+        private readonly IAmazonCloudWatch _cloudWatch;
+        
+        public PaymentController(SandBankDbContext db, 
+            EventPublisher<Transaction> transactionEventPublisher, 
             IConfiguration config,
-            ILogger<PaymentController> logger)
-        {
+            ILogger<PaymentController> logger,
+            IAmazonCloudWatch cloudWatch)
+        { 
             _db = db;
+            _transactionEventPublisher = transactionEventPublisher;
             _config = config;
             _logger = logger;
+            _cloudWatch = cloudWatch;
         }
 
         [HttpPost]
@@ -39,6 +48,7 @@ namespace Endpoints.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> PostPayment([FromBody] PostPaymentRequest postPaymentRequest)
         {
+            _logger.LogInformation("incoming post payment request", postPaymentRequest);
             if (IsValid(postPaymentRequest))
             {
                 var (debit, credit) = CreateTransactions(postPaymentRequest);
@@ -56,6 +66,7 @@ namespace Endpoints.Controllers
                 
                 if (IsIntrabank(postPaymentRequest))
                 {
+                    _logger.LogInformation("intrabank payment request", postPaymentRequest);
                     var toAccount = await GetAccount(postPaymentRequest.ToAccount, false);
                     
                     if (toAccount == null)
@@ -68,13 +79,45 @@ namespace Endpoints.Controllers
                 }
                 else
                 {
-                    AddToSettlementBatch(credit);
+                    _logger.LogInformation("outbound payment request", postPaymentRequest);
+                    await AddToSettlementBatch(credit);
                     interIntra = "inter";
                 }
 
                 await _db.SaveChangesAsync();
+                
                 _logger.LogInformation($"Posted {interIntra}-bank transaction of ${credit.Amount} from {postPaymentRequest.FromAccount} to {postPaymentRequest.ToAccount}");
-
+                
+                await _cloudWatch.PutMetricDataAsync(new PutMetricDataRequest
+                {
+                    Namespace = "Payments",
+                    MetricData = new List<MetricDatum>
+                    {
+                        new MetricDatum
+                        {
+                            MetricName = "TransferEvent",
+                            Unit = StandardUnit.Count, 
+                            Value = 1, 
+                            TimestampUtc = DateTime.UtcNow,
+                            Dimensions = new List<Dimension>
+                            {
+                                new Dimension { Name = "InterIntra", Value = interIntra }
+                            }
+                        },
+                        new MetricDatum
+                        {
+                            MetricName = "TransferValue",
+                            Unit = StandardUnit.None, 
+                            Value = (double) credit.Amount, 
+                            TimestampUtc = DateTime.UtcNow,
+                            Dimensions = new List<Dimension>
+                            {
+                                new Dimension { Name = "InterIntra", Value = interIntra }
+                            }
+                        }
+                    }
+                });
+                
                 return Ok();
             }
 
@@ -95,6 +138,7 @@ namespace Endpoints.Controllers
             
             var creditTransaction = new Transaction
             {
+                //this needs tweaking... doesn't work for outbound transactions because it doesn't capture the account number to send it to
                 Amount = postPaymentRequest.Amount,
                 TransactionTimeUtc = utcNow,
                 Description = postPaymentRequest.Description,
@@ -134,9 +178,18 @@ namespace Endpoints.Controllers
             return _db.Accounts.SingleOrDefault(acc => acc.AccountNumber == accountNumber) != null;
         }
 
-        private void AddToSettlementBatch(Transaction outgoingTransaction)
+        private async Task AddToSettlementBatch(Transaction outgoingTransaction)
         {
-            //transform and send to queue for outbound processing
+            try
+            {
+                _logger.LogInformation("publish payment request", outgoingTransaction);
+                var response = await _transactionEventPublisher.Publish(outgoingTransaction);
+                _logger.LogInformation($"payment request finished with messageid={response.MessageId}", response.MessageId);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"payment request failed with message={e.Message}");
+            }
         }
     }
 }

@@ -19,7 +19,6 @@ using Services.System.NumberRange;
 
 namespace Endpoints.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]
