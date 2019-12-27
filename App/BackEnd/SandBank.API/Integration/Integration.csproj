@@ -17,6 +17,7 @@
       <PackageReference Include="AWSSDK.S3" Version="3.3.110.5" />
       <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.3.101.105" />
       <PackageReference Include="AWSSDK.XRay" Version="3.3.101.103" />
+      <PackageReference Include="TechDebtTags" Version="1.0.2" />
     </ItemGroup>
 
 </Project>

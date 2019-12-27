@@ -1,6 +1,6 @@
 using Amazon;
 using Amazon.SimpleNotificationService;
-using MuchNeededAttributes;
+using TechDebtTags;
 
 namespace Integration.AWS.SNS
 {
