@@ -10,8 +10,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Integration", "Integration\Integration.csproj", "{92EEE561-41BC-468A-A464-66831FD55D40}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MuchNeededAttributes", "MuchNeededAttributes\MuchNeededAttributes.csproj", "{63AF41D6-C7C0-4E61-96B4-26F08E8ADCF6}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database", "Database\Database.csproj", "{6D276C35-262C-44F6-96D4-88D98B2C32E8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Services.csproj", "{9D0BEC11-135C-41EE-B515-07A4C73962AA}"
@@ -42,10 +40,6 @@ Global
 		{92EEE561-41BC-468A-A464-66831FD55D40}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{92EEE561-41BC-468A-A464-66831FD55D40}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{92EEE561-41BC-468A-A464-66831FD55D40}.Release|Any CPU.Build.0 = Release|Any CPU
-		{63AF41D6-C7C0-4E61-96B4-26F08E8ADCF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{63AF41D6-C7C0-4E61-96B4-26F08E8ADCF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{63AF41D6-C7C0-4E61-96B4-26F08E8ADCF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{63AF41D6-C7C0-4E61-96B4-26F08E8ADCF6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6D276C35-262C-44F6-96D4-88D98B2C32E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6D276C35-262C-44F6-96D4-88D98B2C32E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D276C35-262C-44F6-96D4-88D98B2C32E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
