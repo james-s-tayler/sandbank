@@ -5,6 +5,7 @@ using Integration.AWS.SNS;
 using Integration.OutboundTransactions;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using Core.Jwt;
 using Core.MultiTenant;
@@ -25,6 +26,7 @@ using Services.Domain.Accounts;
 using Services.System.NumberRange;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Serilog;
+using Serilog.Context;
 
 namespace Endpoints
 {
@@ -156,11 +158,29 @@ namespace Endpoints
                 app.UseHsts();
             }
             
-            app.UseSerilogRequestLogging();
+            app.UseSerilogRequestLogging(options =>
+            {
+                // Attach additional properties to the request completion event
+                options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+                {
+                    var userId = httpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "anonymous";
+                    diagnosticContext.Set("UserId", userId);
+                };
+            });
             app.UseRouting();
             app.UseCors(_localDevCorsPolicy);
             app.UseAuthentication();
             app.UseAuthorization();
+            
+            //add UserId to stuff logged outside the middleware
+            app.Use(async (httpContext, next) =>
+            {
+                var userId = httpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "anonymous";
+                LogContext.PushProperty("UserId", userId);    
+                
+                await next.Invoke();
+            });
+            
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers().RequireAuthorization();
             });
