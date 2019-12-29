@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using Core.MultiTenant;
 using Database;
 using Entities.Domain.Accounts;
@@ -16,6 +18,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Services.Domain.Accounts;
 using Services.System.NumberRange;
+using AccountMetadata = Models.DynamoDB.AccountMetadata;
 
 namespace Endpoints.Controllers
 {
@@ -31,13 +34,15 @@ namespace Endpoints.Controllers
         private readonly ITenantProvider _tenantProvider;
         private readonly ISeedTransactionDataService _seedTransactionDataService;
         private readonly IAccountService _accountService;
+        private readonly IAmazonDynamoDB _dynamoDb;
 
         public AccountController(SandBankDbContext db,
             INumberRangeService numberRangeService,
             IConfiguration config,
             ITenantProvider tenantProvider,
             ISeedTransactionDataService seedTransactionDataService,
-            IAccountService accountService)
+            IAccountService accountService,
+            IAmazonDynamoDB dynamoDb)
         {
             _db = db;
             _numberRangeService = numberRangeService;
@@ -45,6 +50,7 @@ namespace Endpoints.Controllers
             _tenantProvider = tenantProvider;
             _seedTransactionDataService = seedTransactionDataService;
             _accountService = accountService;
+            _dynamoDb = dynamoDb;
         }
 
         [HttpGet]
@@ -112,7 +118,7 @@ namespace Endpoints.Controllers
             
             return NotFound();
         }
-        
+
         [HttpGet("{accountId}/Transaction")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<TransactionViewModel>))]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -146,6 +152,28 @@ namespace Endpoints.Controllers
                     .ToListAsync();
             
             return Ok(transactions.Select(txn => new TransactionViewModel(txn)));
+        }
+        
+        [HttpGet("{accountId}/Metadata")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(decimal))]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> GetMetadata([FromRoute] int accountId)
+        {
+            var userId = _tenantProvider.GetTenantId();
+            using (var context = new DynamoDBContext(_dynamoDb))
+            {
+                var accountMetadata = await context.LoadAsync<AccountMetadata>(userId, accountId);
+                
+                if (accountMetadata == null) return NotFound();
+
+                return Ok(new AccountMetadataViewModel
+                {
+                    Nickname = accountMetadata.Nickname,
+                    AccountId = accountMetadata.AccountId,
+                    UserId = accountMetadata.UserId,
+                    ImageUrl = accountMetadata.ImageUrl,
+                });
+            }
         }
         
         [HttpPost("{accountId}/Seed")]

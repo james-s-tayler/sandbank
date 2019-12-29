@@ -8,7 +8,7 @@
                     <div class="columns is-mobile level">
                         <div class="column is-narrow">
                             <figure class="image is-96x96">
-                                <img class="is-rounded" src="https://source.unsplash.com/random/100x100">
+                                <img class="is-rounded" :src="account.imageUrl">
                             </figure>
                         </div>
                         <div class="column is-hidden-mobile">
@@ -90,6 +90,8 @@ import PageTitle from '@/components/PageTitle.vue';
 })
 export default class Accounts extends Vue {
 
+    //https://source.unsplash.com/random/100x100
+
     private activeName: number[] = [];
     private isOpen: boolean[] = [];
 
@@ -101,16 +103,12 @@ export default class Accounts extends Vue {
         return this.$store.getters[`${accountStore}/accounts`];
     }
 
-    private get loadedHeaders(): boolean {
-        return this.$store.getters[`${accountStore}/loadedHeaders`];
-    }
-
     private get loadedAccounts(): boolean {
-        return this.$store.getters[`${accountStore}/loadedHeaders`] && this.$store.getters[`${accountStore}/loadedBalances`];
+        return this.$store.getters[`${accountStore}/loadedAccounts`];
     }
 
     private mounted() {
-        this.$store.dispatch(`${accountStore}/getAccounts`, { includeBalances: true, includeTransactions: true } );
+        this.$store.dispatch(`${accountStore}/getAccounts`, { includeMetadata: true, includeBalances: true, includeTransactions: true } );
     }
 
     private goBack(): void {

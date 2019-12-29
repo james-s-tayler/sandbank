@@ -11,6 +11,7 @@ using Core.Jwt;
 using Core.MultiTenant;
 using Database;
 using Integration.AWS.CloudWatch;
+using Integration.AWS.DynamoDB;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -89,15 +90,16 @@ namespace Endpoints
             if (_env.IsDevelopment())
             {
                 services.AddTransient(x => new LocalstackSNSClientFactory().CreateClient());
-                //services.AddTransient(x => new LocalstackCloudWatchClientFactory().CreateClient());
                 services.AddTransient(x => new DefaultCloudWatchClientFactory().CreateClient());
                 services.AddTransient(x => new LocalstackCloudWatchLogsClientFactory().CreateClient());
+                services.AddTransient(x => new DefaultDynamoDbClientFactory().CreateClient());
             }
             else
             {
                 services.AddTransient(x => new DefaultSNSClientFactory().CreateClient());
                 services.AddTransient(x => new DefaultCloudWatchClientFactory().CreateClient());
                 services.AddTransient(x => new DefaultCloudWatchLogsClientFactory().CreateClient());
+                services.AddTransient(x => new DefaultDynamoDbClientFactory().CreateClient());
             }
             
             var awsSqsOptions = new AWSOptions();

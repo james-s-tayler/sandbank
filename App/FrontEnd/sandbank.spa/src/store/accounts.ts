@@ -9,6 +9,7 @@ const state = {
     loadedHeaders: false ,
     loadedBalances: false ,
     loadedTransactions: false ,
+    loadedMetadata: false ,
     accounts: Array< Account>(),
 };
 
@@ -19,11 +20,14 @@ const getters = {
     loadedHeaders: (accountState: any) => {
         return accountState.loadedHeaders;
     },
+    loadedMetadata: (accountState: any) => {
+        return accountState.loadedMetadata;
+    },
     loadedBalances: (accountState: any) => {
         return accountState.loadedBalances;
     },
     loadedAccounts: (accountState: any) => {
-        return accountState.loadedHeaders && accountState.loadedBalances;
+        return accountState.loadedHeaders && accountState.loadedBalances && accountState.loadedMetadata;
     },
 };
 
@@ -51,6 +55,38 @@ const actions = {
                 context.commit('addAccount', account);
             });
             context.commit('finishedLoadingHeaders');
+        }
+
+        if (!context.state.loadedMetadata && payload.includeMetadata) {
+
+            const getMetadataPromises = new Array< Promise< AxiosResponse< any>>>();
+            const accountMap = new Map();
+
+            context.state.accounts.forEach((account: Account) => {
+                const getMetadataUrl = `/account/${account.id}/metadata`;
+                accountMap.set(getMetadataUrl, account);
+                getMetadataPromises.push(Axios.get(getMetadataUrl));
+            });
+
+            Axios.all(getMetadataPromises).then((responses: Array< AxiosResponse< any>>) => {
+                responses.forEach((response: AxiosResponse) => {
+                    const url = (response.config.url || '').replace(response.config.baseURL as string, '');
+
+                    const account = accountMap.get(url);
+                    const metadata = response.data;
+
+                    context.commit('updateAccountMetadata', { account, metadata });
+                });
+            })
+            //I guess this should fall back to AccountType + Placeholder image url?
+            //.catch((error) => {
+            //    accountMap.forEach((key: string, value: Account) => {
+            //        context.commit('updateAccountBalance',  { value, balance: 0 });
+            //    });
+            //})
+            .finally(() => {
+                context.commit('finishedLoadingMetadata');
+            });
         }
 
         if (!context.state.loadedBalances && payload.includeBalances) {
@@ -101,7 +137,7 @@ const actions = {
     async transfer(context: ActionContext< any, any>, paymentRequest: PostPaymentRequest) {
         Axios.post('/payment', paymentRequest).then(() => {
             // should modify this method just to refresh a single account / balance / transactions here
-            context.commit('reloadAccounts');
+            context.commit('reloadAccounts', { reloadBalances: true, reloadTransactions: true });
             return context.dispatch('getAccounts', { includeBalances: true, includeTransactions: true });
         })
         .catch((error) => alert(error));
@@ -117,19 +153,35 @@ const mutations = {
             accountState.accounts.push(account);
         }
     },
+    updateAccountMetadata(accountState: any, payload: any) {
+        Vue.set(payload.account, 'displayName', payload.metadata.nickname);
+        Vue.set(payload.account, 'imageUrl', payload.metadata.imageUrl);
+    },
     updateAccountBalance(accountState: any, payload: any) {
         Vue.set(payload.account, 'balance', payload.balance);
     },
     updateAccountTransactions(accountState: any, payload: any) {
         Vue.set(payload.account, 'transactions', payload.transactions);
     },
-    reloadAccounts(accountState: any) {
-        accountState.loadedHeaders = false ;
-        accountState.loadedBalances = false ;
-        accountState.loadedTransactions = false ;
+    reloadAccounts(accountState: any, payload: any) {
+        if (payload.reloadHeaders) {
+            accountState.loadedHeaders = false ;    
+        }
+        if (payload.reloadTransactions) {
+            accountState.loadedTransactions = false ;
+        }
+        if (payload.reloadMetadata) {
+            accountState.loadedMetadata = false ;
+        }
+        if(payload.reloadBalances) {
+            accountState.loadedBalances = false ;
+        }
     },
     finishedLoadingHeaders(accountState: any) {
         accountState.loadedHeaders = true;
+    },
+    finishedLoadingMetadata(accountState: any) {
+        accountState.loadedMetadata = true;
     },
     finishedLoadingBalances(accountState: any) {
         accountState.loadedBalances = true;
