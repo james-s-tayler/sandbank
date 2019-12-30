@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using Amazon.DynamoDBv2;
 using Core.Jwt;
 using Core.MultiTenant;
 using Database;
@@ -99,7 +100,24 @@ namespace Endpoints
                 services.AddTransient(x => new DefaultSNSClientFactory().CreateClient());
                 services.AddTransient(x => new DefaultCloudWatchClientFactory().CreateClient());
                 services.AddTransient(x => new DefaultCloudWatchLogsClientFactory().CreateClient());
-                services.AddTransient(x => new DefaultDynamoDbClientFactory().CreateClient());
+                
+                //temporary - this should actually be run as part of localstack and we should use the localstack dynamo container for Development + Test
+                //just getting the proof of concept working
+                if (_env.IsEnvironment("Test"))
+                {
+                    services.AddTransient<IAmazonDynamoDB>(x =>
+                    {
+                        var clientConfig = new AmazonDynamoDBConfig
+                        {
+                            ServiceURL = "http://localhost:8000",
+                        };
+                        return new AmazonDynamoDBClient(clientConfig);
+                    });
+                }
+                else
+                {
+                    services.AddTransient(x => new DefaultDynamoDbClientFactory().CreateClient());    
+                }
             }
             
             var awsSqsOptions = new AWSOptions();
