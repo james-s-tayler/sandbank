@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using TechDebtTags;
 using Xunit;
 
 namespace Tests.Integration.Setup
@@ -94,10 +95,12 @@ namespace Tests.Integration.Setup
                 .UseStartup<Startup>()
                 .UseSerilog());
             
-            //_testServer.BaseAddress = new Uri("http://localhost:8000");
             Client = _testServer.CreateClient();
         }
 
+        [TechnicalDebt("appsettings.Test.json has been copied into the Tests.Integration project and loaded from there.",
+            "If the configurations diverge, they'll need to manually be kept in sync.",
+            "It should load appsettings.Development.json from the main project.")]
         private void SetupConfiguration()
         {
             var projectDir = Directory.GetCurrentDirectory();

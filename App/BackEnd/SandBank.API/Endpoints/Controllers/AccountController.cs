@@ -175,7 +175,23 @@ namespace Endpoints.Controllers
                 });
             }
         }
-        
+
+        [HttpPost("{accountId}/Metadata")]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> GetMetadata([FromRoute] int accountId, [FromBody] AccountMetadata metadata)
+        {
+            var userId = _tenantProvider.GetTenantId();
+            metadata.UserId = userId;
+            //should also really check the user actually has an account with the given id
+
+            using (var context = new DynamoDBContext(_dynamoDb))
+            {
+                await context.SaveAsync(metadata);
+                return Ok();
+            }
+        }
+
         [HttpPost("{accountId}/Seed")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.UnprocessableEntity)]
