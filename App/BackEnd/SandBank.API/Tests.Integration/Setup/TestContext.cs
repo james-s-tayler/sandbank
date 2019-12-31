@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Core.Jwt;
 using Docker.DotNet;
 using Docker.DotNet.Models;
 using Endpoints;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Xunit;
 
@@ -16,14 +19,19 @@ namespace Tests.Integration.Setup
 {
     public class TestContext : IAsyncLifetime
     {
+        public IConfiguration Configuration { get; private set; }
         private TestServer _testServer;
         public HttpClient Client { get; set; }
+        private ServiceCollection ServiceCollection { get; set; }
+        public ServiceProvider ServiceProvider { get; private set; }
         private readonly DockerClient _dockerClient;
         private const string DynamoDBImage = "amazon/dynamodb-local";
         private string _containerId;
 
         public TestContext()
         {
+            SetupConfiguration();
+            SetupServices();
             SetupClient();
             _dockerClient = new DockerClientConfiguration(new Uri("unix:///var/run/docker.sock")).CreateClient();
         }
@@ -77,20 +85,36 @@ namespace Tests.Integration.Setup
 
         private void SetupClient()
         {
-            var projectDir = Directory.GetCurrentDirectory();
-            var configPath = Path.Combine(projectDir, "appsettings.Test.json");
-            
             _testServer = new TestServer(new WebHostBuilder()
                 .UseEnvironment("Test")
                 .ConfigureAppConfiguration((context,conf) =>
                     {
-                        conf.AddJsonFile(configPath);
+                        conf.AddConfiguration(Configuration);
                     })
                 .UseStartup<Startup>()
                 .UseSerilog());
             
-            _testServer.BaseAddress = new Uri("http://localhost:8000");
+            //_testServer.BaseAddress = new Uri("http://localhost:8000");
             Client = _testServer.CreateClient();
+        }
+
+        private void SetupConfiguration()
+        {
+            var projectDir = Directory.GetCurrentDirectory();
+            var configPath = Path.Combine(projectDir, "appsettings.Test.json");
+            
+            Configuration = new ConfigurationBuilder()
+                .AddJsonFile(configPath)
+                .Build();
+        }
+        
+        private void SetupServices()
+        {
+            ServiceCollection = new ServiceCollection();
+            var jwtConfigSection = Configuration.GetSection(nameof(JwtTokenConfiguration));
+            ServiceCollection.Configure<JwtTokenConfiguration>(jwtConfigSection);
+            ServiceCollection.AddTransient<IJwtTokenService, JwtTokenService>();
+            ServiceProvider = ServiceCollection.BuildServiceProvider();
         }
     }
 }
