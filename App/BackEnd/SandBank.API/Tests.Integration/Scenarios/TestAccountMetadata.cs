@@ -14,7 +14,7 @@ using Xunit;
 namespace Tests.Integration.Scenarios
 {
     [Collection("DynamoDB")]
-    public class TestAccountMetadata
+    public class TestAcc3ountMetadata
     {
         private readonly TestContext _sut;
 
@@ -23,19 +23,13 @@ namespace Tests.Integration.Scenarios
         [Fact]
         public async Task GivenNoMetadata_WhenTryGetMetadata_NotFound()
         {
-            var jwtToken = _sut.ServiceProvider.GetService<IJwtTokenService>().GenerateToken(1);
-
-            _sut.Client.DefaultRequestHeaders.Add("Authorization", $"Bearer {jwtToken}");
-           var response = await _sut.Client.GetAsync($"api/account/1/metadata");
-           
-           Assert.Equal(404, (int)response.StatusCode);
+            var response = await _sut.Client.GetAsync($"api/account/99/metadata");
+            Assert.Equal(404, (int)response.StatusCode);
         }
         
         [Fact]
-        public async Task GivenMetadata_WhenAddMetadata_Success()
+        public async Task GivenNoMetadata_WhenAddMetadata_CanGetAddedMetadata()
         {
-            var jwtToken = _sut.ServiceProvider.GetService<IJwtTokenService>().GenerateToken(1);
-
             var metadata = new AccountMetadata
             {
                 Nickname = "Rainy Day Fund",
@@ -44,10 +38,6 @@ namespace Tests.Integration.Scenarios
                 UserId = 1,
                 LastModified = "2020-01-01"
             };
-            
-            _sut.Client.DefaultRequestHeaders.Add("Authorization", $"Bearer {jwtToken}");
-            _sut.Client.DefaultRequestHeaders.Accept.Clear();
-            _sut.Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             
             var response = await _sut.Client.PostAsync($"api/account/1/metadata", 
                 new StringContent(JsonConvert.SerializeObject(metadata), Encoding.UTF8, "application/json"));

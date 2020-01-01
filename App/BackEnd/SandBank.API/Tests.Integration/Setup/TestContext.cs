@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Core.Jwt;
 using Docker.DotNet;
@@ -96,6 +97,10 @@ namespace Tests.Integration.Setup
                 .UseSerilog());
             
             Client = _testServer.CreateClient();
+            var jwtToken = ServiceProvider.GetService<IJwtTokenService>().GenerateToken(1);
+            Client.DefaultRequestHeaders.Add("Authorization", $"Bearer {jwtToken}");
+            Client.DefaultRequestHeaders.Accept.Clear();
+            Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
         [TechnicalDebt("appsettings.Test.json has been copied into the Tests.Integration project and loaded from there.",
