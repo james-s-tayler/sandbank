@@ -1,0 +1,25 @@
+name: SandBank.API Build & Test
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.100
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+    - name: Build with dotnet
+      run: dotnet build --configuration Release App/BackEnd/SandBank.API/SandBank.API.sln
+    - name: Run unit and integration tests
+      run: dotnet test --configuration Release App/BackEnd/SandBank.API/SandBank.API.sln
