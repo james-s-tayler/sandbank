@@ -1,11 +1,7 @@
-using System;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using Core.Jwt;
 using Entities.Domain.Accounts;
-using Microsoft.Extensions.DependencyInjection;
 using Models.DynamoDB;
 using Newtonsoft.Json;
 using Tests.Integration.Setup;
@@ -14,7 +10,7 @@ using Xunit;
 namespace Tests.Integration.Scenarios
 {
     [Collection("DynamoDB")]
-    public class TestAcc3ountMetadata
+    public class TestAccountMetadata
     {
         private readonly TestContext _sut;
 

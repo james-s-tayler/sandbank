@@ -66,9 +66,9 @@ namespace Tests.Integration.Setup
                 {
                     status = await GetTableStatus(tableName);
                 }
-                catch (ResourceNotFoundException e)
+                catch 
                 {
-                    
+                    //swallow
                 }
                 
             } while (status != "ACTIVE");
