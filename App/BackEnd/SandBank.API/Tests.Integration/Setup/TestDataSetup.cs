@@ -1,17 +1,18 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
+using Amazon.Runtime;
 
 namespace Tests.Integration.Setup
 {
     public class TestDataSetup
     {
-        private static readonly IAmazonDynamoDB DynamoDBClient = new AmazonDynamoDBClient(new AmazonDynamoDBConfig
-        {
-            ServiceURL = "http://localhost:8000",
-        });
+        private static readonly IAmazonDynamoDB DynamoDBClient = new AmazonDynamoDBClient(
+            new BasicAWSCredentials("solo", "yolo"),
+            new AmazonDynamoDBConfig { ServiceURL = "http://localhost:8000", RegionEndpoint = RegionEndpoint.USEast1 });
 
         public static async Task CreateTable()
         {
