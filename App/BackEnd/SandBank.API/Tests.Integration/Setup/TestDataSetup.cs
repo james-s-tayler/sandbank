@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,8 +12,7 @@ namespace Tests.Integration.Setup
     public class TestDataSetup
     {
         private static readonly IAmazonDynamoDB DynamoDBClient = new AmazonDynamoDBClient(
-            new BasicAWSCredentials("solo", "yolo"),
-            new AmazonDynamoDBConfig { ServiceURL = "http://localhost:8000", RegionEndpoint = RegionEndpoint.USEast1 });
+            new AmazonDynamoDBConfig { ServiceURL = "http://localhost:8000" });
 
         public static async Task CreateTable()
         {
@@ -61,6 +61,7 @@ namespace Tests.Integration.Setup
             string status = null;
             do
             {
+                
                 Thread.Sleep(1000);
                 
                 try
