@@ -5,11 +5,14 @@ using Integration.AWS.SNS;
 using Integration.OutboundTransactions;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
+using Amazon.DynamoDBv2;
 using Core.Jwt;
 using Core.MultiTenant;
 using Database;
 using Integration.AWS.CloudWatch;
+using Integration.AWS.DynamoDB;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -25,6 +28,7 @@ using Services.Domain.Accounts;
 using Services.System.NumberRange;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Serilog;
+using Serilog.Context;
 
 namespace Endpoints
 {
@@ -61,9 +65,11 @@ namespace Endpoints
             });
 
             services.AddControllers()
+                .AddApplicationPart(typeof(Startup).Assembly)
                 //System.Text.Json is slightly faster, but has many unacceptable breaking changes as of now
                 //Performance-wise Utf8json blows everything out of the water, but I haven't tested it for compatibility yet
-                .AddNewtonsoftJson(); 
+                .AddNewtonsoftJson();
+            
 
             services.AddSwaggerGen(c =>
             {
@@ -87,15 +93,33 @@ namespace Endpoints
             if (_env.IsDevelopment())
             {
                 services.AddTransient(x => new LocalstackSNSClientFactory().CreateClient());
-                //services.AddTransient(x => new LocalstackCloudWatchClientFactory().CreateClient());
                 services.AddTransient(x => new DefaultCloudWatchClientFactory().CreateClient());
                 services.AddTransient(x => new LocalstackCloudWatchLogsClientFactory().CreateClient());
+                services.AddTransient(x => new DefaultDynamoDbClientFactory().CreateClient());
             }
             else
             {
                 services.AddTransient(x => new DefaultSNSClientFactory().CreateClient());
                 services.AddTransient(x => new DefaultCloudWatchClientFactory().CreateClient());
                 services.AddTransient(x => new DefaultCloudWatchLogsClientFactory().CreateClient());
+                
+                //temporary - this should actually be run as part of localstack and we should use the localstack dynamo container for Development + Test
+                //just getting the proof of concept working
+                if (_env.IsEnvironment("Test"))
+                {
+                    services.AddTransient<IAmazonDynamoDB>(x =>
+                    {
+                        var clientConfig = new AmazonDynamoDBConfig
+                        {
+                            ServiceURL = "http://localhost:8000",
+                        };
+                        return new AmazonDynamoDBClient(clientConfig);
+                    });
+                }
+                else
+                {
+                    services.AddTransient(x => new DefaultDynamoDbClientFactory().CreateClient());    
+                }
             }
             
             var awsSqsOptions = new AWSOptions();
@@ -156,11 +180,29 @@ namespace Endpoints
                 app.UseHsts();
             }
             
-            app.UseSerilogRequestLogging();
+            app.UseSerilogRequestLogging(options =>
+            {
+                // Attach additional properties to the request completion event
+                options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+                {
+                    var userId = httpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "anonymous";
+                    diagnosticContext.Set("UserId", userId);
+                };
+            });
             app.UseRouting();
             app.UseCors(_localDevCorsPolicy);
             app.UseAuthentication();
             app.UseAuthorization();
+            
+            //add UserId to stuff logged outside the middleware
+            app.Use(async (httpContext, next) =>
+            {
+                var userId = httpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "anonymous";
+                LogContext.PushProperty("UserId", userId);    
+                
+                await next.Invoke();
+            });
+            
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers().RequireAuthorization();
             });

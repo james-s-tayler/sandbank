@@ -14,6 +14,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database", "Database\Databa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Services.csproj", "{9D0BEC11-135C-41EE-B515-07A4C73962AA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Models.DynamoDB", "Models.DynamoDB\Models.DynamoDB.csproj", "{D34AECC8-8A1B-492C-8668-C17278AC1863}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.Integration", "Tests.Integration\Tests.Integration.csproj", "{62890FCC-3A8F-473E-A141-1D1545C0DC2D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,5 +52,13 @@ Global
 		{9D0BEC11-135C-41EE-B515-07A4C73962AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D0BEC11-135C-41EE-B515-07A4C73962AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D0BEC11-135C-41EE-B515-07A4C73962AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D34AECC8-8A1B-492C-8668-C17278AC1863}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D34AECC8-8A1B-492C-8668-C17278AC1863}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D34AECC8-8A1B-492C-8668-C17278AC1863}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D34AECC8-8A1B-492C-8668-C17278AC1863}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62890FCC-3A8F-473E-A141-1D1545C0DC2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62890FCC-3A8F-473E-A141-1D1545C0DC2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62890FCC-3A8F-473E-A141-1D1545C0DC2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62890FCC-3A8F-473E-A141-1D1545C0DC2D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
