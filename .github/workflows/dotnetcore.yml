@@ -18,6 +18,7 @@ jobs:
       with:
         aws-access-key-id: dummy
         aws-secret-access-key: dummy
+        aws-region: us-east-1
     - name: Build with dotnet
       run: dotnet build --configuration Release App/BackEnd/SandBank.API/SandBank.API.sln
     - name: Run unit and integration tests
