@@ -1,0 +1,3 @@
+dotnet tool install -g Amazon.Lambda.Tools
+dotnet new -i Amazon.Lambda.Templates
+dotnet new lambda.DynamoDB --name SandBank.Lambda.ConfigAuditTrail
