@@ -28,7 +28,7 @@ namespace Services.Domain.Accounts
 
         public async Task<Account> OpenAccount(OpenAccountRequest openAccountRequest, int accountOwnerId)
         {
-            _logger.LogInformation($"Opening {openAccountRequest.AccountType} Account '{openAccountRequest.DisplayName}' for userId: {accountOwnerId}");
+            _logger.LogInformation($"Opening {openAccountRequest.AccountType} Account '{openAccountRequest.AccountType.ToString()}' for userId: {accountOwnerId}");
             
             var account = openAccountRequest.ToDomainModel();
             account.AccountOwnerId = accountOwnerId;

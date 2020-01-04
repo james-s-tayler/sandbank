@@ -19,6 +19,7 @@
                         </div>
                         <div class="column is-hidden-mobile has-text-right">
                             <p>Balance {{ account.balance | asCurrency('NZD') }}</p>
+                            <router-link :to="{ name: 'updateAccount', params: { accountId: account.id }}">personalize</router-link>
                         </div>
                         <div class="column is-hidden-tablet">
                             <router-link :to="{ name: 'transactions', params: { accountId: account.id }}">{{ account.displayName }}</router-link>

@@ -142,6 +142,14 @@ const actions = {
         })
         .catch((error) => alert(error));
     },
+    async updateMetadata(context: ActionContext< any, any>, accountMetadata: any) {
+        Axios.post(`/account/${accountMetadata.accountId}/metadata`, accountMetadata).then(() => {
+            // should modify this method just to refresh a single account / balance / transactions here
+            context.commit('reloadAccounts', { reloadMetadata: true });
+            return context.dispatch('getAccounts', { includeMetadata: true });
+        })
+        .catch((error) => alert(error));
+    },
 };
 
 const mutations = {

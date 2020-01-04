@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Services.Domain.Accounts;
 using Services.System.NumberRange;
+using TechDebtTags;
 using AccountMetadata = Models.DynamoDB.AccountMetadata;
 
 namespace Endpoints.Controllers
@@ -176,14 +177,17 @@ namespace Endpoints.Controllers
             }
         }
 
+        [TechnicalDebt("There should be some validation to check the user actually has an account with the given id",
+            "User will be able to create bogus records in DynamoDB",
+            "We need to setup a postgresql container to run as part of the integration tests, so that we can handle this, then simply perform the check")]
         [HttpPost("{accountId}/Metadata")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> GetMetadata([FromRoute] int accountId, [FromBody] AccountMetadata metadata)
+        public async Task<IActionResult> UpdateMetadata([FromRoute] int accountId, [FromBody] AccountMetadata metadata)
         {
             var userId = _tenantProvider.GetTenantId();
             metadata.UserId = userId;
-            //should also really check the user actually has an account with the given id
+            metadata.AccountId = accountId;
 
             using (var context = new DynamoDBContext(_dynamoDb))
             {

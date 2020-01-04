@@ -10,6 +10,7 @@ import Apply from '@/views/Apply.vue';
 import Transfer from '@/views/Transfer.vue';
 import Payment from '@/views/Payment.vue';
 import OpenAccount from '@/views/OpenAccount.vue';
+import UpdateAccount from '@/views/UpdateAccount.vue';
 import store, { authStore } from '@/store/store';
 
 Vue.use(Router);
@@ -38,6 +39,12 @@ export const router = new Router({
       path: '/account/:accountId',
       name: 'transactions',
       component: Transactions,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/account/:accountId/update',
+      name: 'updateAccount',
+      component: UpdateAccount,
       meta: { requiresAuth: true },
     },
     {

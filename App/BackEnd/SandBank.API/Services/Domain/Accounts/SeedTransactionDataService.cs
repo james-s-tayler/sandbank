@@ -67,9 +67,9 @@ namespace Services.Domain.Accounts
 
                 _logger.LogInformation($"Creating Accounts...");
                 var account1 = await _accountService.OpenAccount(
-                    new OpenAccountRequest { AccountType = AccountType.TRANSACTION, DisplayName = "Go"}, user.Id);
+                    new OpenAccountRequest { AccountType = AccountType.TRANSACTION }, user.Id);
                 var account2 = await _accountService.OpenAccount(
-                    new OpenAccountRequest { AccountType = AccountType.SAVING, DisplayName = "Savings"}, user.Id);
+                    new OpenAccountRequest { AccountType = AccountType.SAVING }, user.Id);
                 await _db.SaveChangesAsync();
 
                 _logger.LogInformation($"Seeding Transactions...");
