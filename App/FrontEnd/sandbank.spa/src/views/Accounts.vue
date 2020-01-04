@@ -26,6 +26,9 @@
                             <p>
                                 <small>Balance {{ account.balance | asCurrency('NZD') }}</small>
                             </p>
+                            <router-link :to="{ name: 'updateAccount', params: { accountId: account.id }}">
+                                <small>personalize</small>
+                            </router-link>
                         </div>
                     </div>
                     <b-collapse class="card is-shadowless is-hidden-mobile" :open="false">
