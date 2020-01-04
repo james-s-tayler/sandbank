@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -188,6 +189,7 @@ namespace Endpoints.Controllers
             var userId = _tenantProvider.GetTenantId();
             metadata.UserId = userId;
             metadata.AccountId = accountId;
+            metadata.LastModified = DateTime.UtcNow.ToString("s", CultureInfo.InvariantCulture);
 
             using (var context = new DynamoDBContext(_dynamoDb))
             {
