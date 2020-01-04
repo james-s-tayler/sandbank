@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-loading :is-full-page="true" :active="!loadedMetadata || changingPicture"></b-loading>
+        <b-loading :is-full-page="true" :active="!loadedMetadata"></b-loading>
         <PageTitle title="Update Account"></PageTitle>
         <div class="box">
         <div class="columns is-gapless">
@@ -32,11 +32,26 @@
                         </b-input>
                     </b-field>
                     <b-field label="Image">
-                        <figure class="image is-96x96">
-                            <img class="is-rounded" :src="imageUrl" @click="newImage">
-                        </figure>
+                        <div class="columns is-vcentered is-mobile">
+                            <div class="column is-narrow">
+                                <figure class="image is-96x96">
+                                    <img class="is-rounded" :src="imageUrl">
+                                </figure>
+                            </div>
+                            <div class="column" @click="newImage">
+                                 <b-icon
+                                        pack="fas"
+                                        icon="sync-alt"
+                                        size="is-large"
+                                        :custom-class="changePictureIcon">
+                                </b-icon>
+                            </div>
+                        </div>                    
                     </b-field>
-                    <b-button @click="updateAccount" type="is-info" :disabled="!validInput" :loading="processing">Update account</b-button>
+                    <div class="buttons">
+                        <b-button @click="updateAccount" type="is-info" :disabled="!validInput" :loading="processing">Update account</b-button>
+                        <b-button @click="finish" type="is-danger">Cancel</b-button>
+                    </div>
                 </section>
             </div>
             <div class="column">
@@ -62,13 +77,18 @@ import PageTitle from '@/components/PageTitle.vue';
     },
 })
 export default class UpdateAccount extends Vue {
-    
-    //https://source.unsplash.com/random/100x100
 
     private nickname: string = '';
     private imageUrl: string = '';
     private processing: boolean = false;
     private changingPicture: boolean = false;
+
+    private get changePictureIcon() {
+        if(this.changingPicture) {
+            return "fa-spin";
+        }
+        return "fa-refresh";
+    }
 
     private get validInput(): boolean {
         return this.nickname.length > 0;
@@ -80,7 +100,7 @@ export default class UpdateAccount extends Vue {
     }
 
     private get loadedMetadata(): boolean {
-        return this.$store.getters[`${accountStore}/loadedMetadata`] && 
+        return this.$store.getters[`${accountStore}/loadedMetadata`] &&
         this.$store.getters[`${accountStore}/loadedBalances`];
     }
 
@@ -107,7 +127,7 @@ export default class UpdateAccount extends Vue {
         .then((response: AxiosResponse) => {
             this.imageUrl = response.data;
             this.changingPicture = false;
-        })
+        });
     }
 
     private async updateAccount() {
@@ -122,8 +142,12 @@ export default class UpdateAccount extends Vue {
         this.$store.dispatch(`${accountStore}/updateMetadata`, accountMetadata)
         .then((response: any) => {
             this.processing = false;
-            this.$router.replace('/accounts');
+            this.finish();    
         });
+    }
+
+    private async finish() {
+        this.$router.replace('/accounts');
     }
 
 }
