@@ -130,10 +130,6 @@ export default class Accounts extends Vue {
 
 <style scoped>
 
-* {
-    text-align: initial;
-}
-
 </style>
 
 

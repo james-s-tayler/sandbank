@@ -143,7 +143,8 @@ export default class Transactions extends Vue {
     }
 
     private mounted() {
-        this.$store.dispatch(`${accountStore}/getAccounts`, { includeMetadata: true, includeBalances: true, includeTransactions: true } );
+        this.$store.dispatch(`${accountStore}/getAccounts`, 
+        { includeMetadata: true, includeBalances: true, includeTransactions: true } );
     }
 }
 </script>

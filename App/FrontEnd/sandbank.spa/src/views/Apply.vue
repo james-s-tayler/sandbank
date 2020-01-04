@@ -61,46 +61,7 @@ export default class Accounts extends Vue {
 </script>
 
 <style scoped>
-ul {
-    list-style: none;
-}
 
-p {
-    margin: 0;
-}
-
-i {
-    font-size: 42px;
-    height: 42px;
-    color: deepskyblue;
-}
-
-h3 {
-    margin-bottom: 7px;
-}
-
-li {
-    margin-bottom: 30px;
-}
-
-li.el-timeline-item {
-    margin-bottom: 0px;
-    text-align: start;
-}
-
-div.el-card__body {
-    padding: 0px;
-    padding-left: 20px;
-}
-
-div.el-collapse {
-    border: none;
-}
-
-a {
-    color: white;
-    text-decoration: none;
-}
 </style>
 
 

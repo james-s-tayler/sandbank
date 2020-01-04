@@ -108,7 +108,8 @@ export default class Accounts extends Vue {
     }
 
     private mounted() {
-        this.$store.dispatch(`${accountStore}/getAccounts`, { includeMetadata: true, includeBalances: true, includeTransactions: true } );
+        this.$store.dispatch(`${accountStore}/getAccounts`, 
+        { includeMetadata: true, includeBalances: true, includeTransactions: true } );
     }
 
     private goBack(): void {
@@ -118,31 +119,7 @@ export default class Accounts extends Vue {
 </script>
 
 <style>
-ul {
-    list-style: none;
-}
 
-p {
-    margin: 0;
-}
-
-li {
-    margin-bottom: 30px;
-}
-
-li.el-timeline-item {
-    margin-bottom: 0px;
-    text-align: start;
-}
-
-div.el-card__body {
-    padding: 0px;
-    padding-left: 20px;
-}
-
-div.el-collapse {
-    border: none;
-}
 </style>
 
 
