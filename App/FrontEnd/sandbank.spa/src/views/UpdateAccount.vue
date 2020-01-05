@@ -35,7 +35,7 @@
                         <div class="columns is-vcentered is-mobile">
                             <div class="column is-narrow">
                                 <figure class="image is-96x96">
-                                    <img class="is-rounded" :src="imageUrl">
+                                    <img class="is-rounded" :src="imageUrl || 'https://bulma.io/images/placeholders/96x96.png'">
                                 </figure>
                             </div>
                             <div class="column" @click="newImage">
