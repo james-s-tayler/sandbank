@@ -1,12 +1,8 @@
-using System;
-using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2.DocumentModel;
 using Newtonsoft.Json;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.DynamoDBEvents;
-using Amazon.DynamoDBv2.Model;
 using Amazon.S3;
 using Amazon.S3.Model;
 
@@ -34,9 +30,6 @@ namespace SandBank.Lambda.ConfigAuditTrail
             foreach (var record in dynamoEvent.Records)
             {
                 context.Logger.LogLine($"RequestId: {context.AwsRequestId}, Event ID: {record.EventID}");
-                context.Logger.LogLine($"RequestId: {context.AwsRequestId}, Event Name: {record.EventName}");
-                context.Logger.LogLine($"RequestId: {context.AwsRequestId}, Event Source: {record.EventSource}");
-                context.Logger.LogLine($"RequestId: {context.AwsRequestId}, Event Source ARN: {record.EventSourceArn}");
 
                 var userId = record.Dynamodb.Keys["UserId"].N;
                 var accountId = record.Dynamodb.Keys["AccountId"].N;
@@ -47,7 +40,6 @@ namespace SandBank.Lambda.ConfigAuditTrail
                 
                 string streamRecordJson = Document.FromAttributeMap(record.Dynamodb.NewImage).ToJson();
                 
-                
                 context.Logger.LogLine($"RequestId: {context.AwsRequestId}, DynamoDB Record: {streamRecordJson}");
 
                 await _s3Client.PutObjectAsync(new PutObjectRequest
@@ -57,7 +49,7 @@ namespace SandBank.Lambda.ConfigAuditTrail
                     ContentBody = streamRecordJson,
                 });
                 
-                context.Logger.LogLine($"RequestId: {context.AwsRequestId}, Uploaded to S3 @: {fileKey}");
+                context.Logger.LogLine($"RequestId: {context.AwsRequestId}, Uploaded to S3 @ {fileKey}");
             }
 
             context.Logger.LogLine($"RequestId: {context.AwsRequestId}, Stream processing complete.");

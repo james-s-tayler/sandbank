@@ -6,3 +6,4 @@ sudo vue ui -> run through prompts -> add Vue Router, TypeScript + TS Lint
 npm i axios vue-axios
 npm i vuex
 npm i buefy
+npm i bulma-tooltip

@@ -231,41 +231,6 @@ export default class Transfer extends Vue {
 
 <style scoped>
 
-* {
-    text-align: initial;
-}
-
-.transferContainer {
-    padding-top: 30px;
-    padding-bottom: 30px;
-}
-
-.transferContainer > div {
-    width: 100%;
-}
-
-.el-divider {
-    background-color: #409EFF;
-}
-
-.transferSummary {
-    padding: 20px;
-}
-
-.transferSummaryAccountNumber {
-    margin-top: 10px; 
-    margin-bottom: 10px; 
-    font-weight: bold;
-}
-
-.transferSummaryDisplayName {
-    font-size: larger;
-}
-
-.transferSummaryAmount {
-    font-size: smaller;
-}
-
 </style>
 
 
