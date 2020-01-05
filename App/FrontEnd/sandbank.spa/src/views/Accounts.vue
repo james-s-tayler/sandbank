@@ -8,7 +8,7 @@
                     <div class="columns is-mobile level">
                         <div class="column is-narrow">
                             <figure class="image is-96x96">
-                                <img class="is-rounded" :src="account.imageUrl">
+                                <img class="is-rounded" :src="account.imageUrl || 'https://bulma.io/images/placeholders/96x96.png'">
                             </figure>
                         </div>
                         <div class="column is-hidden-mobile">
