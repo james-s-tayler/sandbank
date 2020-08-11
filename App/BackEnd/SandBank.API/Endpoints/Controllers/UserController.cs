@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Mime;
+﻿using System.Net;
 using System.Threading.Tasks;
 using Core.Jwt;
 using Core.MultiTenant;
@@ -11,6 +7,7 @@ using Entities.System.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Endpoints.Controllers
 {
@@ -24,14 +21,17 @@ namespace Endpoints.Controllers
         private readonly SandBankDbContext _db;
         private readonly IJwtTokenService _jwtTokenService;
         private readonly ITenantProvider _tenantProvider;
+        private readonly ILogger<UserController> _logger;
 
         public UserController(SandBankDbContext db,
             IJwtTokenService jwtTokenService,
-            ITenantProvider tenantProvider)
+            ITenantProvider tenantProvider,
+            ILogger<UserController> logger)
         {
             _db = db;
             _jwtTokenService = jwtTokenService;
             _tenantProvider = tenantProvider;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -66,13 +66,15 @@ namespace Endpoints.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(string))]
         public async Task<IActionResult> LoginUser([FromBody] LoginUserRequest loginUserRequest)
         {
+            _logger.LogDebug($"Attempting to log in user: {loginUserRequest.Email}");
+            
             var user = await _db.Users
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(u => u.Email == loginUserRequest.Email);
             //need to match password here too once password has been added
             
             if (user == null)
-            {
+            { 
                 return NotFound();
             }
 
