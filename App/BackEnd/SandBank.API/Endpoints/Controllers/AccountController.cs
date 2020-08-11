@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
@@ -16,8 +18,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Serilog;
 using Services.Domain.Accounts;
 using Services.System.NumberRange;
+using TechDebtTags;
 using AccountMetadata = Models.DynamoDB.AccountMetadata;
 
 namespace Endpoints.Controllers
@@ -154,6 +158,45 @@ namespace Endpoints.Controllers
             return Ok(transactions.Select(txn => new TransactionViewModel(txn)));
         }
         
+        [TechnicalDebt("This is an incorrect use of HttpClient", 
+            "Newing up HttpClients can lead to socket exhaustion on the server if heavily trafficked.",
+            "We should register a special http client on Startup just for this purpose and let the HttpClientFactory do it's magic.")]
+        [HttpGet("picture")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(decimal))]
+        public async Task<IActionResult> GetPicture()
+        {
+            
+            using (var client = new HttpClient(new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip, AllowAutoRedirect = false}) { Timeout = TimeSpan.FromSeconds(30) })
+            {
+                var request = new HttpRequestMessage()
+                {
+                    RequestUri = new Uri("https://source.unsplash.com/random/100x100"),
+                    Method = HttpMethod.Get
+                };
+ 
+                HttpResponseMessage response = await client.SendAsync(request);
+                var statusCode = (int)response.StatusCode;
+                // We want to handle redirects ourselves so that we can determine the final redirect Location (via header)
+                if (statusCode >= 300 && statusCode <= 399)
+                {
+                    var redirectUri = response.Headers.Location;
+                    
+                    if (!redirectUri.IsAbsoluteUri)
+                    {
+                        redirectUri = new Uri(request.RequestUri.GetLeftPart(UriPartial.Authority) + redirectUri);
+                    }
+
+                    return Ok(redirectUri);
+                }
+                else if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception();
+                }
+ 
+                return NotFound();
+            }
+        }
+        
         [HttpGet("{accountId}/Metadata")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(decimal))]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -176,14 +219,18 @@ namespace Endpoints.Controllers
             }
         }
 
+        [TechnicalDebt("There should be some validation to check the user actually has an account with the given id",
+            "User will be able to create bogus records in DynamoDB",
+            "We need to setup a postgresql container to run as part of the integration tests, so that we can handle this, then simply perform the check")]
         [HttpPost("{accountId}/Metadata")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> GetMetadata([FromRoute] int accountId, [FromBody] AccountMetadata metadata)
+        public async Task<IActionResult> UpdateMetadata([FromRoute] int accountId, [FromBody] AccountMetadata metadata)
         {
             var userId = _tenantProvider.GetTenantId();
             metadata.UserId = userId;
-            //should also really check the user actually has an account with the given id
+            metadata.AccountId = accountId;
+            metadata.LastModified = DateTime.UtcNow.ToString("s", CultureInfo.InvariantCulture);
 
             using (var context = new DynamoDBContext(_dynamoDb))
             {

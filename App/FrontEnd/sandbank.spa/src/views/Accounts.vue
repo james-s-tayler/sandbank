@@ -8,7 +8,7 @@
                     <div class="columns is-mobile level">
                         <div class="column is-narrow">
                             <figure class="image is-96x96">
-                                <img class="is-rounded" :src="account.imageUrl">
+                                <img class="is-rounded" :src="account.imageUrl || 'https://bulma.io/images/placeholders/96x96.png'">
                             </figure>
                         </div>
                         <div class="column is-hidden-mobile">
@@ -19,12 +19,16 @@
                         </div>
                         <div class="column is-hidden-mobile has-text-right">
                             <p>Balance {{ account.balance | asCurrency('NZD') }}</p>
+                            <router-link :to="{ name: 'updateAccount', params: { accountId: account.id }}">personalize</router-link>
                         </div>
                         <div class="column is-hidden-tablet">
                             <router-link :to="{ name: 'transactions', params: { accountId: account.id }}">{{ account.displayName }}</router-link>
                             <p>
                                 <small>Balance {{ account.balance | asCurrency('NZD') }}</small>
                             </p>
+                            <router-link :to="{ name: 'updateAccount', params: { accountId: account.id }}">
+                                <small>personalize</small>
+                            </router-link>
                         </div>
                     </div>
                     <b-collapse class="card is-shadowless is-hidden-mobile" :open="false">
@@ -108,7 +112,8 @@ export default class Accounts extends Vue {
     }
 
     private mounted() {
-        this.$store.dispatch(`${accountStore}/getAccounts`, { includeMetadata: true, includeBalances: true, includeTransactions: true } );
+        this.$store.dispatch(`${accountStore}/getAccounts`, 
+        { includeMetadata: true, includeBalances: true, includeTransactions: true } );
     }
 
     private goBack(): void {
@@ -118,31 +123,7 @@ export default class Accounts extends Vue {
 </script>
 
 <style>
-ul {
-    list-style: none;
-}
 
-p {
-    margin: 0;
-}
-
-li {
-    margin-bottom: 30px;
-}
-
-li.el-timeline-item {
-    margin-bottom: 0px;
-    text-align: start;
-}
-
-div.el-card__body {
-    padding: 0px;
-    padding-left: 20px;
-}
-
-div.el-collapse {
-    border: none;
-}
 </style>
 
 

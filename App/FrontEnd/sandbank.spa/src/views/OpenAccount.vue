@@ -18,9 +18,6 @@
                             </option>
                         </b-select>
                     </b-field>
-                    <b-field label="Account Name">
-                        <b-input v-model="displayName" required></b-input>
-                    </b-field>
                     <b-field>
                         <b-checkbox v-model="seedData">Seed dummy transaction data</b-checkbox>
                     </b-field>
@@ -75,7 +72,6 @@ export default class Accounts extends Vue {
 
         const openAccountRequest = {
             accountType: this.accountType,
-            displayName: this.displayName,
         };
 
         const headers = {
@@ -129,10 +125,6 @@ export default class Accounts extends Vue {
 </script>
 
 <style scoped>
-
-* {
-    text-align: initial;
-}
 
 </style>
 

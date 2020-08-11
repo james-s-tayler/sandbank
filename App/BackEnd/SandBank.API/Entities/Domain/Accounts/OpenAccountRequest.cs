@@ -8,16 +8,12 @@ namespace Entities.Domain.Accounts
         [Required]
         public AccountType AccountType { get; set; }
 
-        [Required]
-        [StringLength(50)]
-        public string DisplayName { get; set; }
-
         public override Account ToDomainModel()
         {
             return new Account
             {
                 AccountType = AccountType,
-                DisplayName = DisplayName
+                DisplayName = AccountType.ToString()
             };
         }
     }
