@@ -1,7 +1,4 @@
 ﻿using Amazon.CDK;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Pipeline
 {
@@ -10,7 +7,7 @@ namespace Pipeline
         public static void Main(string[] args)
         {
             var app = new App();
-            new PipelineStack(app, "PipelineStack");
+            _ = PipelineStack(app, "PipelineStack");
             app.Synth();
         }
     }
