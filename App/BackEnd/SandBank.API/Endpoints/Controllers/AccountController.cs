@@ -34,15 +34,15 @@ namespace Endpoints.Controllers
         private readonly ITenantProvider _tenantProvider;
         private readonly ISeedTransactionDataService _seedTransactionDataService;
         private readonly IAccountService _accountService;
-        private readonly IAmazonDynamoDB _dynamoDb;
+        //private readonly IAmazonDynamoDB _dynamoDb;
 
         public AccountController(SandBankDbContext db,
             INumberRangeService numberRangeService,
             IConfiguration config,
             ITenantProvider tenantProvider,
             ISeedTransactionDataService seedTransactionDataService,
-            IAccountService accountService,
-            IAmazonDynamoDB dynamoDb)
+            IAccountService accountService
+            /*IAmazonDynamoDB dynamoDb*/)
         {
             _db = db;
             _numberRangeService = numberRangeService;
@@ -50,7 +50,7 @@ namespace Endpoints.Controllers
             _tenantProvider = tenantProvider;
             _seedTransactionDataService = seedTransactionDataService;
             _accountService = accountService;
-            _dynamoDb = dynamoDb;
+            //_dynamoDb = dynamoDb;
         }
 
         [HttpGet]
@@ -199,7 +199,7 @@ namespace Endpoints.Controllers
         public async Task<IActionResult> GetMetadata([FromRoute] int accountId)
         {
             var userId = _tenantProvider.GetTenantId();
-            using (var context = new DynamoDBContext(_dynamoDb))
+            /*using (var context = new DynamoDBContext(_dynamoDb))
             {
                 var accountMetadata = await context.LoadAsync<AccountMetadata>(userId, accountId);
                 
@@ -212,7 +212,15 @@ namespace Endpoints.Controllers
                     UserId = accountMetadata.UserId,
                     ImageUrl = accountMetadata.ImageUrl,
                 });
-            }
+            }*/
+            
+            return Ok(new AccountMetadataViewModel
+            {
+                Nickname = "soloyolo",
+                AccountId = accountId,
+                UserId = userId,
+                ImageUrl = "",
+            });
         }
 
         [TechnicalDebt("There should be some validation to check the user actually has an account with the given id",
@@ -228,11 +236,12 @@ namespace Endpoints.Controllers
             metadata.AccountId = accountId;
             metadata.LastModified = DateTime.UtcNow.ToString("s", CultureInfo.InvariantCulture);
 
-            using (var context = new DynamoDBContext(_dynamoDb))
+            /*using (var context = new DynamoDBContext(_dynamoDb))
             {
                 await context.SaveAsync(metadata);
                 return Ok();
-            }
+            }*/
+            return Ok();
         }
 
         [HttpPost("{accountId}/Seed")]

@@ -27,19 +27,19 @@ namespace Endpoints.Controllers
         private readonly EventPublisher<Transaction> _transactionEventPublisher;
         private readonly IConfiguration _config;
         private readonly ILogger<PaymentController> _logger;
-        private readonly IAmazonCloudWatch _cloudWatch;
+        //private readonly IAmazonCloudWatch _cloudWatch;
         
         public PaymentController(SandBankDbContext db, 
             EventPublisher<Transaction> transactionEventPublisher, 
             IConfiguration config,
-            ILogger<PaymentController> logger,
-            IAmazonCloudWatch cloudWatch)
+            ILogger<PaymentController> logger
+            /*IAmazonCloudWatch cloudWatch*/)
         { 
             _db = db;
             _transactionEventPublisher = transactionEventPublisher;
             _config = config;
             _logger = logger;
-            _cloudWatch = cloudWatch;
+            //_cloudWatch = cloudWatch;
         }
 
         [HttpPost]
@@ -87,7 +87,7 @@ namespace Endpoints.Controllers
                 
                 _logger.LogInformation($"Posted {interIntra}-bank transaction of ${credit.Amount} from {postPaymentRequest.FromAccount} to {postPaymentRequest.ToAccount}");
                 
-                await _cloudWatch.PutMetricDataAsync(new PutMetricDataRequest
+                /*await _cloudWatch.PutMetricDataAsync(new PutMetricDataRequest
                 {
                     Namespace = "Payments",
                     MetricData = new List<MetricDatum>
@@ -115,7 +115,7 @@ namespace Endpoints.Controllers
                             }
                         }
                     }
-                });
+                });*/
                 
                 return Ok();
             }
@@ -181,9 +181,9 @@ namespace Endpoints.Controllers
         {
             try
             {
-                _logger.LogInformation("publish payment request", outgoingTransaction);
-                var response = await _transactionEventPublisher.Publish(outgoingTransaction);
-                _logger.LogInformation($"payment request finished with messageid={response.MessageId}", response.MessageId);
+                //_logger.LogInformation("publish payment request", outgoingTransaction);
+                //var response = await _transactionEventPublisher.Publish(outgoingTransaction);
+                //_logger.LogInformation($"payment request finished with messageid={response.MessageId}", response.MessageId);
             }
             catch (Exception e)
             {

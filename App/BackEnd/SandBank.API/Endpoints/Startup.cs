@@ -92,20 +92,20 @@ namespace Endpoints
 
             if (_env.IsDevelopment())
             {
-                services.AddTransient(x => new LocalstackSNSClientFactory().CreateClient());
-                services.AddTransient(x => new DefaultCloudWatchClientFactory().CreateClient());
-                services.AddTransient(x => new LocalstackCloudWatchLogsClientFactory().CreateClient());
-                services.AddTransient(x => new DefaultDynamoDbClientFactory().CreateClient());
+                //services.AddTransient(x => new LocalstackSNSClientFactory().CreateClient());
+                //services.AddTransient(x => new DefaultCloudWatchClientFactory().CreateClient());
+                //services.AddTransient(x => new LocalstackCloudWatchLogsClientFactory().CreateClient());
+                //services.AddTransient(x => new DefaultDynamoDbClientFactory().CreateClient());
             }
             else
             {
-                services.AddTransient(x => new DefaultSNSClientFactory().CreateClient());
-                services.AddTransient(x => new DefaultCloudWatchClientFactory().CreateClient());
-                services.AddTransient(x => new DefaultCloudWatchLogsClientFactory().CreateClient());
+                //services.AddTransient(x => new DefaultSNSClientFactory().CreateClient());
+                //services.AddTransient(x => new DefaultCloudWatchClientFactory().CreateClient());
+                //services.AddTransient(x => new DefaultCloudWatchLogsClientFactory().CreateClient());
                 
                 //temporary - this should actually be run as part of localstack and we should use the localstack dynamo container for Development + Test
                 //just getting the proof of concept working
-                if (_env.IsEnvironment("Test"))
+                /*if (_env.IsEnvironment("Test"))
                 {
                     services.AddTransient<IAmazonDynamoDB>(x =>
                     {
@@ -119,16 +119,16 @@ namespace Endpoints
                 else
                 {
                     services.AddTransient(x => new DefaultDynamoDbClientFactory().CreateClient());    
-                }
+                }*/
             }
             
-            var awsSqsOptions = new AWSOptions();
+            /*var awsSqsOptions = new AWSOptions();
             awsSqsOptions.DefaultClientConfig.ProxyPort = 4576;
             awsSqsOptions.DefaultClientConfig.ProxyHost = "localstack";
             awsSqsOptions.DefaultClientConfig.ServiceURL = "http://localstack:4576";
             awsSqsOptions.DefaultClientConfig.RegionEndpoint = RegionEndpoint.USEast1;
             awsSqsOptions.DefaultClientConfig.UseHttp = true;
-            services.AddAWSService<IAmazonSQS>(awsSqsOptions);
+            services.AddAWSService<IAmazonSQS>(awsSqsOptions);*/
             
             //services.AddLogging();
             services.AddTransient<IAccountService, AccountService>();
