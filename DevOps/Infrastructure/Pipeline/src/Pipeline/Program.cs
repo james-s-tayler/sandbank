@@ -7,7 +7,7 @@ namespace Pipeline
         public static void Main(string[] args)
         {
             var app = new App();
-            _ = PipelineStack(app, "PipelineStack");
+            _ = new PipelineStack(app, "PipelineStack");
             app.Synth();
         }
     }

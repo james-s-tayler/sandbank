@@ -1,4 +1,5 @@
 using Amazon.CDK;
+using Amazon.CDK.AWS.ECR;
 
 namespace Pipeline
 {
@@ -6,7 +7,11 @@ namespace Pipeline
     {
         internal PipelineStack(Construct scope, string id, IStackProps props = null) : base(scope, id, props)
         {
-            // The code that defines your stack goes here
+            var repo = new Repository(this, "sandbank-api-repo", new RepositoryProps
+            {
+                RemovalPolicy = RemovalPolicy.DESTROY,
+                RepositoryName = "sandbank-api-repo",
+            });
         }
     }
 }
