@@ -22,7 +22,7 @@ namespace Pipeline
                     Repo = "sandbank"
                 },
                 BuildSpecFile = "App/BackEnd/SandBank.API/Endpoints/buildspec.yml",
-                DockerFile = "App/BackEnd/SandBank.API/Endpoints/Dockerfile"
+                DockerContext = "App/BackEnd/SandBank.API/Endpoints"
             });
             app.Synth();
         }
