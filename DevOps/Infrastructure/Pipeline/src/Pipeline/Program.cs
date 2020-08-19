@@ -21,7 +21,8 @@ namespace Pipeline
                     Owner = "nicostouch",
                     Repo = "sandbank"
                 },
-                BuildSpecFile = "App/BackEnd/SandBank.API/Endpoints/buildspec.yml"
+                BuildSpecFile = "App/BackEnd/SandBank.API/Endpoints/buildspec.yml",
+                DockerFile = "App/BackEnd/SandBank.API/Endpoints/Dockerfile"
             });
             app.Synth();
         }
