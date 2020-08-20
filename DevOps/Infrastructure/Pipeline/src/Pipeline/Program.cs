@@ -22,7 +22,8 @@ namespace Pipeline
                     Repo = "sandbank"
                 },
                 BuildSpecFile = "App/BackEnd/SandBank.API/Endpoints/buildspec.yml",
-                DockerfileDir = "App/BackEnd/SandBank.API/Endpoints"
+                DockerfileLocation = "Endpoints/Dockerfile",
+                DockerContext = "App/BackEnd/SandBank.API/"
             });
             app.Synth();
         }

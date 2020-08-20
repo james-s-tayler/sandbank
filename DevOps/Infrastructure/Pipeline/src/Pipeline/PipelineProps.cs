@@ -8,6 +8,7 @@ namespace Pipeline
         public string ServiceName { get; set; }
         public GitHubSourceProps GitHubSourceProps { get; set; }
         public string BuildSpecFile { get; set; }
-        public string DockerfileDir { get; set; }
+        public string DockerfileLocation { get; set; }
+        public string DockerContext { get; set; }
     }
 }

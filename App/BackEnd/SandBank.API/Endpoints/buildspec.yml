@@ -11,9 +11,9 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      - echo "DOCKERFILE_DIR=${DOCKERFILE_DIR}"
-      - cd $DOCKERFILE_DIR
-      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+      - echo "CONTEXT_PATH=${CONTEXT_PATH}"
+      - cd $CONTEXT_PATH
+      - docker build -f $DOCKERFILE_PATH -t $IMAGE_REPO_NAME:$IMAGE_TAG .
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG      
   post_build:
     commands:
