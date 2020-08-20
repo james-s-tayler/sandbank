@@ -36,7 +36,7 @@ namespace Pipeline
                     {"AWS_ACCOUNT_ID", new BuildEnvironmentVariable { Value = props.Env.Account }},
                     {"AWS_DEFAULT_REGION", new BuildEnvironmentVariable { Value = props.Env.Region }},
                     {"IMAGE_REPO_NAME", new BuildEnvironmentVariable { Value = repo.RepositoryName }},
-                    {"CONTEXT_PATH", new BuildEnvironmentVariable { Value = props.DockerfileLocation }},
+                    {"CONTEXT_PATH", new BuildEnvironmentVariable { Value = props.DockerContext }},
                     {"DOCKERFILE_PATH", new BuildEnvironmentVariable { Value = props.DockerfileLocation }}
                 }
                 //example buildSpec here
