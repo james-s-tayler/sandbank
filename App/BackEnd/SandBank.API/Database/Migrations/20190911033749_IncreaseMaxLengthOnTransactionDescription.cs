@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Endpoints.Migrations
+namespace Api.Migrations
 {
     public partial class IncreaseMaxLengthOnTransactionDescription : Migration
     {

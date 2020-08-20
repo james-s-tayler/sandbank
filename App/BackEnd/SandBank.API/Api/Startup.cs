@@ -30,7 +30,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using Serilog;
 using Serilog.Context;
 
-namespace Endpoints
+namespace Api
 {
     public class Startup
     {

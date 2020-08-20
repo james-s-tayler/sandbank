@@ -15,7 +15,7 @@ using Serilog.Formatting.Compact;
 using Serilog.Sinks.AwsCloudWatch;
 using Services.Domain.Accounts;
 
-namespace Endpoints
+namespace Api
 {
     public class Program
     {

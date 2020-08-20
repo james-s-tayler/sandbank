@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace Endpoints.Controllers
+namespace Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

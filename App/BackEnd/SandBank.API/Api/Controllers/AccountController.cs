@@ -20,7 +20,7 @@ using Services.System.NumberRange;
 using TechDebtTags;
 using AccountMetadata = Models.DynamoDB.AccountMetadata;
 
-namespace Endpoints.Controllers
+namespace Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

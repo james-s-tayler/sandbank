@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace Endpoints.Migrations
+namespace Api.Migrations
 {
     [DbContext(typeof(SandBankDbContext))]
     partial class SandBankDbContextModelSnapshot : ModelSnapshot
@@ -140,7 +140,7 @@ namespace Endpoints.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Endpoints.Configuration.NumberRange", b =>
+            modelBuilder.Entity("Api.Configuration.NumberRange", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();

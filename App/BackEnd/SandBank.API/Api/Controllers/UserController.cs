@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Endpoints.Controllers
+namespace Api.Controllers
 {
     //would actually be nice to wire these in via something like Fody so that it's not even necessary to specify it
     [ApiController]

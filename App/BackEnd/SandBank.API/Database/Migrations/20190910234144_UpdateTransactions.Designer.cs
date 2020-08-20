@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace Endpoints.Migrations
+namespace Api.Migrations
 {
     [DbContext(typeof(SandBankDbContext))]
     [Migration("20190910234144_UpdateTransactions")]
@@ -137,7 +137,7 @@ namespace Endpoints.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Endpoints.Configuration.NumberRange", b =>
+            modelBuilder.Entity("Api.Configuration.NumberRange", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();

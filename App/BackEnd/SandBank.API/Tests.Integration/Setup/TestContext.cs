@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Core.Jwt;
 using Docker.DotNet;
 using Docker.DotNet.Models;
-using Endpoints;
+using Api;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
