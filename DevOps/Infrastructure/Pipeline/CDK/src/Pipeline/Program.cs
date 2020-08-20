@@ -16,13 +16,13 @@ namespace Pipeline
                     Region = System.Environment.GetEnvironmentVariable("CDK_DEFAULT_REGION")
                 },
                 ServiceName = "sandbank-api",
-                GitHubSourceProps = new GitHubSourceProps    //move to paramater store
+                GitHubSourceProps = new GitHubSourceProps    //move to parameter store
                 {
                     Owner = "nicostouch",
                     Repo = "sandbank"
                 },
-                BuildSpecFile = "App/BackEnd/SandBank.API/Endpoints/buildspec.yml",
-                DockerfileLocation = "Endpoints/Dockerfile",
+                BuildSpecFile = "DevOps/Infrastructure/Pipeline/generic-docker-buildspec.yml",
+                DockerfileLocation = "DevOps/Infrastructure/Pipeline/generic-dotnet-Dockerfile",
                 DockerContext = "App/BackEnd/SandBank.API/"
             });
             app.Synth();
