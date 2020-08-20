@@ -16,10 +16,10 @@ namespace Pipeline
                     Region = System.Environment.GetEnvironmentVariable("CDK_DEFAULT_REGION")
                 },
                 ServiceName = "sandbank-api",
-                GitHubSourceProps = new GitHubSourceProps    //move to parameter store
+                GitHubSourceProps = new GitHubSourceProps
                 {
-                    Owner = "nicostouch",
-                    Repo = "sandbank"
+                    Owner = "nicostouch", //TODO: extract from current repository with
+                    Repo = "sandbank"     //      git remote get-url --all origin
                 },
                 BuildSpecFile = "DevOps/Infrastructure/Pipeline/generic-docker-buildspec.yml",
                 DockerfileLocation = "DevOps/Infrastructure/Pipeline/generic-dotnet-Dockerfile",
