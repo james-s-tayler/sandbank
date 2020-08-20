@@ -26,7 +26,8 @@ namespace Pipeline
                 ProjectName = $"{props.ServiceName}-codebuild-project",
                 Environment = new BuildEnvironment
                 {
-                    BuildImage = LinuxBuildImage.STANDARD_4_0
+                    BuildImage = LinuxBuildImage.STANDARD_4_0,
+                    Privileged = true
                 },
                 Source = Source.GitHub(props.GitHubSourceProps),
                 BuildSpec = BuildSpec.FromSourceFilename(props.BuildSpecFile),
