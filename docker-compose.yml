@@ -10,7 +10,7 @@ services:
      - ASPNETCORE_ENVIRONMENT=Development
     build:
       context: App/BackEnd/SandBank.API/
-      dockerfile: $PWD/DevOps/Infrastructure/Pipeline/generic-dotnet-Dockerfile
+      dockerfile: ${PWD:-.}/DevOps/Infrastructure/Pipeline/generic-dotnet-Dockerfile
     volumes:
      - ~/.aws/:/root/.aws:ro
     depends_on:
