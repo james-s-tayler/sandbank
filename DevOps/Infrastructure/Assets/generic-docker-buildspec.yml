@@ -7,15 +7,15 @@ phases:
       - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
       - 'COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)'
       - 'COMMIT_TAG=${COMMIT_HASH}'
-      - 'CUSTOM_TAG=${CUSTOM_TAG:=experimental}'
+      - 'CUSTOM_TAG=${CUSTOM_TAG:=latest}'
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
       - echo "CONTEXT_PATH=${CONTEXT_PATH}"
-      - echo "DOCKERFILE_PATH=${DOCKERFILE_PATH}"      
+      - echo "DOCKERFILE_PATH=${DOCKERFILE_PATH}"
       - docker build -f $DOCKERFILE_PATH -t $IMAGE_REPO_NAME:$COMMIT_TAG $CONTEXT_PATH
-      - docker tag $IMAGE_REPO_NAME:$COMMIT_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$COMMIT_TAG      
+      - docker tag $IMAGE_REPO_NAME:$COMMIT_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$COMMIT_TAG
       - docker tag $IMAGE_REPO_NAME:$COMMIT_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CUSTOM_TAG
   post_build:
     commands:
