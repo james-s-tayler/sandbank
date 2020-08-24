@@ -21,8 +21,8 @@ namespace Pipeline
                     Owner = "nicostouch", //TODO: extract from current repository with
                     Repo = "sandbank"     //      git remote get-url --all origin
                 },
-                BuildSpecFile = "DevOps/Infrastructure/Pipeline/generic-docker-buildspec.yml",
-                DockerfileLocation = "DevOps/Infrastructure/Pipeline/generic-dotnet-Dockerfile",
+                BuildSpecFile = "DevOps/Infrastructure/Assets/generic-docker-buildspec.yml",
+                DockerfileLocation = "DevOps/Infrastructure/Assets/generic-dotnet-Dockerfile",
                 DockerContext = "App/BackEnd/SandBank.API/"
             });
             app.Synth();
