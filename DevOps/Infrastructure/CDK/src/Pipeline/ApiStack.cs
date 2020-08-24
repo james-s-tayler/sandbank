@@ -5,9 +5,9 @@ using Amazon.CDK.AWS.ECR;
 
 namespace Pipeline
 {
-    public class PipelineStack : Stack
+    public class ApiStack : Stack
     {
-        internal PipelineStack(Construct scope, string id, PipelineProps props = null) : base(scope, id, props)
+        internal ApiStack(Construct scope, string id, ApiProps props = null) : base(scope, id, props)
         {
             var repo = new Repository(this, $"{props.ServiceName}-repo", new RepositoryProps
             {

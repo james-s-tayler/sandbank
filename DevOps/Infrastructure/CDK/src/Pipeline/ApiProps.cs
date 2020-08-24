@@ -3,7 +3,7 @@ using Amazon.CDK.AWS.CodeBuild;
 
 namespace Pipeline
 {
-    public class PipelineProps : StackProps
+    public class ApiProps : StackProps
     {
         public string ServiceName { get; set; }
         public GitHubSourceProps GitHubSourceProps { get; set; }
