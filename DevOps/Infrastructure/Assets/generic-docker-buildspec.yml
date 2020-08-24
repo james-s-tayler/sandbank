@@ -16,7 +16,7 @@ phases:
       - echo "DOCKERFILE_PATH=${DOCKERFILE_PATH}"      
       - docker build -f $DOCKERFILE_PATH -t $IMAGE_REPO_NAME:$COMMIT_TAG $CONTEXT_PATH
       - docker tag $IMAGE_REPO_NAME:$COMMIT_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$COMMIT_TAG      
-      - docker tag $IMAGE_REPO_NAME:$CUSTOM_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CUSTOM_TAG
+      - docker tag $IMAGE_REPO_NAME:$COMMIT_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CUSTOM_TAG
   post_build:
     commands:
       - echo Build completed on `date`

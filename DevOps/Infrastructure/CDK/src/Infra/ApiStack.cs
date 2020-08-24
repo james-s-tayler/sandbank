@@ -37,7 +37,8 @@ namespace Pipeline
                     {"AWS_DEFAULT_REGION", new BuildEnvironmentVariable { Value = props.Env.Region }},
                     {"IMAGE_REPO_NAME", new BuildEnvironmentVariable { Value = repo.RepositoryName }},
                     {"CONTEXT_PATH", new BuildEnvironmentVariable { Value = props.DockerContext }},
-                    {"DOCKERFILE_PATH", new BuildEnvironmentVariable { Value = props.DockerfileLocation }}
+                    {"DOCKERFILE_PATH", new BuildEnvironmentVariable { Value = props.DockerfileLocation }},
+                    {"CUSTOM_TAG", new BuildEnvironmentVariable { Value = "" }}
                 }
                 //example buildSpec here
                 //https://blog.petrabarus.net/2020/03/23/building-ci-cd-pipeline-using-aws-codepipeline-aws-codebuild-amazon-ecr-amazon-ecs-with-aws-cdk/
