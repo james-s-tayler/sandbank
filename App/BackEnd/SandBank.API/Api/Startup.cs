@@ -1,4 +1,5 @@
-﻿using Amazon;
+﻿using System;
+using Amazon;
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.SQS;
 using Integration.AWS.SNS;
@@ -48,8 +49,14 @@ namespace Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var awsOptions = _config.GetAWSOptions();
+            if (awsOptions.Region == null)
+                throw new ArgumentNullException(nameof(awsOptions.Region));
+            
+            Console.WriteLine($"Configured to use AWS.Region: {awsOptions.Region}");
+            
             var connectionString = _config.GetConnectionString("DefaultConnection");
-
+            
             services.AddDbContext<SandBankDbContext>(options =>
                 options.UseNpgsql(connectionString));
             
