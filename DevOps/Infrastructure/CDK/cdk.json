@@ -1,5 +1,5 @@
 {
-  "app": "dotnet run -p src/Pipeline/Pipeline.csproj",
+  "app": "dotnet run -p src/Infra/Infra.csproj",
   "context": {
     "@aws-cdk/core:enableStackNameDuplicates": "true",
     "aws-cdk:enableDiffNoFail": "true"

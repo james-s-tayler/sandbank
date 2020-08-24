@@ -9,7 +9,7 @@ namespace Pipeline
             return new ApiStack(app, $"{apiName}ApiStack", new ApiProps
             {
                 Env = env ?? Constants.DefaultEnv,
-                ServiceName = $"{apiName}Api",
+                ServiceName = $"{apiName.ToLowerInvariant()}-api",
                 GitHubSourceProps = Constants.githubRepo,
                 BuildSpecFile = Constants.BuildSpec,
                 DockerfileLocation = Constants.Dockerfile,
