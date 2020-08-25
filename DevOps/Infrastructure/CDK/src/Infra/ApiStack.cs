@@ -12,7 +12,7 @@ namespace Pipeline
             var repo = new Repository(this, $"{props.ServiceName}-repo", new RepositoryProps
             {
                 RemovalPolicy = RemovalPolicy.DESTROY,
-                RepositoryName = $"{props.ServiceName}-repo",
+                RepositoryName = props.ServiceName,
             });
 
             var githubCredentials =
@@ -23,7 +23,7 @@ namespace Pipeline
             
             var codeBuildProject = new Project(this, $"{props.ServiceName}-codeBuild-project", new ProjectProps
             {
-                ProjectName = $"{props.ServiceName}-codebuild-project",
+                ProjectName = props.ServiceName,
                 Environment = new BuildEnvironment
                 {
                     BuildImage = LinuxBuildImage.STANDARD_4_0,
