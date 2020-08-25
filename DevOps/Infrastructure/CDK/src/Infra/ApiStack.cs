@@ -2,12 +2,14 @@ using System.Collections.Generic;
 using Amazon.CDK;
 using Amazon.CDK.AWS.CodeBuild;
 using Amazon.CDK.AWS.ECR;
+using Amazon.CDK.AWS.ECS;
+using Amazon.CDK.AWS.ECS.Patterns;
 
 namespace Pipeline
 {
     public class ApiStack : Stack
     {
-        internal ApiStack(Construct scope, string id, ApiProps props = null) : base(scope, id, props)
+        internal ApiStack(Construct scope, string id, Cluster cluster, ApiProps props = null) : base(scope, id, props)
         {
             var repo = new Repository(this, $"{props.ServiceName}-repo", new RepositoryProps
             {
@@ -45,6 +47,19 @@ namespace Pipeline
             });
             
             repo.GrantPullPush(codeBuildProject);
+            
+            _ = new ApplicationLoadBalancedFargateService(this, $"{props.ServiceName}-fargate-service", new ApplicationLoadBalancedFargateServiceProps
+            {
+                ServiceName = props.ServiceName,
+                Cluster = cluster,
+                TaskImageOptions = new ApplicationLoadBalancedTaskImageOptions
+                {
+                    Image = ContainerImage.FromEcrRepository(repo)
+                }
+            });
+            
+            //seems handy https://github.com/aws/aws-cdk/issues/8352
+            //also handy https://chekkan.com/iam-policy-perm-for-public-load-balanced-ecs-fargate-on-cdk/
         }
     }
 }

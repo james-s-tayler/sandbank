@@ -17,7 +17,7 @@ namespace Pipeline
                 ClusterName = "app-cluster",
                 ContainerInsights = true
             });
-            _ = app.CreateApiStack("SandBank");
+            _ = app.CreateApiStack("SandBank", ecsCluster);
             app.Synth();
         }
     }
