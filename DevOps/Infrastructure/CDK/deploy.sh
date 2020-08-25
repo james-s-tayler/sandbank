@@ -1,3 +1,3 @@
 #! /bin/bash
 ./build.sh
-cdk deploy
+cdk deploy "*"

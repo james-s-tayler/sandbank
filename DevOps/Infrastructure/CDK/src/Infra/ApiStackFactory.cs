@@ -6,10 +6,11 @@ namespace Pipeline
     {
         public static ApiStack CreateApiStack(this App app, string apiName, Environment env = null)
         {
-            return new ApiStack(app, $"{apiName}ApiStack", new ApiProps
+            var serviceName = $"{apiName.ToLowerInvariant()}-api";
+            return new ApiStack(app, $"{serviceName}-stack", new ApiProps
             {
                 Env = env ?? Constants.DefaultEnv,
-                ServiceName = $"{apiName.ToLowerInvariant()}-api",
+                ServiceName = serviceName,
                 GitHubSourceProps = Constants.githubRepo,
                 BuildSpecFile = Constants.BuildSpec,
                 DockerfileLocation = Constants.Dockerfile,
