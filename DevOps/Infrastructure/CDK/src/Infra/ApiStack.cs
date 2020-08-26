@@ -54,7 +54,11 @@ namespace Pipeline
                 Cluster = cluster,
                 TaskImageOptions = new ApplicationLoadBalancedTaskImageOptions
                 {
-                    Image = ContainerImage.FromEcrRepository(repo)
+                    Image = ContainerImage.FromEcrRepository(repo),
+                    Environment = new Dictionary<string, string>
+                    {
+                        {"AWS__REGION", props.Env.Region}
+                    }
                 }
             });
             

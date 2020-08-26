@@ -21,25 +21,6 @@ namespace Api
     {
         public static async Task Main(string[] args)
         {
-
-            var options = new CloudWatchSinkOptions
-            {
-                // the name of the CloudWatch Log group for logging
-                LogGroupName = "SandBankAPI",
-
-                // the main formatter of the log event
-                TextFormatter = new RenderedCompactJsonFormatter(),
-  
-                // other defaults defaults
-                MinimumLogEventLevel = LogEventLevel.Debug,
-                BatchSizeLimit = 10, //flush almost immediately (don't use in production)
-                QueueSizeLimit = 100,
-                Period = TimeSpan.FromSeconds(10),
-                CreateLogGroup = true,
-                LogStreamNameProvider = new DefaultLogStreamProvider(),
-                RetryAttempts = 5
-            };
-            
             var assembly = Assembly.GetExecutingAssembly().GetName();
 
             Log.Logger = new LoggerConfiguration()
@@ -50,21 +31,30 @@ namespace Api
                 .Enrich.WithProperty("AssemblyVersion", $"{assembly.Version}")
                 .Enrich.WithExceptionDetails() // enriches exceptions by adding ex.Data properties (just add like ex.Data.Add(key, value)) 
                 .WriteTo.Console(new RenderedCompactJsonFormatter())
-                .WriteTo.AmazonCloudWatch(options, new AmazonCloudWatchLogsClient(RegionEndpoint.USEast1))
-                //.WriteTo.File(new RenderedCompactJsonFormatter(), "/logs/log.json")
                 .CreateLogger();
-            
-            var host = CreateWebHostBuilder(args).Build();
 
-            using (var serviceScope = host.Services.GetService<IServiceScopeFactory>().CreateScope())
-            using (var context = serviceScope.ServiceProvider.GetService<SandBankDbContext>())
+            try
             {
-                context.Database.Migrate();
-                var seedDataService = serviceScope.ServiceProvider.GetService<ISeedTransactionDataService>();
-                await seedDataService.SeedData();
-            }
+                var host = CreateWebHostBuilder(args).Build();
 
-            host.Run();
+                using (var serviceScope = host.Services.GetService<IServiceScopeFactory>().CreateScope())
+                {
+                    await using var context = serviceScope.ServiceProvider.GetService<SandBankDbContext>();
+                    context.Database.Migrate();
+                    var seedDataService = serviceScope.ServiceProvider.GetService<ISeedTransactionDataService>();
+                    await seedDataService.SeedData();
+                }
+
+                host.Run();
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, e.Message);
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
 
         private static IWebHostBuilder CreateWebHostBuilder(string[] args)
@@ -73,6 +63,5 @@ namespace Api
                 .UseStartup<Startup>()
                 .UseSerilog();
         }
-
     }
 }
