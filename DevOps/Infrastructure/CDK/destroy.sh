@@ -1,7 +1,7 @@
 #! /bin/bash
 ./build.sh
 if [ ! -z "${1}" ]; then
-  cdk deploy "${1}"
+  cdk destroy "${1}"
 else
-  cdk deploy "*"
+  cdk destroy "*"
 fi

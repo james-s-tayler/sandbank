@@ -1,3 +1,7 @@
 #! /bin/bash
 ./build.sh
-cdk synth
+if [ ! -z "${1}" ]; then
+  cdk synth "${1}"
+else
+  cdk synth "*"
+fi

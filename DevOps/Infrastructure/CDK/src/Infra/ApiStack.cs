@@ -25,6 +25,7 @@ namespace Pipeline
             
             var codeBuildProject = new Project(this, $"{props.ServiceName}-codeBuild-project", new ProjectProps
             {
+                Vpc = props.Vpc,
                 ProjectName = props.ServiceName,
                 Environment = new BuildEnvironment
                 {
@@ -55,10 +56,7 @@ namespace Pipeline
                 TaskImageOptions = new ApplicationLoadBalancedTaskImageOptions
                 {
                     Image = ContainerImage.FromEcrRepository(repo),
-                    Environment = new Dictionary<string, string>
-                    {
-                        {"AWS__REGION", props.Env.Region}
-                    }
+                    Environment = props.ContainerEnvVars
                 }
             });
             
