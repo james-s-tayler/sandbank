@@ -25,7 +25,7 @@ namespace Core
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", false, true)
-                .AddJsonFile($"appsettings.{environment}.json", false)
+                //.AddJsonFile($"appsettings.{environment}.json", false)
                 .AddEnvironmentVariables()
                 .Build();
             
@@ -34,7 +34,7 @@ namespace Core
             
             if (_topicEndpoint == null || _topicEndpoint.Equals(""))
             {
-                throw new ArgumentException($"You must specify the value for EventTopic:{_topicDisplayName} defined in appSettings.{environment}.json");
+                //throw new ArgumentException($"You must specify the value for EventTopic:{_topicDisplayName} defined in appSettings.{environment}.json");
             }
         }
     }
