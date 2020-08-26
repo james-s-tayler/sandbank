@@ -15,6 +15,7 @@
     <PackageReference Include="Amazon.CDK.AWS.ECR" Version="1.59.0" />
     <PackageReference Include="Amazon.CDK.AWS.ECS" Version="1.59.0" />
     <PackageReference Include="Amazon.CDK.AWS.ECS.Patterns" Version="1.59.0" />
+    <PackageReference Include="Amazon.CDK.AWS.RDS" Version="1.59.0" />
     <PackageReference Include="Amazon.CDK.ECR.Assets" Version="1.59.0" />
 
     <!-- jsii Roslyn analyzers (un-comment to obtain compile-time checks for missing required props
