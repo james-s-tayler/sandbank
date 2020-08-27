@@ -4,6 +4,7 @@ using Amazon.CDK.AWS.CodeBuild;
 using Amazon.CDK.AWS.ECR;
 using Amazon.CDK.AWS.ECS;
 using Amazon.CDK.AWS.ECS.Patterns;
+using Amazon.CDK.AWS.RDS;
 
 namespace Pipeline
 {
@@ -55,8 +56,11 @@ namespace Pipeline
                 Cluster = cluster,
                 TaskImageOptions = new ApplicationLoadBalancedTaskImageOptions
                 {
+                    ContainerName = props.ServiceName,
                     Image = ContainerImage.FromEcrRepository(repo),
-                    Environment = props.ContainerEnvVars
+                    Environment = props.ContainerEnvVars,
+                    Secrets = props.ContainerSecrets,
+                    EnableLogging = true
                 }
             });
             

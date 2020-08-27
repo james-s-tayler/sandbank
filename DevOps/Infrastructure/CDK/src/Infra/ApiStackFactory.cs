@@ -8,11 +8,13 @@ namespace Pipeline
     public static class ApiStackFactory
     {
         public static ApiStack CreateApiStack(this App app, string apiName, Cluster cluster, Vpc vpc,
-            Dictionary<string, string> containerEnvVars,
+            Dictionary<string, string> containerEnvVars = null,
+            Dictionary<string, Secret> containerSecrets = null,
             Environment env = null)
         {
             env ??= Constants.DefaultEnv; 
             containerEnvVars ??= new Dictionary<string, string>();
+            containerSecrets ??= new Dictionary<string, Secret>();
             
             containerEnvVars.Add("AWS__REGION", env.Region);
             var serviceName = $"{apiName.ToLowerInvariant()}-api";
@@ -26,7 +28,8 @@ namespace Pipeline
                 BuildSpecFile = Constants.BuildSpec,
                 DockerfileLocation = Constants.Dockerfile,
                 DockerContext = $"App/BackEnd/{apiName}.API/",
-                ContainerEnvVars = containerEnvVars
+                ContainerEnvVars = containerEnvVars,
+                ContainerSecrets = containerSecrets
             });
         }
     }

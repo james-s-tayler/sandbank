@@ -41,12 +41,13 @@ namespace Pipeline
                 AllowMajorVersionUpgrade = false
             });
 
-            var rdsHostName = db.InstanceEndpoint.Hostname;
-            var containerEnvironmentVars = new Dictionary<string, string>
+            var containerEnvVars = new Dictionary<string, string>
             {
-                {"DB_HOST", db.InstanceEndpoint.Hostname},
-                {"DB_PORT",db.InstanceEndpoint.Port.ToString(CultureInfo.InvariantCulture)},
-                {"DB_USER", "admin"}
+                {"DB__ADDRESS", db.InstanceEndpoint.SocketAddress}
+            };
+            var containerSecrets = new Dictionary<string, Secret>
+            {
+                {"DB__CREDENTIALS", Secret.FromSecretsManager(db.Secret)}
             };
             
             var ecsCluster = new Cluster(mainStack, "app-cluster", new ClusterProps
@@ -56,7 +57,11 @@ namespace Pipeline
                 ContainerInsights = true
             });
             
-            _ = app.CreateApiStack("SandBank", ecsCluster, vpc, containerEnvironmentVars);
+            _ = app.CreateApiStack("SandBank", 
+                ecsCluster, 
+                vpc, 
+                containerEnvVars,
+                containerSecrets);
             
             app.Synth();
         }

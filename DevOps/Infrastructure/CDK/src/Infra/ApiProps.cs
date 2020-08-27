@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Amazon.CDK;
 using Amazon.CDK.AWS.CodeBuild;
 using Amazon.CDK.AWS.EC2;
+using Amazon.CDK.AWS.ECS;
 
 namespace Pipeline
 {
@@ -14,5 +15,6 @@ namespace Pipeline
         public string DockerfileLocation { get; set; }
         public string DockerContext { get; set; }
         public IDictionary<string, string> ContainerEnvVars { get; set; }
+        public IDictionary<string, Secret> ContainerSecrets { get; set; }
     }
 }
