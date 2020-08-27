@@ -47,7 +47,7 @@ namespace Pipeline
             };
             var containerSecrets = new Dictionary<string, Secret>
             {
-                {"DB__CREDENTIALS", Secret.FromSecretsManager(db.Secret)}
+                {"DatabaseConnection", Secret.FromSecretsManager(db.Secret)}
             };
             
             var ecsCluster = new Cluster(mainStack, "app-cluster", new ClusterProps
