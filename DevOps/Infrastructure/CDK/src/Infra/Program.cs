@@ -30,11 +30,11 @@ namespace Pipeline
                 {
                     Version = PostgresEngineVersion.VER_12_3
                 }),
-                AllocatedStorage = 1,
+                AllocatedStorage = 5,
                 BackupRetention = Duration.Days(0),
                 DeletionProtection = false,
                 InstanceType = InstanceType.Of(InstanceClass.BURSTABLE2, InstanceSize.MICRO),
-                MasterUsername = "admin",
+                MasterUsername = "sandbankadmin",
                 MultiAz = false,
                 DatabaseName = "postgres",
                 RemovalPolicy = RemovalPolicy.DESTROY,
@@ -57,7 +57,7 @@ namespace Pipeline
                 ContainerInsights = true
             });
             
-            _ = app.CreateApiStack("SandBank", 
+            _ = app.CreateApiStack("SandBank",
                 ecsCluster, 
                 vpc, 
                 containerEnvVars,

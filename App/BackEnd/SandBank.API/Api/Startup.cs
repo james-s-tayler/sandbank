@@ -55,7 +55,21 @@ namespace Api
             
             Console.WriteLine($"Configured to use AWS.Region: {awsOptions.Region}");
             
-            var connectionString = _config.GetConnectionString("DefaultConnection");
+            //if dev, pull from default connection string, else pull from RDS config
+
+            string connectionString = "";
+
+            if (_env.IsDevelopment())
+            {
+                connectionString = _config.GetConnectionString("DefaultConnection");
+            }
+            else
+            {
+                var socketAddress = _config.GetValue<string>("DB:SocketAddress");
+                var credentials = _config.GetValue<string>("DB:Credentials");
+                Console.WriteLine($"socketAddress={socketAddress}");
+                Console.Write($"credentials={credentials}");
+            }
             
             services.AddDbContext<SandBankDbContext>(options =>
                 options.UseNpgsql(connectionString));
