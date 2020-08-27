@@ -15,7 +15,7 @@ namespace Database
         {
             switch (Engine)
             {
-                case "postgres": return $"Host={Host}:{Port};Database={Dbname};Username={Username};Password={Password}";
+                case "postgres": return $"Host={Host};Port={Port};Database={Dbname};Username={Username};Password={Password}";
             }
             throw new NotImplementedException($"Only RDS Engine type 'postgres' supported, but was '{Engine}'");
         }
