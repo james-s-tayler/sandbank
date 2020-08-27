@@ -25,6 +25,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using Services.Domain.Accounts;
 using Services.System.NumberRange;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -54,9 +55,19 @@ namespace Api
                 throw new ArgumentNullException(nameof(awsOptions.Region));
             
             Console.WriteLine($"Configured to use AWS.Region: {awsOptions.Region}");
-            
-            var dbConfigSection = _config.GetSection(nameof(DatabaseConnection));
-            var dbConfig = dbConfigSection.Get<DatabaseConnection>();
+
+            var dbConfig = new DatabaseConnection();
+            if (_env.IsProduction() || _env.IsStaging())
+            {
+                var rdsCreds = _config.GetValue<string>(nameof(DatabaseConnection));
+                Console.WriteLine(rdsCreds);
+                dbConfig = JsonConvert.DeserializeObject<DatabaseConnection>(rdsCreds);
+            }
+            else
+            {
+                var dbConfigSection = _config.GetSection(nameof(DatabaseConnection));
+                dbConfig = dbConfigSection.Get<DatabaseConnection>();
+            }
             Console.WriteLine(dbConfig.GetConnectionString());
             
             services.AddDbContext<SandBankDbContext>(options =>
