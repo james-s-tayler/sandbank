@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Globalization;
-using System.Runtime.CompilerServices;
 using Amazon.CDK;
 using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.ECS;
@@ -40,6 +38,7 @@ namespace Pipeline
                 RemovalPolicy = RemovalPolicy.DESTROY,
                 AllowMajorVersionUpgrade = false
             });
+            db.Connections.AllowFrom(Peer.Ipv4("10.0.0.0/16"), Port.Tcp(5432));
 
             var containerEnvVars = new Dictionary<string, string>
             {
@@ -57,11 +56,12 @@ namespace Pipeline
                 ContainerInsights = true
             });
             
-            _ = app.CreateApiStack("SandBank",
+            var sandbankApi = app.CreateApiStack("SandBank",
                 ecsCluster, 
                 vpc, 
                 containerEnvVars,
                 containerSecrets);
+            
             
             app.Synth();
         }

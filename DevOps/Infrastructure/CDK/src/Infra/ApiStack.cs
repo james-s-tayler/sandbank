@@ -50,7 +50,7 @@ namespace Pipeline
             
             repo.GrantPullPush(codeBuildProject);
             
-            _ = new ApplicationLoadBalancedFargateService(this, $"{props.ServiceName}-fargate-service", new ApplicationLoadBalancedFargateServiceProps
+            var api = new ApplicationLoadBalancedFargateService(this, $"{props.ServiceName}-fargate-service", new ApplicationLoadBalancedFargateServiceProps
             {
                 ServiceName = props.ServiceName,
                 Cluster = cluster,
@@ -63,6 +63,8 @@ namespace Pipeline
                     EnableLogging = true
                 }
             });
+            
+            
             
             //seems handy https://github.com/aws/aws-cdk/issues/8352
             //also handy https://chekkan.com/iam-policy-perm-for-public-load-balanced-ecs-fargate-on-cdk/
