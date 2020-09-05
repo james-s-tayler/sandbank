@@ -4,7 +4,7 @@ using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.ECS;
 using Amazon.CDK.AWS.RDS;
 
-namespace Pipeline
+namespace Infra
 {
     sealed class Program
     {
@@ -21,7 +21,7 @@ namespace Pipeline
                 Cidr = "10.0.0.0/16"
             });
             
-            var db = new DatabaseInstance(mainStack, "postgres-db", new DatabaseInstanceProps
+            var db = new PostgresStack(app, "postgres-db", new DatabaseInstanceProps
             {
                 Vpc = vpc,
                 Engine = DatabaseInstanceEngine.Postgres(new PostgresInstanceEngineProps
@@ -37,16 +37,18 @@ namespace Pipeline
                 DatabaseName = "postgres",
                 RemovalPolicy = RemovalPolicy.DESTROY,
                 AllowMajorVersionUpgrade = false
+            }, new StackProps
+            {
+                Env = Constants.DefaultEnv
             });
-            db.Connections.AllowFrom(Peer.Ipv4("10.0.0.0/16"), Port.Tcp(5432));
-
+            
             var containerEnvVars = new Dictionary<string, string>
             {
-                {"DB__ADDRESS", db.InstanceEndpoint.SocketAddress}
+                {"DB__ADDRESS", db.Instance.InstanceEndpoint.SocketAddress}
             };
             var containerSecrets = new Dictionary<string, Secret>
             {
-                {"DatabaseConnection", Secret.FromSecretsManager(db.Secret)}
+                {"DatabaseConnection", Secret.FromSecretsManager(db.Instance.Secret)}
             };
             
             var ecsCluster = new Cluster(mainStack, "app-cluster", new ClusterProps
@@ -55,13 +57,14 @@ namespace Pipeline
                 ClusterName = "app-cluster",
                 ContainerInsights = true
             });
-            
+
+            var sandbankBuildInfra = app.CreateApiBuildStack("SandBank", vpc);
             var sandbankApi = app.CreateApiStack("SandBank",
-                ecsCluster, 
-                vpc, 
+                ecsCluster,
+                vpc,
+                sandbankBuildInfra.EcrRepository,
                 containerEnvVars,
                 containerSecrets);
-            
             
             app.Synth();
         }

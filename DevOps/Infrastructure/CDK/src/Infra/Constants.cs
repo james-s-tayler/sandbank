@@ -1,7 +1,7 @@
 using Amazon.CDK;
 using Amazon.CDK.AWS.CodeBuild;
 
-namespace Pipeline
+namespace Infra
 {
     public class Constants
     {

@@ -1,13 +1,18 @@
 using System.Collections.Generic;
 using Amazon.CDK;
 using Amazon.CDK.AWS.EC2;
+using Amazon.CDK.AWS.ECR;
 using Amazon.CDK.AWS.ECS;
 
-namespace Pipeline
+namespace Infra
 {
     public static class ApiStackFactory
     {
-        public static ApiStack CreateApiStack(this App app, string apiName, Cluster cluster, Vpc vpc,
+        public static ApiStack CreateApiStack(this App app, 
+            string apiName, 
+            Cluster cluster, 
+            Vpc vpc,
+            Repository ecrRepo,
             Dictionary<string, string> containerEnvVars = null,
             Dictionary<string, Secret> containerSecrets = null,
             Environment env = null)
@@ -19,15 +24,13 @@ namespace Pipeline
             containerEnvVars.Add("AWS__REGION", env.Region);
             var serviceName = $"{apiName.ToLowerInvariant()}-api";
             
-            return new ApiStack(app, $"{serviceName}-stack", cluster, new ApiProps
+            return new ApiStack(app, $"{serviceName}-stack", new ApiProps
             {
                 Vpc = vpc,
                 Env = env,
                 ServiceName = serviceName,
-                GitHubSourceProps = Constants.githubRepo,
-                BuildSpecFile = Constants.BuildSpec,
-                DockerfileLocation = Constants.Dockerfile,
-                DockerContext = $"App/BackEnd/{apiName}.API/",
+                EcsCluster = cluster,
+                EcrRepository = ecrRepo,
                 ContainerEnvVars = containerEnvVars,
                 ContainerSecrets = containerSecrets
             });
