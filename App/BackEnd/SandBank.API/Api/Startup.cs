@@ -196,8 +196,8 @@ namespace Api
             }
             else
             {
-                app.UseHttpsRedirection();
-                app.UseHsts();
+                //app.UseHttpsRedirection();
+                //app.UseHsts();
             }
             
             app.UseSerilogRequestLogging(options =>
@@ -218,7 +218,7 @@ namespace Api
             app.Use(async (httpContext, next) =>
             {
                 var userId = httpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "anonymous";
-                LogContext.PushProperty("UserId", userId);    
+                LogContext.PushProperty("UserId", userId);
                 
                 await next.Invoke();
             });
