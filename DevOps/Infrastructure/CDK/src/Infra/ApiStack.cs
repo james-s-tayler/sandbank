@@ -1,6 +1,8 @@
 using Amazon.CDK;
 using Amazon.CDK.AWS.ECS;
 using Amazon.CDK.AWS.ECS.Patterns;
+using Amazon.CDK.AWS.ElasticLoadBalancingV2;
+using HealthCheck = Amazon.CDK.AWS.ElasticLoadBalancingV2.HealthCheck;
 
 namespace Infra
 {
@@ -21,7 +23,12 @@ namespace Infra
                     EnableLogging = true
                 }
             });
-            
+
+            api.TargetGroup.ConfigureHealthCheck(new HealthCheck
+            {
+                Path = "/health"
+            });
+
             //seems handy https://github.com/aws/aws-cdk/issues/8352
             //also handy https://chekkan.com/iam-policy-perm-for-public-load-balanced-ecs-fargate-on-cdk/
         }

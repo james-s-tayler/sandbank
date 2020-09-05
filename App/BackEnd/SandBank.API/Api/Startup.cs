@@ -68,8 +68,7 @@ namespace Api
                 var dbConfigSection = _config.GetSection(nameof(DatabaseConnection));
                 dbConfig = dbConfigSection.Get<DatabaseConnection>();
             }
-            Console.WriteLine(dbConfig.GetConnectionString());
-            
+
             services.AddDbContext<SandBankDbContext>(options =>
                 options.UseNpgsql(dbConfig.GetConnectionString()));
             
@@ -180,6 +179,8 @@ namespace Api
                         ValidateAudience = true
                     };
                 });
+
+            services.AddHealthChecks();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -225,6 +226,7 @@ namespace Api
             
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers().RequireAuthorization();
+                endpoints.MapHealthChecks("/health");
             });
         }
     }
