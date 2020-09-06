@@ -5,7 +5,7 @@ using Amazon.CDK.AWS.ECR;
 
 namespace Infra
 {
-    internal class ApiBuildStack : Stack
+    public class ApiBuildStack : Stack
     {
         public Repository EcrRepository { get; }
 
@@ -18,12 +18,6 @@ namespace Infra
                 RepositoryName = props.ServiceName,
             });
 
-            var githubCredentials =
-                new GitHubSourceCredentials(this, "github-credentials", new GitHubSourceCredentialsProps
-                {
-                    AccessToken = SecretValue.SecretsManager("github/oauth/token")
-                });
-            
             var codeBuildProject = new Project(this, $"{props.ServiceName}-codeBuild-project", new ProjectProps
             {
                 Vpc = props.Vpc,
@@ -49,6 +43,8 @@ namespace Infra
             });
             
             EcrRepository.GrantPullPush(codeBuildProject);
+            
+            // useful https://cloudonaut.io/ecs-deployment-options/
         }
     }
 }

@@ -60,7 +60,6 @@ namespace Api
             if (_env.IsProduction() || _env.IsStaging())
             {
                 var rdsCreds = _config.GetValue<string>(nameof(DatabaseConnection));
-                Console.WriteLine(rdsCreds);
                 dbConfig = JsonConvert.DeserializeObject<DatabaseConnection>(rdsCreds);
             }
             else
@@ -88,7 +87,6 @@ namespace Api
                 //System.Text.Json is slightly faster, but has many unacceptable breaking changes as of now
                 //Performance-wise Utf8json blows everything out of the water, but I haven't tested it for compatibility yet
                 .AddNewtonsoftJson();
-            
 
             services.AddSwaggerGen(c =>
             {

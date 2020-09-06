@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Amazon.CDK;
+using Amazon.CDK.AWS.CodeBuild;
 using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.ECS;
 using Amazon.CDK.AWS.RDS;
@@ -16,12 +17,17 @@ namespace Infra
                 Env = Constants.DefaultEnv
             });
             
+            _ = new GitHubSourceCredentials(mainStack, "github-credentials", new GitHubSourceCredentialsProps
+            {
+                AccessToken = SecretValue.SecretsManager("github/oauth/token")
+            });
+            
             var vpc = new Vpc(mainStack, "main-vpc", new VpcProps
             {
                 Cidr = "10.0.0.0/16"
             });
             
-            var db = new PostgresStack(app, "postgres-db", new DatabaseInstanceProps
+            var db = new PostgresStack(app, "postgres-db-stack", new DatabaseInstanceProps
             {
                 Vpc = vpc,
                 Engine = DatabaseInstanceEngine.Postgres(new PostgresInstanceEngineProps
@@ -57,7 +63,7 @@ namespace Infra
                 ClusterName = "app-cluster",
                 ContainerInsights = true
             });
-
+            
             var sandbankBuildInfra = app.CreateApiBuildStack("SandBank", vpc);
             var sandbankApi = app.CreateApiStack("SandBank",
                 ecsCluster,
@@ -65,6 +71,16 @@ namespace Infra
                 sandbankBuildInfra.EcrRepository,
                 containerEnvVars,
                 containerSecrets);
+            
+            var sandbankSpa = new SpaStack(app, "sandbank-spa-stack", new SpaStackProps
+            {
+                Env = Constants.DefaultEnv,
+                Vpc = vpc,
+                ServiceName = "sandbank-spa",
+                GitHubSourceProps = Constants.GithubRepo,
+                BuildSpecFile = Constants.NpmBuildSpec,
+                SpaDirectory = "FrontEnd/sandbank.spa"
+            });
             
             app.Synth();
         }

@@ -1,0 +1,19 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      nodejs: 10
+  pre_build:
+    commands:
+      - printenv
+      - cd ${SPA_DIRECTORY}
+      - npm install
+  build:
+    commands:
+      - echo Build started on `date`
+      - npm run build
+      - cd dist
+      - aws s3 sync . s3://${S3_BUCKET} --exclude "*.js.map" --delete
+      - aws cloudfront create-invalidation --distribution-id ${CLOUDFRONT_ID} --paths "/index.html"
+    finally:
+      - echo Build completed on `date`

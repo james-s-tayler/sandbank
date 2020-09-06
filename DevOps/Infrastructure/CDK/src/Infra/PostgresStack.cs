@@ -8,7 +8,7 @@ namespace Infra
     {
         public DatabaseInstance Instance { get; }
         
-        internal PostgresStack(Construct scope, string id, DatabaseInstanceProps props, StackProps stackProps) : base(scope, id, stackProps)
+        public PostgresStack(Construct scope, string id, DatabaseInstanceProps props, StackProps stackProps) : base(scope, id, stackProps)
         {
             Instance = new DatabaseInstance(this, id, props);
             Instance.Connections.AllowFrom(Peer.Ipv4(props.Vpc.VpcCidrBlock), Port.Tcp(5432));

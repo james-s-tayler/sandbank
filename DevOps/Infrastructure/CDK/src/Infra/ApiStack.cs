@@ -1,14 +1,13 @@
 using Amazon.CDK;
 using Amazon.CDK.AWS.ECS;
 using Amazon.CDK.AWS.ECS.Patterns;
-using Amazon.CDK.AWS.ElasticLoadBalancingV2;
 using HealthCheck = Amazon.CDK.AWS.ElasticLoadBalancingV2.HealthCheck;
 
 namespace Infra
 {
     public class ApiStack : Stack
     {
-        internal ApiStack(Construct scope, string id, ApiProps props = null) : base(scope, id, props)
+        public ApiStack(Construct scope, string id, ApiProps props = null) : base(scope, id, props)
         {
             var api = new ApplicationLoadBalancedFargateService(this, $"{props.ServiceName}-fargate-service", new ApplicationLoadBalancedFargateServiceProps
             {

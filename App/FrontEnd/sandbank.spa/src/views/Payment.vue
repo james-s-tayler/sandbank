@@ -147,7 +147,7 @@ export default class Transfer extends Vue {
         return this.fromAccount !== undefined &&
                this.toAccountNumber !== '' &&
                this.fromAccount.accountNumber !== this.toAccountNumber &&
-               this.$refs['accountInput'].isValid;
+               (this.$refs['accountInput'] as any).isValid; //fix this with proper type
     }
 
     private get validAmount(): boolean {

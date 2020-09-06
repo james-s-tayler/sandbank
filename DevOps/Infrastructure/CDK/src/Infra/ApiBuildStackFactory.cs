@@ -5,7 +5,7 @@ namespace Infra
 {
     public static class ApiBuildStackFactory
     {
-        internal static ApiBuildStack CreateApiBuildStack(this App app, 
+        public static ApiBuildStack CreateApiBuildStack(this App app, 
             string apiName, 
             Vpc vpc, 
             Environment env = null)
@@ -19,8 +19,8 @@ namespace Infra
                 Vpc = vpc,
                 Env = env,
                 ServiceName = serviceName,
-                GitHubSourceProps = Constants.githubRepo,
-                BuildSpecFile = Constants.BuildSpec,
+                GitHubSourceProps = Constants.GithubRepo,
+                BuildSpecFile = Constants.DockerBuildSpec,
                 DockerfileLocation = Constants.Dockerfile,
                 DockerContext = $"App/BackEnd/{apiName}.API/"
             });
