@@ -17,7 +17,7 @@ namespace Infra
                 Env = Constants.DefaultEnv
             });
             
-            _ = new GitHubSourceCredentials(mainStack, "github-credentials", new GitHubSourceCredentialsProps
+            var credentials = new GitHubSourceCredentials(mainStack, "github-source-credentials", new GitHubSourceCredentialsProps
             {
                 AccessToken = SecretValue.SecretsManager("github/oauth/token")
             });

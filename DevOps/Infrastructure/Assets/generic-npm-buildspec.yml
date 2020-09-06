@@ -6,11 +6,11 @@ phases:
   pre_build:
     commands:
       - printenv
-      - cd ${SPA_DIRECTORY}
       - npm install
   build:
     commands:
       - echo Build started on `date`
+      - cd ${SPA_DIRECTORY}
       - npm run build
       - cd dist
       - aws s3 sync . s3://${S3_BUCKET} --exclude "*.js.map" --delete
