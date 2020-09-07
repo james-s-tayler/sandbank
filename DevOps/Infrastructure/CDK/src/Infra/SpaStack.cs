@@ -72,7 +72,8 @@ namespace Infra
                 {
                     {"SPA_DIRECTORY", new BuildEnvironmentVariable { Value = props.SpaDirectory }},
                     {"S3_BUCKET", new BuildEnvironmentVariable { Value = bucket.BucketName }},
-                    {"CLOUDFRONT_ID", new BuildEnvironmentVariable { Value = cloudfrontDist.DistributionId }}
+                    {"CLOUDFRONT_ID", new BuildEnvironmentVariable { Value = cloudfrontDist.DistributionId }},
+                    {"API_URL", new BuildEnvironmentVariable { Value = props.ApiUrl }}
                 }
             });
             

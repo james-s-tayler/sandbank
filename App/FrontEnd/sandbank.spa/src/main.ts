@@ -11,7 +11,7 @@ import store, { authStore } from '@/store/store';
 Vue.config.productionTip = false ;
 
 // need to exernalize configuration for this
-axios.defaults.baseURL = 'http://localhost:5100/api';
+axios.defaults.baseURL = process.env.VUE_APP_API_URL;
 axios.interceptors.request.use((config: AxiosRequestConfig) => {
 
   // detect sever side rendering

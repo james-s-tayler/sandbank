@@ -79,7 +79,8 @@ namespace Infra
                 ServiceName = "sandbank-spa",
                 GitHubSourceProps = Constants.GithubRepo,
                 BuildSpecFile = Constants.NpmBuildSpec,
-                SpaDirectory = "App/FrontEnd/sandbank.spa"
+                SpaDirectory = "App/FrontEnd/sandbank.spa",
+                ApiUrl = $"{sandbankApi.LoadBalancerDnsName}/api"
             });
             
             app.Synth();

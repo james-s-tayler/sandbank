@@ -7,6 +7,8 @@ namespace Infra
 {
     public class ApiStack : Stack
     {
+        public string LoadBalancerDnsName { get; }
+        
         public ApiStack(Construct scope, string id, ApiProps props = null) : base(scope, id, props)
         {
             var api = new ApplicationLoadBalancedFargateService(this, $"{props.ServiceName}-fargate-service", new ApplicationLoadBalancedFargateServiceProps
@@ -27,6 +29,8 @@ namespace Infra
             {
                 Path = "/health"
             });
+
+            LoadBalancerDnsName = api.LoadBalancer.LoadBalancerDnsName;
 
             //seems handy https://github.com/aws/aws-cdk/issues/8352
             //also handy https://chekkan.com/iam-policy-perm-for-public-load-balanced-ecs-fargate-on-cdk/
