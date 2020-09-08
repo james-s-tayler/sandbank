@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
 using Amazon.CDK;
+using Amazon.CDK.AWS.CertificateManager;
 using Amazon.CDK.AWS.CodeBuild;
 using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.ECS;
 using Amazon.CDK.AWS.RDS;
+using Amazon.CDK.AWS.SecretsManager;
+using Secret = Amazon.CDK.AWS.ECS.Secret;
 
 namespace Infra
 {
@@ -71,16 +74,21 @@ namespace Infra
                 sandbankBuildInfra.EcrRepository,
                 containerEnvVars,
                 containerSecrets);
+
+            var cloudfrontCertArn = SecretValue.SecretsManager("cloudfrontcertarn").ToString();
+            var cert = Certificate.FromCertificateArn(mainStack, "cloudfront-cert", cloudfrontCertArn);
             
             var sandbankSpa = new SpaStack(app, "sandbank-spa-stack", new SpaStackProps
             {
                 Env = Constants.DefaultEnv,
                 Vpc = vpc,
                 ServiceName = "sandbank-spa",
+                DomainName = "sandbank.devcloudtest.com",
+                CloudFrontCert = cert,
                 GitHubSourceProps = Constants.GithubRepo,
                 BuildSpecFile = Constants.NpmBuildSpec,
                 SpaDirectory = "App/FrontEnd/sandbank.spa",
-                ApiUrl = $"{sandbankApi.LoadBalancerDnsName}/api"
+                ApiUrl = $"{sandbankApi.LoadBalancerUrl}/api"
             });
             
             app.Synth();

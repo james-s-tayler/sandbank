@@ -7,7 +7,7 @@ namespace Infra
 {
     public class ApiStack : Stack
     {
-        public string LoadBalancerDnsName { get; }
+        public string LoadBalancerUrl { get; }
         
         public ApiStack(Construct scope, string id, ApiProps props = null) : base(scope, id, props)
         {
@@ -30,7 +30,7 @@ namespace Infra
                 Path = "/health"
             });
 
-            LoadBalancerDnsName = api.LoadBalancer.LoadBalancerDnsName;
+            LoadBalancerUrl = $"{(api.Certificate != null ? "https://" : "http://")}{api.LoadBalancer.LoadBalancerDnsName}";
 
             //seems handy https://github.com/aws/aws-cdk/issues/8352
             //also handy https://chekkan.com/iam-policy-perm-for-public-load-balanced-ecs-fargate-on-cdk/

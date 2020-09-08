@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Amazon.CDK;
+using Amazon.CDK.AWS.CertificateManager;
 using Amazon.CDK.AWS.CloudFront;
 using Amazon.CDK.AWS.CodeBuild;
 using Amazon.CDK.AWS.IAM;
@@ -28,6 +29,13 @@ namespace Infra
 
             var cloudfrontDist = new CloudFrontWebDistribution(this, $"{props.ServiceName}-cfd", new CloudFrontWebDistributionProps
             {
+                ViewerCertificate = ViewerCertificate.FromAcmCertificate(
+                    props.CloudFrontCert,
+                    new ViewerCertificateOptions
+                    {
+                        Aliases = new []{ props.DomainName }, 
+                        SslMethod = SSLMethod.SNI
+                    }),
                 OriginConfigs = new ISourceConfiguration[]
                 {
                     new SourceConfiguration
@@ -41,13 +49,13 @@ namespace Infra
                         {
                             new Behavior
                             {
-                                IsDefaultBehavior = true
+                                IsDefaultBehavior = true,
                             }
                         }
                     }
                 }
             });
-            
+
             var cloudfrontS3Access = new PolicyStatement();
             cloudfrontS3Access.AddActions("s3:GetBucket*", "s3:GetObject*", "s3:List*");
             cloudfrontS3Access.AddResources(bucket.BucketArn);
