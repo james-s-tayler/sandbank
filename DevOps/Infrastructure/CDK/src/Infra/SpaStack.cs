@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using Amazon.CDK;
-using Amazon.CDK.AWS.CertificateManager;
 using Amazon.CDK.AWS.CloudFront;
 using Amazon.CDK.AWS.CodeBuild;
 using Amazon.CDK.AWS.IAM;
+using Amazon.CDK.AWS.Route53;
 using Amazon.CDK.AWS.S3;
 
 namespace Infra
@@ -33,7 +33,7 @@ namespace Infra
                     props.CloudFrontCert,
                     new ViewerCertificateOptions
                     {
-                        Aliases = new []{ props.DomainName }, 
+                        Aliases = new []{ $"{props.SubDomain}.{props.HostedZoneName}" },
                         SslMethod = SSLMethod.SNI
                     }),
                 OriginConfigs = new ISourceConfiguration[]
@@ -56,6 +56,17 @@ namespace Infra
                 }
             });
 
+            var cnameRecord = new CnameRecord(this, $"{props.ServiceName}CloudFrontCname", new CnameRecordProps
+            {
+                Zone = HostedZone.FromHostedZoneAttributes(this, "HostedZone", new HostedZoneAttributes
+                {
+                    ZoneName = props.HostedZoneName,
+                    HostedZoneId = props.HostedZoneId
+                }),
+                RecordName = props.SubDomain,
+                DomainName = cloudfrontDist.DistributionDomainName
+            });
+
             var cloudfrontS3Access = new PolicyStatement();
             cloudfrontS3Access.AddActions("s3:GetBucket*", "s3:GetObject*", "s3:List*");
             cloudfrontS3Access.AddResources(bucket.BucketArn);
@@ -63,7 +74,7 @@ namespace Infra
             cloudfrontS3Access.AddCanonicalUserPrincipal(cloudFrontOai.CloudFrontOriginAccessIdentityS3CanonicalUserId);
 
             bucket.AddToResourcePolicy(cloudfrontS3Access);
-            
+
             //codebuild project
 
             var codeBuildProject = new Project(this, $"{props.ServiceName}-codeBuild-project", new ProjectProps

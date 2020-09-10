@@ -12,7 +12,9 @@ namespace Infra
         public GitHubSourceProps GitHubSourceProps { get; set; }
         public string BuildSpecFile { get; set; }
         public string SpaDirectory { get; set; }
-        public string DomainName { get; set; }
+        public string SubDomain { get; set; }
+        public string HostedZoneName { get; set; }
+        public string HostedZoneId { get; set; }
         public ICertificate CloudFrontCert { get; set; }
         
         public string ApiUrl { get; set; }

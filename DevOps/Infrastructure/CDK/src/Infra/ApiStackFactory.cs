@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Amazon.CDK;
+using Amazon.CDK.AWS.CertificateManager;
 using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.ECR;
 using Amazon.CDK.AWS.ECS;
@@ -8,11 +9,16 @@ namespace Infra
 {
     public static class ApiStackFactory
     {
-        public static ApiStack CreateApiStack(this App app, 
-            string apiName, 
-            Cluster cluster, 
+        //this class is a pretty thin useless wrapper now that I look at it...
+        public static ApiStack CreateApiStack(this App app,
+            string apiName,
+            Cluster cluster,
             Vpc vpc,
             Repository ecrRepo,
+            string subDomain,
+            string hostedZoneName,
+            string hostedZoneId,
+            ICertificate sslCert,
             Dictionary<string, string> containerEnvVars = null,
             Dictionary<string, Secret> containerSecrets = null,
             Environment env = null)
@@ -32,7 +38,11 @@ namespace Infra
                 EcsCluster = cluster,
                 EcrRepository = ecrRepo,
                 ContainerEnvVars = containerEnvVars,
-                ContainerSecrets = containerSecrets
+                ContainerSecrets = containerSecrets,
+                SubDomain = subDomain,
+                HostedZoneName = hostedZoneName,
+                HostedZoneId = hostedZoneId,
+                Certificate = sslCert
             });
         }
     }

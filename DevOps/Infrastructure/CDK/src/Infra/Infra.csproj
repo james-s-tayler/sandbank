@@ -18,6 +18,8 @@
     <PackageReference Include="Amazon.CDK.AWS.ECS" Version="1.59.0" />
     <PackageReference Include="Amazon.CDK.AWS.ECS.Patterns" Version="1.59.0" />
     <PackageReference Include="Amazon.CDK.AWS.RDS" Version="1.59.0" />
+    <PackageReference Include="Amazon.CDK.AWS.Route53" Version="1.59.0" />
+    <PackageReference Include="Amazon.CDK.AWS.Route53.Patterns" Version="1.59.0" />
     <PackageReference Include="Amazon.CDK.AWS.S3" Version="1.59.0" />
     <PackageReference Include="Amazon.CDK.AWS.S3.Assets" Version="1.59.0" />
     <PackageReference Include="Amazon.CDK.AWS.S3.Deployment" Version="1.59.0" />

@@ -5,7 +5,6 @@ using Amazon.CDK.AWS.CodeBuild;
 using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.ECS;
 using Amazon.CDK.AWS.RDS;
-using Amazon.CDK.AWS.SecretsManager;
 using Secret = Amazon.CDK.AWS.ECS.Secret;
 
 namespace Infra
@@ -14,6 +13,9 @@ namespace Infra
     {
         public static void Main(string[] args)
         {
+            var hostedZoneName = "devcloudtest.com";
+            var hostedZoneId = "Z0571072UHLSEXX7V3MP";
+            
             var app = new App();
             var mainStack = new Stack(app, "main-stack", new StackProps
             {
@@ -67,11 +69,18 @@ namespace Infra
                 ContainerInsights = true
             });
             
+            var fargateSslCertArn = SecretValue.SecretsManager("fargateSslCertArn").ToString();
+            var albCert = Certificate.FromCertificateArn(mainStack, "alb-cert", fargateSslCertArn);
+
             var sandbankBuildInfra = app.CreateApiBuildStack("SandBank", vpc);
             var sandbankApi = app.CreateApiStack("SandBank",
                 ecsCluster,
                 vpc,
                 sandbankBuildInfra.EcrRepository,
+                "sandbank-api",
+                hostedZoneName,
+                hostedZoneId,
+                albCert,
                 containerEnvVars,
                 containerSecrets);
 
@@ -83,14 +92,16 @@ namespace Infra
                 Env = Constants.DefaultEnv,
                 Vpc = vpc,
                 ServiceName = "sandbank-spa",
-                DomainName = "sandbank.devcloudtest.com",
+                SubDomain = "sandbank",
+                HostedZoneName = hostedZoneName,
+                HostedZoneId = hostedZoneId,
                 CloudFrontCert = cert,
                 GitHubSourceProps = Constants.GithubRepo,
                 BuildSpecFile = Constants.NpmBuildSpec,
                 SpaDirectory = "App/FrontEnd/sandbank.spa",
-                ApiUrl = $"{sandbankApi.LoadBalancerUrl}/api"
+                ApiUrl = $"{sandbankApi.ApiUrl}/api" //change me
             });
-            
+
             app.Synth();
         }
     }
