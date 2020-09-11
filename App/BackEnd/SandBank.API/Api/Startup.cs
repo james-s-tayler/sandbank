@@ -67,6 +67,8 @@ namespace Api
                 var dbConfigSection = _config.GetSection(nameof(DatabaseConnection));
                 dbConfig = dbConfigSection.Get<DatabaseConnection>();
             }
+            
+            Console.WriteLine(dbConfig.GetConnectionString());
 
             services.AddDbContext<SandBankDbContext>(options =>
                 options.UseNpgsql(dbConfig.GetConnectionString()));
@@ -161,7 +163,6 @@ namespace Api
 
             services.AddAuthentication(x =>
                 {
-                    
                     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 })

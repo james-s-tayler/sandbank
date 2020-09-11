@@ -2,7 +2,7 @@ using Amazon.DynamoDBv2.DataModel;
 
 namespace Models.DynamoDB
 {
-    [DynamoDBTable("SandBank_Account_Metadata")]
+    [DynamoDBTable("AccountMetadata")]
     public class AccountMetadata
     {
         [DynamoDBHashKey]

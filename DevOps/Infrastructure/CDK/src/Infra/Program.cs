@@ -99,9 +99,12 @@ namespace Infra
                 GitHubSourceProps = Constants.GithubRepo,
                 BuildSpecFile = Constants.NpmBuildSpec,
                 SpaDirectory = "App/FrontEnd/sandbank.spa",
-                ApiUrl = $"{sandbankApi.ApiUrl}/api" //change me
+                ApiUrl = $"{sandbankApi.ApiUrl}/api"
             });
-
+            
+            //lambda
+            //SandBank.Lambda.ConfigAuditTrail::SandBank.Lambda.ConfigAuditTrail.Function::FunctionHandler
+            
             app.Synth();
         }
     }
