@@ -67,8 +67,6 @@ namespace Api
                 dbConfig = dbConfigSection.Get<DatabaseConnection>();
             }
             
-            Console.WriteLine(dbConfig.GetConnectionString());
-
             services.AddDbContext<SandBankDbContext>(options =>
                 options.UseNpgsql(dbConfig.GetConnectionString()));
             
