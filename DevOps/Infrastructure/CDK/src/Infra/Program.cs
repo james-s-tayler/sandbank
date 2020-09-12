@@ -31,7 +31,7 @@ namespace Infra
             {
                 Cidr = "10.0.0.0/16"
             });
-            
+
             var db = new PostgresStack(app, "postgres-db-stack", new DatabaseInstanceProps
             {
                 Vpc = vpc,
