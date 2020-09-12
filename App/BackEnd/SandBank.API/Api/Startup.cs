@@ -138,7 +138,6 @@ namespace Api
                 else
                 {
                     services.AddAWSService<IAmazonDynamoDB>(awsOptions);
-                    services.AddTransient(x => new DefaultDynamoDbClientFactory().CreateClient());    
                 }
             }
             
