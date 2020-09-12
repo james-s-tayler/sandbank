@@ -124,7 +124,7 @@ namespace Api
                 
                 //temporary - this should actually be run as part of localstack and we should use the localstack dynamo container for Development + Test
                 //just getting the proof of concept working
-                /*if (_env.IsEnvironment("Test"))
+                if (_env.IsEnvironment("Test"))
                 {
                     services.AddTransient<IAmazonDynamoDB>(x =>
                     {
@@ -137,8 +137,9 @@ namespace Api
                 }
                 else
                 {
+                    services.AddAWSService<IAmazonDynamoDB>(awsOptions);
                     services.AddTransient(x => new DefaultDynamoDbClientFactory().CreateClient());    
-                }*/
+                }
             }
             
             /*var awsSqsOptions = new AWSOptions();
