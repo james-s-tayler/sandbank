@@ -2,6 +2,7 @@
 using Amazon.CDK;
 using Amazon.CDK.AWS.CertificateManager;
 using Amazon.CDK.AWS.CodeBuild;
+using Amazon.CDK.AWS.DynamoDB;
 using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.ECS;
 using Amazon.CDK.AWS.RDS;
@@ -62,6 +63,22 @@ namespace Infra
                 {"DatabaseConnection", Secret.FromSecretsManager(db.Instance.Secret)}
             };
             
+            var accountMetadataTable = new Table(mainStack, "AccountMetadata", new TableProps
+            {
+                TableName = "AccountMetadata",
+                PartitionKey = new Attribute
+                {
+                    Name = "UserId",
+                    Type = AttributeType.NUMBER
+                },
+                SortKey = new Attribute
+                {
+                    Name = "AccountId",
+                    Type = AttributeType.NUMBER
+                },
+                Stream = StreamViewType.NEW_IMAGE
+            });
+            
             var ecsCluster = new Cluster(mainStack, "app-cluster", new ClusterProps
             {
                 Vpc = vpc,
@@ -84,6 +101,8 @@ namespace Infra
                 containerEnvVars,
                 containerSecrets);
 
+            accountMetadataTable.GrantFullAccess(sandbankApi.FargateService.TaskDefinition.TaskRole);
+            
             var cloudfrontCertArn = SecretValue.SecretsManager("cloudfrontcertarn").ToString();
             var cert = Certificate.FromCertificateArn(mainStack, "cloudfront-cert", cloudfrontCertArn);
             

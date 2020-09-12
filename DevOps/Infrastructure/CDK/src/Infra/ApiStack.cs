@@ -11,6 +11,7 @@ namespace Infra
     public class ApiStack : Stack
     {
         public string ApiUrl { get; }
+        public ApplicationLoadBalancedFargateService FargateService { get; }
         
         public ApiStack(Construct scope, string id, ApiProps props = null) : base(scope, id, props)
         {
@@ -20,7 +21,7 @@ namespace Infra
                 HostedZoneId = props.HostedZoneId
             });
             
-            var api = new ApplicationLoadBalancedFargateService(this, $"{props.ServiceName}-fargate-service", new ApplicationLoadBalancedFargateServiceProps
+            FargateService = new ApplicationLoadBalancedFargateService(this, $"{props.ServiceName}-fargate-service", new ApplicationLoadBalancedFargateServiceProps
             {
                 ServiceName = props.ServiceName,
                 Cluster = props.EcsCluster,
@@ -38,7 +39,7 @@ namespace Infra
                 //this has an internet-facing ALB open to the world - could enhance security by hiding behind an API gateway
             });
 
-            api.TargetGroup.ConfigureHealthCheck(new HealthCheck
+            FargateService.TargetGroup.ConfigureHealthCheck(new HealthCheck
             {
                 Path = "/health"
             });
