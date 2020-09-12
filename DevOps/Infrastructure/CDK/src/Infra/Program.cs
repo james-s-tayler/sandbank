@@ -32,6 +32,9 @@ namespace Infra
             {
                 Cidr = "10.0.0.0/16"
             });
+            
+            //should change this to Aurora Serverless!!!
+            //https://dev.to/cjjenkinson/how-to-create-an-aurora-serverless-rds-instance-on-aws-with-cdk-5bb0
 
             var db = new PostgresStack(app, "postgres-db-stack", new DatabaseInstanceProps
             {
