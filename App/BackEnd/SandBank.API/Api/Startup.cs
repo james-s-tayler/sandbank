@@ -13,7 +13,6 @@ using Core.Jwt;
 using Core.MultiTenant;
 using Database;
 using Integration.AWS.CloudWatch;
-using Integration.AWS.DynamoDB;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
