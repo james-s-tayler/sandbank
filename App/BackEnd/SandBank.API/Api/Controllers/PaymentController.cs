@@ -24,19 +24,19 @@ namespace Api.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly SandBankDbContext _db;
-        private readonly EventPublisher<Transaction> _transactionEventPublisher;
+        //private readonly EventPublisher<Transaction> _transactionEventPublisher;
         private readonly IConfiguration _config;
         private readonly ILogger<PaymentController> _logger;
         //private readonly IAmazonCloudWatch _cloudWatch;
         
         public PaymentController(SandBankDbContext db, 
-            EventPublisher<Transaction> transactionEventPublisher, 
+            //EventPublisher<Transaction> transactionEventPublisher, 
             IConfiguration config,
             ILogger<PaymentController> logger
             /*IAmazonCloudWatch cloudWatch*/)
         { 
             _db = db;
-            _transactionEventPublisher = transactionEventPublisher;
+            //_transactionEventPublisher = transactionEventPublisher;
             _config = config;
             _logger = logger;
             //_cloudWatch = cloudWatch;
