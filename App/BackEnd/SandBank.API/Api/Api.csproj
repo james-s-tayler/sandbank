@@ -33,5 +33,9 @@
       <ProjectReference Include="..\Models.DynamoDB\Models.DynamoDB.csproj" />
       <ProjectReference Include="..\Services\Services.csproj" />
     </ItemGroup>
+    
+    <ItemGroup>
+        <None Include="../seed-transactions.csv" CopyToOutputDirectory="Always" />
+    </ItemGroup>
 
 </Project>
