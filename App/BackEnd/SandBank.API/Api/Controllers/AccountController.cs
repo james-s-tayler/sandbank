@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Services.Domain.Accounts;
 using Services.System.NumberRange;
 using TechDebtTags;
@@ -35,6 +36,7 @@ namespace Api.Controllers
         private readonly ISeedTransactionDataService _seedTransactionDataService;
         private readonly IAccountService _accountService;
         private readonly IAmazonDynamoDB _dynamoDb;
+        private readonly ILogger<AccountController> _logger;
 
         public AccountController(SandBankDbContext db,
             INumberRangeService numberRangeService,
@@ -42,7 +44,8 @@ namespace Api.Controllers
             ITenantProvider tenantProvider,
             ISeedTransactionDataService seedTransactionDataService,
             IAccountService accountService,
-            IAmazonDynamoDB dynamoDb)
+            IAmazonDynamoDB dynamoDb,
+            ILogger<AccountController> logger)
         {
             _db = db;
             _numberRangeService = numberRangeService;
@@ -51,6 +54,7 @@ namespace Api.Controllers
             _seedTransactionDataService = seedTransactionDataService;
             _accountService = accountService;
             _dynamoDb = dynamoDb;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -265,8 +269,9 @@ namespace Api.Controllers
                 }
                 await _db.SaveChangesAsync();
             }
-            catch
+            catch(Exception e)
             {
+                _logger.LogError(e, e.Message);
                 return UnprocessableEntity();
             }
 
