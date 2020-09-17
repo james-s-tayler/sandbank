@@ -10,7 +10,7 @@ namespace Infra
     public static class ApiStackFactory
     {
         //this class is a pretty thin useless wrapper now that I look at it...
-        public static ApiStack CreateApiStack(this App app,
+        public static ApiStack CreateApiStack(this Construct scope,
             string apiName,
             Cluster cluster,
             Vpc vpc,
@@ -30,7 +30,7 @@ namespace Infra
             containerEnvVars.Add("AWS__REGION", env.Region);
             var serviceName = $"{apiName.ToLowerInvariant()}-api";
             
-            return new ApiStack(app, $"{serviceName}-stack", new ApiProps
+            return new ApiStack(scope, $"{serviceName}-stack", new ApiProps
             {
                 Vpc = vpc,
                 Env = env,

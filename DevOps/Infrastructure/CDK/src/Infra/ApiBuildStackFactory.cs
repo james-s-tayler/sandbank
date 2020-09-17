@@ -5,7 +5,7 @@ namespace Infra
 {
     public static class ApiBuildStackFactory
     {
-        public static ApiBuildStack CreateApiBuildStack(this App app, 
+        public static ApiBuildStack CreateApiBuildStack(this Construct scope, 
             string apiName, 
             Vpc vpc, 
             Environment env = null)
@@ -14,7 +14,7 @@ namespace Infra
             
             var serviceName = $"{apiName.ToLowerInvariant()}-api";
             
-            return new ApiBuildStack(app, $"{serviceName}-build-stack", new ApiBuildProps
+            return new ApiBuildStack(scope, $"{serviceName}-build-stack", new ApiBuildProps
             {
                 Vpc = vpc,
                 Env = env,
