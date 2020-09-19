@@ -26,6 +26,7 @@ namespace Infra
                 }),
                 SynthAction =  new SimpleSynthAction(new SimpleSynthActionProps
                 {
+                    InstallCommands = new []{"npm install -g aws-cdk"},
                     SynthCommand = "cdk synth",
                     Subdirectory = "DevOps/Infrastructure/CDK",
                     SourceArtifact = sourceArtifact,
