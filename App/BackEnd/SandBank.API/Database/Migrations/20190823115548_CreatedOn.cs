@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Endpoints.Migrations
+namespace Api.Migrations
 {
     public partial class CreatedOn : Migration
     {

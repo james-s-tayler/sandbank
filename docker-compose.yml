@@ -10,7 +10,7 @@ services:
      - ASPNETCORE_ENVIRONMENT=Development
     build:
       context: App/BackEnd/SandBank.API/
-      dockerfile: Endpoints/Dockerfile
+      dockerfile: ${PWD:-.}/DevOps/Infrastructure/Pipeline/generic-dotnet-Dockerfile
     volumes:
      - ~/.aws/:/root/.aws:ro
     depends_on:
@@ -20,7 +20,7 @@ services:
     image: postgres:latest
     container_name: db
     environment:
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_PASSWORD=postgres
 
   pgAdmin:
     image: dpage/pgadmin4:latest
@@ -29,6 +29,6 @@ services:
       - PGADMIN_DEFAULT_EMAIL=admin@sandbank.com
       - PGADMIN_DEFAULT_PASSWORD=password
     ports:
-      - 8080:80
+      - 9080:80
     depends_on:
      - db
