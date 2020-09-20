@@ -36,7 +36,7 @@ namespace Infra
             //should change this to Aurora Serverless!!!
             //https://dev.to/cjjenkinson/how-to-create-an-aurora-serverless-rds-instance-on-aws-with-cdk-5bb0
 
-            var db = new PostgresStack(mainStack, "postgres-db-stack", new DatabaseInstanceProps
+            var db = new PostgresStack(app, "postgres-db-stack", new DatabaseInstanceProps
             {
                 Vpc = vpc,
                 Engine = DatabaseInstanceEngine.Postgres(new PostgresInstanceEngineProps
@@ -109,7 +109,7 @@ namespace Infra
             var cloudfrontCertArn = SecretValue.SecretsManager("cloudfrontcertarn").ToString();
             var cert = Certificate.FromCertificateArn(mainStack, "cloudfront-cert", cloudfrontCertArn);
             
-            var sandbankSpa = new SpaStack(mainStack, "sandbank-spa-stack", new SpaStackProps
+            var sandbankSpa = new SpaStack(app, "sandbank-spa-stack", new SpaStackProps
             {
                 Env = Constants.DefaultEnv,
                 Vpc = vpc,
